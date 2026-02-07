@@ -1,7 +1,7 @@
 import type { PointerCoords } from "./types";
 
 export const getCenter = (pointers: Map<number, PointerCoords>) => {
-  const allCoords = Array.from(pointers.values());
+  const allCoords = [...pointers.values()];
   return {
     x: sum(allCoords, (coords) => coords.x) / allCoords.length,
     y: sum(allCoords, (coords) => coords.y) / allCoords.length,

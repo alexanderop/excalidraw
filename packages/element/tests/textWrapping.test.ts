@@ -17,7 +17,7 @@ describe("Test wrapText", () => {
 
   it("should return the text as is if max width is invalid", () => {
     const text = "Hello Excalidraw";
-    expect(wrapText(text, font, NaN)).toEqual(text);
+    expect(wrapText(text, font, Number.NaN)).toEqual(text);
     expect(wrapText(text, font, -1)).toEqual(text);
     expect(wrapText(text, font, Infinity)).toEqual(text);
   });
@@ -298,7 +298,7 @@ describe("Test wrapText", () => {
   describe("When text doesn't contain new lines", () => {
     const text = "Hello whats up";
 
-    [
+    for (const data of [
       {
         desc: "break all words when width of each word is less than container width",
         width: 70,
@@ -326,17 +326,17 @@ describe("Test wrapText", () => {
         width: 50,
         res: `Hello\nwhats\nup`,
       },
-    ].forEach((data) => {
+    ]) {
       it(`should ${data.desc}`, () => {
         const res = wrapText(text, font, data.width);
         expect(res).toEqual(data.res);
       });
-    });
+    }
   });
 
   describe("When text contain new lines", () => {
     const text = `Hello\n  whats up`;
-    [
+    for (const data of [
       {
         desc: "break all words when width of each word is less than container width",
         width: 70,
@@ -352,17 +352,17 @@ describe("Test wrapText", () => {
         width: 140,
         res: `Hello\n  whats up`,
       },
-    ].forEach((data) => {
+    ]) {
       it(`should respect new lines and ${data.desc}`, () => {
         const res = wrapText(text, font, data.width);
         expect(res).toEqual(data.res);
       });
-    });
+    }
   });
 
   describe("When text is long", () => {
     const text = `hellolongtextthisiswhatsupwithyouIamtypingggggandtypinggg break it now`;
-    [
+    for (const data of [
       {
         desc: "fit characters of long string as per container width",
         width: 160,
@@ -380,12 +380,12 @@ describe("Test wrapText", () => {
         width: 590,
         res: `hellolongtextthisiswhatsupwithyouIamtypingggggandtypinggg\nbreak it now`,
       },
-    ].forEach((data) => {
+    ]) {
       it(`should ${data.desc}`, () => {
         const res = wrapText(text, font, data.width);
         expect(res).toEqual(data.res);
       });
-    });
+    }
   });
 
   describe("Test parseTokens", () => {

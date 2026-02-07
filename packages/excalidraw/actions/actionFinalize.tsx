@@ -122,8 +122,7 @@ export const actionFinalize = register<FormData>({
             angleLocked: shouldRotateWithDiscreteAngle(event),
           },
         );
-      } else if (isLineElement(element)) {
-        if (
+      } else if (isLineElement(element) && 
           appState.selectedLinearElement?.isEditing &&
           !appState.newElement &&
           !isValidPolygon(element.points)
@@ -132,7 +131,6 @@ export const actionFinalize = register<FormData>({
             polygon: false,
           });
         }
-      }
 
       if (linearElementEditor !== appState.selectedLinearElement) {
         // `handlePointerUp()` updated the linear element instance,
@@ -188,7 +186,7 @@ export const actionFinalize = register<FormData>({
       }
     }
 
-    if (window.document.activeElement instanceof HTMLElement) {
+    if (globalThis.document.activeElement instanceof HTMLElement) {
       focusContainer();
     }
 
@@ -221,7 +219,7 @@ export const actionFinalize = register<FormData>({
         const { lastCommittedPoint } = appState.selectedLinearElement;
         if (
           !lastCommittedPoint ||
-          points[points.length - 1] !== lastCommittedPoint
+          points.at(-1) !== lastCommittedPoint
         ) {
           scene.mutateElement(element, {
             points: element.points.slice(0, -1),
@@ -282,18 +280,14 @@ export const actionFinalize = register<FormData>({
     }
 
     let activeTool: AppState["activeTool"];
-    if (appState.activeTool.type === "eraser") {
-      activeTool = updateActiveTool(appState, {
+    activeTool = appState.activeTool.type === "eraser" ? updateActiveTool(appState, {
         ...(appState.activeTool.lastActiveTool || {
           type: app.state.preferredSelectionTool.type,
         }),
         lastActiveToolBeforeEraser: null,
-      });
-    } else {
-      activeTool = updateActiveTool(appState, {
+      }) : updateActiveTool(appState, {
         type: app.state.preferredSelectionTool.type,
       });
-    }
 
     let selectedLinearElement =
       element && isLinearElement(element)

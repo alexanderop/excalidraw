@@ -31,16 +31,16 @@ export const ShareableLinkDialog = ({
   const copyRoomLink = async () => {
     try {
       await copyTextToSystemClipboard(link);
-    } catch (e) {
+    } catch {
       setErrorMessage(t("errors.copyToSystemClipboardFailed"));
     }
     setJustCopied(true);
 
     if (timerRef.current) {
-      window.clearTimeout(timerRef.current);
+      globalThis.clearTimeout(timerRef.current);
     }
 
-    timerRef.current = window.setTimeout(() => {
+    timerRef.current = globalThis.setTimeout(() => {
       setJustCopied(false);
     }, 3000);
 

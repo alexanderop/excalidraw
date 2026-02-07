@@ -380,7 +380,7 @@ export const getLinearElementSubType = (
 export const isValidPolygon = (
   points: ExcalidrawLineElement["points"],
 ): boolean => {
-  return points.length > 3 && pointsEqual(points[0], points[points.length - 1]);
+  return points.length > 3 && pointsEqual(points[0], points.at(-1));
 };
 
 export const canBecomePolygon = (
@@ -389,6 +389,6 @@ export const canBecomePolygon = (
   return (
     points.length > 3 ||
     // 3-point polygons can't have all points in a single line
-    (points.length === 3 && !pointsEqual(points[0], points[points.length - 1]))
+    (points.length === 3 && !pointsEqual(points[0], points.at(-1)))
   );
 };

@@ -58,7 +58,7 @@ export const LoadScene = () => {
 
   const handleSelect = async () => {
     if (
-      !elements.length ||
+      elements.length === 0 ||
       (await openConfirmModal({
         title: t("overwriteConfirm.modal.loadFromFile.title"),
         actionLabel: t("overwriteConfirm.modal.loadFromFile.button"),

@@ -160,7 +160,7 @@ const getHints = ({
   if (activeTool.type === "selection") {
     if (
       appState.selectionElement &&
-      !selectedElements.length &&
+      selectedElements.length === 0 &&
       !appState.editingTextElement &&
       !appState.selectedLinearElement?.isEditing
     ) {
@@ -175,7 +175,7 @@ const getHints = ({
       });
     }
 
-    if (!selectedElements.length && !isMobile) {
+    if (selectedElements.length === 0 && !isMobile) {
       return t("hints.canvasPanning", {
         shortcut_1: getTaggedShortcutKey(t("keys.mmb")),
         shortcut_2: getTaggedShortcutKey("Space"),

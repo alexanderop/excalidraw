@@ -41,9 +41,9 @@ function extractRateLimitHeaders(headers: Headers): RateLimitInfo {
   const rateLimitRemaining = headers.get("X-Ratelimit-Remaining");
 
   return {
-    rateLimit: rateLimit ? parseInt(rateLimit, 10) : undefined,
+    rateLimit: rateLimit ? Number.parseInt(rateLimit, 10) : undefined,
     rateLimitRemaining: rateLimitRemaining
-      ? parseInt(rateLimitRemaining, 10)
+      ? Number.parseInt(rateLimitRemaining, 10)
       : undefined,
   };
 }
@@ -166,28 +166,26 @@ export async function TTDStreamFetch(
               }
               break;
             }
-            case "error":
+            case "error": {
               error = new RequestError({
                 message: chunk.error.message,
                 status: 500,
               });
               break;
-            case "done":
+            }
+            case "done": {
               break;
+            }
           }
-        } catch (e) {
-          console.warn("Failed to parse SSE data:", data, e);
+        } catch (error_) {
+          console.warn("Failed to parse SSE data:", data, error_);
         }
       }
     } catch (streamError: any) {
-      if (streamError.name === "AbortError") {
-        error = new RequestError({ message: "Request aborted", status: 499 });
-      } else {
-        error = new RequestError({
+      error = streamError.name === "AbortError" ? new RequestError({ message: "Request aborted", status: 499 }) : new RequestError({
           message: streamError.message || "Streaming error",
           status: 500,
         });
-      }
     }
 
     if (error) {
@@ -212,15 +210,15 @@ export async function TTDStreamFetch(
       error: null,
       ...rateLimitInfo,
     };
-  } catch (err: any) {
-    if (err.name === "AbortError") {
+  } catch (error: any) {
+    if (error.name === "AbortError") {
       return {
         error: new RequestError({ message: "Request aborted", status: 499 }),
       };
     }
     return {
       error: new RequestError({
-        message: err.message || "Request failed",
+        message: error.message || "Request failed",
         status: 500,
       }),
     };

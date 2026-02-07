@@ -57,7 +57,7 @@ const ChartPreviewBtn = (props: {
       );
       svg.querySelector(".style-fonts")?.remove();
       previewNode.replaceChildren();
-      previewNode.appendChild(svg);
+      previewNode.append(svg);
 
       if (props.selected) {
         (previewNode.parentNode as HTMLDivElement).focus();

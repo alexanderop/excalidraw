@@ -39,12 +39,12 @@ export const useCreatePortalContainer = (opts?: {
 
     const div = document.createElement("div");
 
-    container.appendChild(div);
+    container.append(div);
 
     setDiv(div);
 
     return () => {
-      container.removeChild(div);
+      div.remove();
     };
   }, [excalidrawContainer, opts?.parentSelector]);
 

@@ -136,7 +136,7 @@ const flipElements = (
     "nw",
     app.scene,
     new Map(
-      Array.from(elementsMap.values()).map((element) => [
+      [...elementsMap.values()].map((element) => [
         element.id,
         deepCopyElement(element),
       ]),
@@ -178,18 +178,16 @@ const flipElements = (
   const { midX: newMidX, midY: newMidY } =
     getCommonBoundingBox(selectedElements);
   const [diffX, diffY] = [midX - newMidX, midY - newMidY];
-  otherElements.forEach((element) =>
-    app.scene.mutateElement(element, {
+  for (const element of otherElements) app.scene.mutateElement(element, {
       x: element.x + diffX,
       y: element.y + diffY,
-    }),
-  );
-  elbowArrows.forEach((element) =>
-    app.scene.mutateElement(element, {
+    })
+  ;
+  for (const element of elbowArrows) app.scene.mutateElement(element, {
       x: element.x + diffX,
       y: element.y + diffY,
-    }),
-  );
+    })
+  ;
   // ---------------------------------------------------------------------------
 
   return selectedElements;

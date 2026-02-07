@@ -63,7 +63,7 @@ export const actionUnbindText = register({
   perform: (elements, appState, _, app) => {
     const selectedElements = app.scene.getSelectedElements(appState);
     const elementsMap = app.scene.getNonDeletedElementsMap();
-    selectedElements.forEach((element) => {
+    for (const element of selectedElements) {
       const boundTextElement = getBoundTextElement(element, elementsMap);
       if (boundTextElement) {
         const { width, height } = measureText(
@@ -97,7 +97,7 @@ export const actionUnbindText = register({
             : element.height,
         });
       }
-    });
+    }
     return {
       elements,
       appState,
@@ -185,7 +185,7 @@ const pushTextAboveContainer = (
   container: ExcalidrawElement,
   textElement: ExcalidrawTextElement,
 ) => {
-  const updatedElements = elements.slice();
+  const updatedElements = [...elements];
   const textElementIndex = updatedElements.findIndex(
     (ele) => ele.id === textElement.id,
   );
@@ -205,7 +205,7 @@ const pushContainerBelowText = (
   container: ExcalidrawElement,
   textElement: ExcalidrawTextElement,
 ) => {
-  const updatedElements = elements.slice();
+  const updatedElements = [...elements];
   const containerIndex = updatedElements.findIndex(
     (ele) => ele.id === container.id,
   );
@@ -233,7 +233,7 @@ export const actionWrapTextInContainer = register({
   },
   perform: (elements, appState, _, app) => {
     const selectedElements = app.scene.getSelectedElements(appState);
-    let updatedElements: readonly ExcalidrawElement[] = elements.slice();
+    let updatedElements: readonly ExcalidrawElement[] = [...elements];
     const containerIds: Mutable<AppState["selectedElementIds"]> = {};
 
     for (const textElement of selectedElements) {
@@ -277,13 +277,13 @@ export const actionWrapTextInContainer = register({
 
         // update bindings
         if (textElement.boundElements?.length) {
-          const linearElementIds = textElement.boundElements
+          const linearElementIds = new Set(textElement.boundElements
             .filter((ele) => ele.type === "arrow")
-            .map((el) => el.id);
+            .map((el) => el.id));
           const linearElements = updatedElements.filter((ele) =>
-            linearElementIds.includes(ele.id),
+            linearElementIds.has(ele.id),
           ) as ExcalidrawLinearElement[];
-          linearElements.forEach((ele) => {
+          for (const ele of linearElements) {
             let startBinding = ele.startBinding;
             let endBinding = ele.endBinding;
 
@@ -304,7 +304,7 @@ export const actionWrapTextInContainer = register({
                 endBinding,
               });
             }
-          });
+          }
         }
 
         app.scene.mutateElement(textElement, {

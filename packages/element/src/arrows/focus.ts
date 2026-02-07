@@ -110,17 +110,13 @@ const focusPointUpdate = (
       bindableElement &&
       adjacentBinding &&
       currentBinding.elementId === adjacentBinding.elementId;
-    if (switchToInsideBinding || boundToSameElement) {
-      currentBinding = {
+    currentBinding = switchToInsideBinding || boundToSameElement ? {
         ...currentBinding,
         mode: "inside",
-      };
-    } else {
-      currentBinding = {
+      } : {
         ...currentBinding,
         mode: "orbit",
       };
-    }
 
     const pointIndex = isStartBinding ? 0 : arrow.points.length - 1;
     const newPoint = updateBoundPoint(
@@ -150,17 +146,13 @@ const focusPointUpdate = (
       // Same shape bound on both ends
       const boundToSameElementAfterUpdate =
         bindableElement && adjacentBinding.elementId === bindableElement.id;
-      if (switchToInsideBinding || boundToSameElementAfterUpdate) {
-        adjacentBinding = {
+      adjacentBinding = switchToInsideBinding || boundToSameElementAfterUpdate ? {
           ...adjacentBinding,
           mode: "inside",
-        };
-      } else {
-        adjacentBinding = {
+        } : {
           ...adjacentBinding,
           mode: "orbit",
         };
-      }
 
       const adjacentPointIndex = isStartBinding ? arrow.points.length - 1 : 0;
       const adjacentNewPoint = updateBoundPoint(

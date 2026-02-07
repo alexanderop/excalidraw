@@ -28,7 +28,7 @@ import {
   unmountComponent,
 } from "./test-utils";
 
-const { h } = window;
+const { h } = globalThis;
 
 const renderStaticScene = vi.spyOn(StaticScene, "renderStaticScene");
 
@@ -47,9 +47,8 @@ const checkpoint = (name: string) => {
   );
   expect(h.state).toMatchSnapshot(`[${name}] appState`);
   expect(h.elements.length).toMatchSnapshot(`[${name}] number of elements`);
-  h.elements.forEach((element, i) =>
-    expect(element).toMatchSnapshot(`[${name}] element ${i}`),
-  );
+  for (const [i, element] of h.elements.entries()) expect(element).toMatchSnapshot(`[${name}] element ${i}`)
+  ;
 
   checkpointHistory(h.history, name);
 };
@@ -268,12 +267,11 @@ describe("regression tests", () => {
     mouse.down();
     mouse.up(10, 10);
 
-    h.elements
-      .filter((element) => element.type === "rectangle")
-      .forEach((element, i) => {
+    for (const [i, element] of h.elements
+      .filter((element) => element.type === "rectangle").entries()) {
         expect(element.x).toBeGreaterThan(prevRectsXY[i].x);
         expect(element.y).toBeGreaterThan(prevRectsXY[i].y);
-      });
+      }
   });
 
   it("pinch-to-zoom works", () => {

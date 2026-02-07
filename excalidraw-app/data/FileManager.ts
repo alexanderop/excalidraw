@@ -136,7 +136,7 @@ export class FileManager {
     loadedFiles: BinaryFileData[];
     erroredFiles: Map<FileId, true>;
   }> => {
-    if (!ids.length) {
+    if (ids.length === 0) {
       return {
         loadedFiles: [],
         erroredFiles: new Map(),
@@ -252,7 +252,7 @@ export const updateStaleImageStatuses = (params: {
   erroredFiles: Map<FileId, true>;
   elements: readonly ExcalidrawElement[];
 }) => {
-  if (!params.erroredFiles.size) {
+  if (params.erroredFiles.size === 0) {
     return;
   }
   params.excalidrawAPI.updateScene({

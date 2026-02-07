@@ -306,7 +306,7 @@ export function curveCatmullRomQuadraticApproxPoints(
 
   const pointSets: [GlobalPoint, GlobalPoint][] = [];
   for (let i = 0; i < points.length - 1; i++) {
-    const p0 = points[i - 1 < 0 ? 0 : i - 1];
+    const p0 = points[Math.max(i - 1, 0)];
     const p1 = points[i];
     const p2 = points[i + 1 >= points.length ? points.length - 1 : i + 1];
     const cpX = p1[0] + ((p2[0] - p0[0]) * tension) / 2;
@@ -330,7 +330,7 @@ export function curveCatmullRomCubicApproxPoints<
 
   const pointSets: Curve<Point>[] = [];
   for (let i = 0; i < points.length - 1; i++) {
-    const p0 = points[i - 1 < 0 ? 0 : i - 1];
+    const p0 = points[Math.max(i - 1, 0)];
     const p1 = points[i];
     const p2 = points[i + 1 >= points.length ? points.length - 1 : i + 1];
     const p3 = points[i + 2 >= points.length ? points.length - 1 : i + 2];
@@ -419,9 +419,9 @@ export function curveLength<P extends GlobalPoint | LocalPoint>(
   for (let i = 0; i < 24; i++) {
     const t = z2 * LegendreGaussN24TValues[i] + z2;
     const derivativeVector = curveTangent(c, t);
-    const magnitude = Math.sqrt(
-      derivativeVector[0] * derivativeVector[0] +
-        derivativeVector[1] * derivativeVector[1],
+    const magnitude = Math.hypot(
+      derivativeVector[0],
+        derivativeVector[1],
     );
     sum += LegendreGaussN24CValues[i] * magnitude;
   }
@@ -458,9 +458,9 @@ export function curveLengthAtParameter<P extends GlobalPoint | LocalPoint>(
   for (let i = 0; i < 24; i++) {
     const parameter = z1 * LegendreGaussN24TValues[i] + z2;
     const derivativeVector = curveTangent(c, parameter);
-    const magnitude = Math.sqrt(
-      derivativeVector[0] * derivativeVector[0] +
-        derivativeVector[1] * derivativeVector[1],
+    const magnitude = Math.hypot(
+      derivativeVector[0],
+        derivativeVector[1],
     );
     sum += LegendreGaussN24CValues[i] * magnitude;
   }

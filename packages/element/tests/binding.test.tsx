@@ -28,7 +28,7 @@ import type {
   FixedPointBinding,
 } from "../src/types";
 
-const { h } = window;
+const { h } = globalThis;
 
 const mouse = new Pointer("mouse");
 
@@ -257,8 +257,8 @@ describe("binding for simple arrows", () => {
       const arrow = API.getSelectedElement() as ExcalidrawLinearElement;
       expect(arrow.x).toBe(10);
       expect(arrow.y).toBe(10);
-      expect(arrow.width).toBeCloseTo(85.75985931287957);
-      expect(arrow.height).toBeCloseTo(85.75985931288186);
+      expect(arrow.width).toBeCloseTo(85.759_859_312_879_57);
+      expect(arrow.height).toBeCloseTo(85.759_859_312_881_86);
 
       // Should bind to the rectangle since endpoint is inside
       expect(arrow.startBinding).toBe(null);
@@ -403,7 +403,7 @@ describe("binding for simple arrows", () => {
       mouse.moveTo(340, 251);
       mouse.moveTo(410, 251);
       mouse.clickAt(410, 251);
-      const arrow = h.elements[h.elements.length - 1] as any;
+      const arrow = h.elements.at(-1) as any;
 
       expect(arrow.startBinding?.elementId).toBe(rectLeft.id);
       expect(arrow.endBinding?.elementId).toBe(rectRight.id);
@@ -505,15 +505,15 @@ describe("binding for simple arrows", () => {
         mouse.moveTo(1000, 1000);
         mouse.up(0, 0);
 
-        expect(window.h.elements.length).toBe(6);
-        window.h.elements.forEach((element) => {
+        expect(globalThis.h.elements.length).toBe(6);
+        for (const element of globalThis.h.elements) {
           if (isLinearElement(element)) {
             expect(element.startBinding).not.toBe(null);
             expect(element.endBinding).not.toBe(null);
           } else {
             expect(element.boundElements).not.toBe(null);
           }
-        });
+        }
       });
     });
   });
@@ -543,7 +543,7 @@ describe("binding for simple arrows", () => {
       const arrow1 = API.createElement({
         type: "arrow",
         id: "arrow1",
-        points: [pointFrom(0, 0), pointFrom(0, -87.45777932247563)],
+        points: [pointFrom(0, 0), pointFrom(0, -87.457_779_322_475_63)],
         startBinding: {
           elementId: "rectangle1",
           fixedPoint: [0.5, 1],
@@ -559,7 +559,7 @@ describe("binding for simple arrows", () => {
       const arrow2 = API.createElement({
         type: "arrow",
         id: "arrow2",
-        points: [pointFrom(0, 0), pointFrom(0, -87.45777932247563)],
+        points: [pointFrom(0, 0), pointFrom(0, -87.457_779_322_475_63)],
         startBinding: {
           elementId: "text1",
           fixedPoint: [0.5, 1],

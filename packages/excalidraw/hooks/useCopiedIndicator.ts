@@ -10,7 +10,7 @@ export const useCopyStatus = () => {
     clearTimeout(timeoutRef.current);
     setCopyStatus("success");
 
-    timeoutRef.current = window.setTimeout(() => {
+    timeoutRef.current = globalThis.setTimeout(() => {
       setCopyStatus(null);
     }, TIMEOUT);
   };

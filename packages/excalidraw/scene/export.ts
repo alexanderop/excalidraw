@@ -357,9 +357,9 @@ export const exportToSvg = async (
     "metadata",
   );
 
-  svgRoot.appendChild(createHTMLComment("svg-source:excalidraw"));
-  svgRoot.appendChild(metadataElement);
-  svgRoot.appendChild(defsElement);
+  svgRoot.append(createHTMLComment("svg-source:excalidraw"));
+  svgRoot.append(metadataElement);
+  svgRoot.append(defsElement);
 
   // ---------------------------------------------------------------------------
   // scene embed
@@ -388,7 +388,7 @@ export const exportToSvg = async (
 
   const frameElements = getFrameLikeElements(elements);
 
-  if (frameElements.length) {
+  if (frameElements.length > 0) {
     const elementsMap = arrayToMap(elements);
 
     for (const frame of frameElements) {
@@ -418,9 +418,9 @@ export const exportToSvg = async (
         rect.setAttribute("ry", `${FRAME_STYLE.radius}`);
       }
 
-      clipPath.appendChild(rect);
+      clipPath.append(rect);
 
-      defsElement.appendChild(clipPath);
+      defsElement.append(clipPath);
     }
   }
 
@@ -428,19 +428,19 @@ export const exportToSvg = async (
   // inline font faces
   // ---------------------------------------------------------------------------
 
-  const fontFaces = !opts?.skipInliningFonts
-    ? await Fonts.generateFontFaceDeclarations(elements)
-    : [];
+  const fontFaces = opts?.skipInliningFonts
+    ? []
+    : await Fonts.generateFontFaceDeclarations(elements);
 
   const delimiter = "\n      "; // 6 spaces
 
   const style = svgRoot.ownerDocument.createElementNS(SVG_NS, "style");
   style.classList.add("style-fonts");
-  style.appendChild(
+  style.append(
     document.createTextNode(`${delimiter}${fontFaces.join(delimiter)}`),
   );
 
-  defsElement.appendChild(style);
+  defsElement.append(style);
 
   // ---------------------------------------------------------------------------
   // background
@@ -459,7 +459,7 @@ export const exportToSvg = async (
         ? applyDarkModeFilter(viewBackgroundColor)
         : viewBackgroundColor,
     );
-    svgRoot.appendChild(rect);
+    svgRoot.append(rect);
   }
 
   // ---------------------------------------------------------------------------
@@ -513,13 +513,13 @@ export const encodeSvgBase64Payload = ({
     true /* is already byte string */,
   );
 
-  metadataElement.appendChild(
+  metadataElement.append(
     createHTMLComment(`payload-type:${MIME_TYPES.excalidraw}`),
   );
-  metadataElement.appendChild(createHTMLComment("payload-version:2"));
-  metadataElement.appendChild(createHTMLComment("payload-start"));
-  metadataElement.appendChild(document.createTextNode(base64));
-  metadataElement.appendChild(createHTMLComment("payload-end"));
+  metadataElement.append(createHTMLComment("payload-version:2"));
+  metadataElement.append(createHTMLComment("payload-start"));
+  metadataElement.append(document.createTextNode(base64));
+  metadataElement.append(createHTMLComment("payload-end"));
 };
 
 export const decodeSvgBase64Payload = ({ svg }: { svg: string }) => {

@@ -209,9 +209,9 @@ export const generateRoughOptions = (
     // for non-solid strokes, increase the width a bit to make it visually
     // similar to solid strokes, because we're also disabling multiStroke
     strokeWidth:
-      element.strokeStyle !== "solid"
-        ? element.strokeWidth + 0.5
-        : element.strokeWidth,
+      element.strokeStyle === "solid"
+        ? element.strokeWidth
+        : element.strokeWidth + 0.5,
     // when increasing strokeWidth, we must explicitly set fillWeight and
     // hachureGap because if not specified, roughjs uses strokeWidth to
     // calculate them (and we don't want the fills to be modified)
@@ -255,8 +255,9 @@ export const generateRoughOptions = (
       }
       return options;
     }
-    case "arrow":
+    case "arrow": {
       return options;
+    }
     default: {
       throw new Error(`Unimplemented type ${element.type}`);
     }
@@ -412,8 +413,9 @@ const getArrowheadShapes = (
         ),
       ];
     }
-    case "crowfoot_one":
+    case "crowfoot_one": {
       return generateCrowfootOne(arrowheadPoints, options);
+    }
     case "bar":
     case "arrow":
     case "crowfoot_many":
@@ -475,7 +477,7 @@ export const generateLinearCollisionShape = (
     case "arrow": {
       // points array can be empty in the beginning, so it is important to add
       // initial position to it
-      const points = element.points.length
+      const points = element.points.length > 0
         ? element.points
         : [pointFrom<LocalPoint>(0, 0)];
 
@@ -545,10 +547,9 @@ export const generateLinearCollisionShape = (
                 element.angle,
               ),
             ]
-              .map((p) =>
+              .flatMap((p) =>
                 pointFrom<LocalPoint>(p[0] - element.x, p[1] - element.y),
-              )
-              .flat(),
+              ),
           };
         });
     }
@@ -610,10 +611,9 @@ export const generateLinearCollisionShape = (
                 element.angle,
               ),
             ]
-              .map((p) =>
+              .flatMap((p) =>
                 pointFrom<LocalPoint>(p[0] - element.x, p[1] - element.y),
-              )
-              .flat(),
+              ),
           };
         });
     }
@@ -754,45 +754,41 @@ const _generateElementShape = (
 
       // points array can be empty in the beginning, so it is important to add
       // initial position to it
-      const points = element.points.length
+      const points = element.points.length > 0
         ? element.points
         : [pointFrom<LocalPoint>(0, 0)];
 
       if (isElbowArrow(element)) {
         // NOTE (mtolmacs): Temporary fix for extremely big arrow shapes
         if (
-          !points.every(
+          points.every(
             (point) => Math.abs(point[0]) <= 1e6 && Math.abs(point[1]) <= 1e6,
           )
         ) {
-          console.error(
-            `Elbow arrow with extreme point positions detected. Arrow not rendered.`,
-            element.id,
-            JSON.stringify(points),
-          );
-          shape = [];
-        } else {
           shape = [
             generator.path(
               generateElbowArrowShape(points, 16),
               generateRoughOptions(element, true, isDarkMode),
             ),
           ];
+        } else {
+          console.error(
+            `Elbow arrow with extreme point positions detected. Arrow not rendered.`,
+            element.id,
+            JSON.stringify(points),
+          );
+          shape = [];
         }
-      } else if (!element.roundness) {
+      } else if (element.roundness) {
+        shape = [generator.curve(points as unknown as RoughPoint[], options)];
+      } else {
         // curve is always the first element
         // this simplifies finding the curve for an element
-        if (options.fill) {
-          shape = [
+        shape = options.fill ? [
             generator.polygon(points as unknown as RoughPoint[], options),
-          ];
-        } else {
-          shape = [
+          ] : [
             generator.linearPath(points as unknown as RoughPoint[], options),
           ];
-        }
-      } else {
-        shape = [generator.curve(points as unknown as RoughPoint[], options)];
       }
 
       // add lines only in arrow
@@ -929,14 +925,13 @@ const generateElbowArrowShape = (
 
   const d = [`M ${points[0][0]} ${points[0][1]}`];
   for (let i = 0; i < subpoints.length; i += 3) {
-    d.push(`L ${subpoints[i][0]} ${subpoints[i][1]}`);
-    d.push(
+    d.push(`L ${subpoints[i][0]} ${subpoints[i][1]}`, 
       `Q ${subpoints[i + 1][0]} ${subpoints[i + 1][1]}, ${
         subpoints[i + 2][0]
       } ${subpoints[i + 2][1]}`,
     );
   }
-  d.push(`L ${points[points.length - 1][0]} ${points[points.length - 1][1]}`);
+  d.push(`L ${points.at(-1)[0]} ${points.at(-1)[1]}`);
 
   return d.join(" ");
 };
@@ -958,8 +953,9 @@ export const getElementShape = <Point extends GlobalPoint | LocalPoint>(
     case "image":
     case "iframe":
     case "text":
-    case "selection":
+    case "selection": {
       return getPolygonShape(element);
+    }
     case "arrow":
     case "line": {
       const roughShape = ShapeCache.generateElementShape(element, null)[0];
@@ -981,8 +977,9 @@ export const getElementShape = <Point extends GlobalPoint | LocalPoint>(
           );
     }
 
-    case "ellipse":
+    case "ellipse": {
       return getEllipseShape(element);
+    }
 
     case "freedraw": {
       const [, , , , cx, cy] = getElementAbsoluteCoords(element, elementsMap);
@@ -1010,7 +1007,7 @@ export const toggleLinePolygonState = (
     }
 
     const firstPoint = updatedPoints[0];
-    const lastPoint = updatedPoints[updatedPoints.length - 1];
+    const lastPoint = updatedPoints.at(-1);
 
     const distance = Math.hypot(
       firstPoint[0] - lastPoint[0],
@@ -1056,7 +1053,7 @@ export const getFreedrawOutlinePoints = (
   // If input points are empty (should they ever be?) return a dot
   const inputPoints = element.simulatePressure
     ? element.points
-    : element.points.length
+    : element.points.length > 0
     ? element.points.map(([x, y], i) => [x, y, element.pressures[i]])
     : [[0, 0, 0.5]];
 
@@ -1078,10 +1075,10 @@ const med = (A: number[], B: number[]) => {
 // Trim SVG path data so number are each two decimal points. This
 // improves SVG exports, and prevents rendering errors on points
 // with long decimals.
-const TO_FIXED_PRECISION = /(\s?[A-Z]?,?-?[0-9]*\.[0-9]{0,2})(([0-9]|e|-)*)/g;
+const TO_FIXED_PRECISION = /(\s?[A-Z]?,?-?\d*\.\d{0,2})(([\de-])*)/g;
 
 const getSvgPathFromStroke = (points: number[][]): string => {
-  if (!points.length) {
+  if (points.length === 0) {
     return "";
   }
 
@@ -1100,7 +1097,7 @@ const getSvgPathFromStroke = (points: number[][]): string => {
       ["M", points[0], "Q"],
     )
     .join(" ")
-    .replace(TO_FIXED_PRECISION, "$1");
+    .replaceAll(TO_FIXED_PRECISION, "$1");
 };
 
 // -----------------------------------------------------------------------------

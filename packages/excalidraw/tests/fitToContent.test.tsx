@@ -6,7 +6,7 @@ import { Excalidraw } from "../index";
 import { API } from "./helpers/api";
 import { act, render } from "./test-utils";
 
-const { h } = window;
+const { h } = globalThis;
 
 const waitForNextAnimationFrame = () => {
   return act(
@@ -109,7 +109,7 @@ describe("fitToContent", () => {
 
 describe("fitToContent animated", () => {
   beforeEach(() => {
-    vi.spyOn(window, "requestAnimationFrame");
+    vi.spyOn(globalThis, "requestAnimationFrame");
   });
 
   afterEach(() => {
@@ -133,7 +133,7 @@ describe("fitToContent animated", () => {
       h.app.scrollToContent(rectElement, { animate: true });
     });
 
-    expect(window.requestAnimationFrame).toHaveBeenCalled();
+    expect(globalThis.requestAnimationFrame).toHaveBeenCalled();
 
     // Since this is an animation, we expect values to change through time.
     // We'll verify that the scroll values change at 50ms and 100ms
@@ -174,7 +174,7 @@ describe("fitToContent animated", () => {
       h.app.scrollToContent(rectElement, { animate: true, fitToContent: true });
     });
 
-    expect(window.requestAnimationFrame).toHaveBeenCalled();
+    expect(globalThis.requestAnimationFrame).toHaveBeenCalled();
 
     await waitForNextAnimationFrame();
 

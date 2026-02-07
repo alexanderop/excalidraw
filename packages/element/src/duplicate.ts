@@ -174,15 +174,14 @@ export const duplicateElements = (
   // For sanity
   if (opts.type === "in-place") {
     for (const groupId of Object.keys(opts.appState.selectedGroupIds)) {
-      elements
-        .filter((el) => el.groupIds?.includes(groupId))
-        .forEach((el) => _idsOfElementsToDuplicate.set(el.id, el));
+      for (const el of elements
+        .filter((el) => el.groupIds?.includes(groupId))) _idsOfElementsToDuplicate.set(el.id, el);
     }
   }
 
   elements = normalizeElementOrder(elements);
 
-  const elementsWithDuplicates: ExcalidrawElement[] = elements.slice();
+  const elementsWithDuplicates: ExcalidrawElement[] = [...elements];
 
   // helper functions
   // -------------------------------------------------------------------------
@@ -448,8 +447,7 @@ const _deepCopyElement = (val: any, depth: number = 0) => {
   // we're not cloning non-array & non-plain-object objects because we
   // don't support them on excalidraw elements yet. If we do, we need to make
   // sure we start cloning them, so let's warn about it.
-  if (import.meta.env.DEV) {
-    if (
+  if (import.meta.env.DEV && 
       objectType !== "[object Object]" &&
       objectType !== "[object Array]" &&
       objectType.startsWith("[object ")
@@ -458,7 +456,6 @@ const _deepCopyElement = (val: any, depth: number = 0) => {
         `_deepCloneElement: unexpected object type ${objectType}. This value will not be cloned!`,
       );
     }
-  }
 
   return val;
 };

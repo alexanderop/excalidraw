@@ -55,15 +55,15 @@ describe("Math curve", () => {
 
     it("can be detected where the determinant is overly precise", () => {
       const c = curve(
-        pointFrom(41.028864759926016, 12.226249068355052),
-        pointFrom(41.028864759926016, 33.55958240168839),
-        pointFrom(30.362198093259348, 44.22624906835505),
-        pointFrom(9.028864759926016, 44.22624906835505),
+        pointFrom(41.028_864_759_926_016, 12.226_249_068_355_052),
+        pointFrom(41.028_864_759_926_016, 33.559_582_401_688_39),
+        pointFrom(30.362_198_093_259_348, 44.226_249_068_355_05),
+        pointFrom(9.028_864_759_926_016, 44.226_249_068_355_05),
       );
       const l = lineSegment(
-        pointFrom(-82.30963544324186, -41.19949363038283),
+        pointFrom(-82.309_635_443_241_86, -41.199_493_630_382_83),
 
-        pointFrom(188.2149592542487, 134.75505940984908),
+        pointFrom(188.214_959_254_248_7, 134.755_059_409_849_08),
       );
 
       expect(curveIntersectLineSegment(c, l)).toCloselyEqualPoints([
@@ -83,7 +83,7 @@ describe("Math curve", () => {
       const p = pointFrom(0, 0);
 
       expect([curveClosestPoint(c, p)]).toCloselyEqualPoints([
-        [5.965462100367372, -3.04104878946646],
+        [5.965_462_100_367_372, -3.041_048_789_466_46],
       ]);
     });
   });
@@ -98,7 +98,7 @@ describe("Math curve", () => {
       );
       const p = pointFrom(0, 0);
 
-      expect(curvePointDistance(c, p)).toBeCloseTo(6.695873043213627);
+      expect(curvePointDistance(c, p)).toBeCloseTo(6.695_873_043_213_627);
     });
   });
 });

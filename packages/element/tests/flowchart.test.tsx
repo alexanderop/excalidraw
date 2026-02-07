@@ -11,7 +11,7 @@ import {
 
 unmountComponent();
 
-const { h } = window;
+const { h } = globalThis;
 const mouse = new Pointer("mouse");
 
 beforeEach(async () => {
@@ -103,9 +103,9 @@ describe("flow chart creation", () => {
     expect(h.elements.filter((el) => el.type === "rectangle").length).toBe(2);
     expect(h.elements.filter((el) => el.type === "arrow").length).toBe(1);
 
-    const firstChildNode = h.elements.filter(
+    const firstChildNode = h.elements.find(
       (el) => el.type === "rectangle" && el.id !== initialNode.id,
-    )[0];
+    );
     expect(firstChildNode).not.toBe(null);
     expect(firstChildNode.id).toBe(Object.keys(h.state.selectedElementIds)[0]);
 
@@ -120,12 +120,12 @@ describe("flow chart creation", () => {
     expect(h.elements.filter((el) => el.type === "rectangle").length).toBe(3);
     expect(h.elements.filter((el) => el.type === "arrow").length).toBe(2);
 
-    const secondChildNode = h.elements.filter(
+    const secondChildNode = h.elements.find(
       (el) =>
         el.type === "rectangle" &&
         el.id !== initialNode.id &&
         el.id !== firstChildNode.id,
-    )[0];
+    );
     expect(secondChildNode).not.toBe(null);
     expect(secondChildNode.id).toBe(Object.keys(h.state.selectedElementIds)[0]);
 
@@ -140,13 +140,13 @@ describe("flow chart creation", () => {
     expect(h.elements.filter((el) => el.type === "rectangle").length).toBe(4);
     expect(h.elements.filter((el) => el.type === "arrow").length).toBe(3);
 
-    const thirdChildNode = h.elements.filter(
+    const thirdChildNode = h.elements.find(
       (el) =>
         el.type === "rectangle" &&
         el.id !== initialNode.id &&
         el.id !== firstChildNode.id &&
         el.id !== secondChildNode.id,
-    )[0];
+    );
 
     expect(thirdChildNode).not.toBe(null);
     expect(thirdChildNode.id).toBe(Object.keys(h.state.selectedElementIds)[0]);
@@ -206,7 +206,7 @@ describe("flow chart navigation", () => {
     expect(h.state.selectedElementIds[rectangle.id]).toBe(true);
 
     // all the way to the right, gets us to the last node
-    const rightMostNode = h.elements[h.elements.length - 2];
+    const rightMostNode = h.elements.at(-2);
     expect(rightMostNode);
     expect(rightMostNode.type).toBe("rectangle");
     Keyboard.withModifierKeys({ alt: true }, () => {
@@ -261,7 +261,7 @@ describe("flow chart navigation", () => {
     Keyboard.keyUp(KEYS.CTRL_OR_CMD);
 
     const secondNode = h.elements[1];
-    const rightMostNode = h.elements[h.elements.length - 2];
+    const rightMostNode = h.elements.at(-2);
 
     API.setSelectedElements([rectangle]);
     Keyboard.withModifierKeys({ ctrl: true }, () => {
@@ -357,7 +357,7 @@ describe("flow chart navigation", () => {
     Keyboard.keyUp(KEYS.CTRL_OR_CMD);
 
     // last node should be the one that's selected
-    const rightMostNode = h.elements[h.elements.length - 2];
+    const rightMostNode = h.elements.at(-2);
     expect(rightMostNode.type).toBe("rectangle");
     expect(h.state.selectedElementIds[rightMostNode.id]).toBe(true);
 
@@ -373,7 +373,7 @@ describe("flow chart navigation", () => {
     expect(h.state.selectedElementIds[rectangle.id]).toBe(true);
 
     // going any direction takes us to the predecessor as well
-    const predecessorToRightMostNode = h.elements[h.elements.length - 4];
+    const predecessorToRightMostNode = h.elements.at(-4);
     expect(predecessorToRightMostNode.type).toBe("rectangle");
 
     API.setSelectedElements([rightMostNode]);

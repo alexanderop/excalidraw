@@ -80,7 +80,7 @@ if (isDevEnv()) {
     { code: TEST_LANG_CODE, label: "test language" },
     {
       code: `${TEST_LANG_CODE}.rtl`,
-      label: "\u{202a}test language (rtl)\u{202c}",
+      label: "\u{202A}test language (rtl)\u{202C}",
       rtl: true,
     },
   );
@@ -111,8 +111,7 @@ export const setLanguage = async (lang: Language) => {
 export const getLanguage = () => currentLang;
 
 const findPartsForData = (data: any, parts: string[]) => {
-  for (let index = 0; index < parts.length; ++index) {
-    const part = parts[index];
+  for (const part of parts) {
     if (data[part] === undefined) {
       return undefined;
     }
@@ -133,7 +132,7 @@ export const t = (
     const name = replacement
       ? `${path}(${JSON.stringify(replacement).slice(1, -1)})`
       : path;
-    return `\u{202a}[[${name}]]\u{202c}`;
+    return `\u{202A}[[${name}]]\u{202C}`;
   }
 
   const parts = path.split(".");

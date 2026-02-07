@@ -223,11 +223,7 @@ export class Store {
     let storeChange: StoreChange;
     let storeDelta: StoreDelta;
 
-    if (change) {
-      storeChange = change;
-    } else {
-      storeChange = StoreChange.create(prevSnapshot, snapshot);
-    }
+    storeChange = change ? change : StoreChange.create(prevSnapshot, snapshot);
 
     if (delta) {
       // we might have the delta already (i.e. when applying history entry), thus we don't need to calculate it again
@@ -334,22 +330,18 @@ export class Store {
     // as it's only needed for `StoreChange` computation inside `EphemeralIncrement`
     if (
       action === CaptureUpdateAction.EVENTUALLY &&
-      !this.onStoreIncrementEmitter.subscribers.length
+      this.onStoreIncrementEmitter.subscribers.length === 0
     ) {
       return;
     }
 
     let nextSnapshot: StoreSnapshot | null;
 
-    if ("change" in params) {
-      nextSnapshot = this.applyChangeToSnapshot(params.change);
-    } else {
-      nextSnapshot = this.maybeCloneSnapshot(
+    nextSnapshot = "change" in params ? this.applyChangeToSnapshot(params.change) : this.maybeCloneSnapshot(
         action,
         params.elements,
         params.appState,
       );
-    }
 
     if (!nextSnapshot) {
       // don't continue if there is not change detected
@@ -362,25 +354,29 @@ export class Store {
     try {
       switch (action) {
         // only immediately emits a durable increment
-        case CaptureUpdateAction.IMMEDIATELY:
+        case CaptureUpdateAction.IMMEDIATELY: {
           this.emitDurableIncrement(nextSnapshot, change, delta);
           break;
+        }
         // both never and eventually emit an ephemeral increment
         case CaptureUpdateAction.NEVER:
-        case CaptureUpdateAction.EVENTUALLY:
+        case CaptureUpdateAction.EVENTUALLY: {
           this.emitEphemeralIncrement(nextSnapshot, change);
           break;
-        default:
+        }
+        default: {
           assertNever(action, `Unknown store action`);
+        }
       }
     } finally {
       // update the snapshot no-matter what, as it would mess up with the next action
       switch (action) {
         // both immediately and never update the snapshot, unlike eventually
         case CaptureUpdateAction.IMMEDIATELY:
-        case CaptureUpdateAction.NEVER:
+        case CaptureUpdateAction.NEVER: {
           this.snapshot = nextSnapshot;
           break;
+        }
       }
     }
   }
@@ -823,9 +819,9 @@ export class StoreSnapshot {
     }
 
     // Not watching over everything from the app state, just the relevant props
-    const nextAppStateSnapshot = !isObservedAppState(appState)
-      ? getObservedAppState(appState)
-      : appState;
+    const nextAppStateSnapshot = isObservedAppState(appState)
+      ? appState
+      : getObservedAppState(appState);
 
     const didAppStateChange = this.detectChangedAppState(
       nextAppStateSnapshot,
@@ -946,7 +942,7 @@ export class StoreSnapshot {
       }
     }
 
-    if (!changedElements.size) {
+    if (changedElements.size === 0) {
       return;
     }
 

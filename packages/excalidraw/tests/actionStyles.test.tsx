@@ -14,7 +14,7 @@ import {
   togglePopover,
 } from "../tests/test-utils";
 
-const { h } = window;
+const { h } = globalThis;
 
 const mouse = new Pointer("mouse");
 

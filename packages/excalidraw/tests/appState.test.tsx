@@ -11,7 +11,7 @@ import { API } from "./helpers/api";
 import { Pointer, UI } from "./helpers/ui";
 import { fireEvent, queryByTestId, render, waitFor } from "./test-utils";
 
-const { h } = window;
+const { h } = globalThis;
 
 describe("appState", () => {
   it("drag&drop file doesn't reset non-persisted appState", async () => {

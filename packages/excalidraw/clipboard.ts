@@ -74,7 +74,7 @@ export const probablySupportsClipboardWriteText =
 export const probablySupportsClipboardBlob =
   "clipboard" in navigator &&
   "write" in navigator.clipboard &&
-  "ClipboardItem" in window &&
+  "ClipboardItem" in globalThis &&
   "toBlob" in HTMLCanvasElement.prototype;
 
 const clipboardContainsElements = (
@@ -256,7 +256,7 @@ const maybeParseHTMLDataItem = (
 
     const content = parseHTMLTree(doc.body);
 
-    if (content.length) {
+    if (content.length > 0) {
       return { type: "mixedContent", value: content };
     }
   } catch (error: any) {
@@ -463,15 +463,11 @@ export const parseDataTransferEventMimeTypes = (
 ): Set<string> => {
   let items: DataTransferItemList | undefined = undefined;
 
-  if (isClipboardEvent(event)) {
-    items = event.clipboardData?.items;
-  } else {
-    items = event.dataTransfer?.items;
-  }
+  items = isClipboardEvent(event) ? event.clipboardData?.items : event.dataTransfer?.items;
 
   const types: Set<string> = new Set();
 
-  for (const item of Array.from(items || [])) {
+  for (const item of [...items || []]) {
     if (!types.has(item.type)) {
       types.add(item.type);
     }
@@ -485,15 +481,11 @@ export const parseDataTransferEvent = async (
 ): Promise<ParsedDataTranferList> => {
   let items: DataTransferItemList | undefined = undefined;
 
-  if (isClipboardEvent(event)) {
-    items = event.clipboardData?.items;
-  } else {
-    items = event.dataTransfer?.items;
-  }
+  items = isClipboardEvent(event) ? event.clipboardData?.items : event.dataTransfer?.items;
 
   const dataItems = (
     await Promise.all(
-      Array.from(items || []).map(
+      [...items || []].map(
         async (item): Promise<ParsedDataTransferItem | null> => {
           if (item.kind === "file") {
             let file = item.getAsFile();
@@ -510,13 +502,9 @@ export const parseDataTransferEvent = async (
           } else if (item.kind === "string") {
             const { type } = item;
             let value: string;
-            if ("clipboardData" in event && event.clipboardData) {
-              value = event.clipboardData?.getData(type);
-            } else {
-              value = await new Promise<string>((resolve) => {
+            value = "clipboardData" in event && event.clipboardData ? event.clipboardData?.getData(type) : (await new Promise<string>((resolve) => {
                 item.getAsString((str) => resolve(str));
-              });
-            }
+              }));
             return { type, kind: "string", value };
           }
 
@@ -690,7 +678,7 @@ const copyTextViaExecCommand = (text: string | null) => {
   textarea.setAttribute("readonly", "");
   textarea.value = text;
 
-  document.body.appendChild(textarea);
+  document.body.append(textarea);
 
   let success = false;
 

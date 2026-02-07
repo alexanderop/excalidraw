@@ -5,16 +5,16 @@
 // all users have migrated to Vite
 
 self.addEventListener("install", () => {
-  self.skipWaiting();
+  globalThis.skipWaiting();
 });
 
 self.addEventListener("activate", () => {
-  self.registration
+  globalThis.registration
     .unregister()
     .then(() => {
-      return self.clients.matchAll();
+      return globalThis.clients.matchAll();
     })
     .then((clients) => {
-      clients.forEach((client) => client.navigate(client.url));
+      for (const client of clients) client.navigate(client.url);
     });
 });

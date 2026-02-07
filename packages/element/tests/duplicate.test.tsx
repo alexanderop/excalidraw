@@ -28,7 +28,7 @@ import { duplicateElement, duplicateElements } from "../src/duplicate";
 
 import type { ExcalidrawLinearElement } from "../src/types";
 
-const { h } = window;
+const { h } = globalThis;
 const mouse = new Pointer("mouse");
 
 const assertCloneObjects = (source: any, clone: any) => {
@@ -179,7 +179,7 @@ describe("duplicating multiple elements", () => {
     expect(origElements.map((e) => e.type)).toEqual(
       duplicatedElements.map((e) => e.type),
     );
-    origElements.forEach((origElement, idx) => {
+    for (const [idx, origElement] of origElements.entries()) {
       const clonedElement = duplicatedElements[idx];
       expect(origElement).toEqual(
         expect.objectContaining({
@@ -210,7 +210,7 @@ describe("duplicating multiple elements", () => {
           expect((clonedElement as any).startBinding).toBeNull();
         }
       }
-    });
+    }
     // --------------------------------------------------------------------------
 
     const clonedArrows = duplicatedElements.filter(
@@ -231,7 +231,7 @@ describe("duplicating multiple elements", () => {
     );
     expect(clonedRectangle.type).toBe("rectangle");
 
-    clonedArrows.forEach((arrow) => {
+    for (const arrow of clonedArrows) {
       expect(
         clonedRectangle.boundElements!.find((e) => e.id === arrow.id),
       ).toEqual(
@@ -247,7 +247,7 @@ describe("duplicating multiple elements", () => {
       if (arrow.startBinding) {
         expect(arrow.startBinding.elementId).toBe(clonedRectangle.id);
       }
-    });
+    }
 
     expect(clonedArrow2.boundElements).toEqual([
       { type: "text", id: clonedArrowLabel.id },

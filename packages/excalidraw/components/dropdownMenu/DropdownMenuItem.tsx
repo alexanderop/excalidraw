@@ -102,24 +102,27 @@ export const DropDownMenuItemBadge = ({
   };
 
   switch (type) {
-    case DropDownMenuItemBadgeType.GREEN:
+    case DropDownMenuItemBadgeType.GREEN: {
       Object.assign(style, {
         backgroundColor: "var(--background-color-badge)",
         color: "var(--color-badge)",
       });
       break;
-    case DropDownMenuItemBadgeType.RED:
+    }
+    case DropDownMenuItemBadgeType.RED: {
       Object.assign(style, {
         backgroundColor: "pink",
         color: "darkred",
       });
       break;
+    }
     case DropDownMenuItemBadgeType.BLUE:
-    default:
+    default: {
       Object.assign(style, {
         background: "var(--color-promo)",
         color: "var(--color-surface-lowest)",
       });
+    }
   }
 
   return (

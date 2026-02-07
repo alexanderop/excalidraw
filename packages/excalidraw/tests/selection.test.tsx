@@ -35,7 +35,7 @@ beforeEach(() => {
   reseed(7);
 });
 
-const { h } = window;
+const { h } = globalThis;
 
 const mouse = new Pointer("mouse");
 
@@ -331,7 +331,7 @@ describe("select single element on the scene", () => {
     expect(h.elements.length).toEqual(1);
     expect(h.state.selectedElementIds[h.elements[0].id]).toBeTruthy();
 
-    h.elements.forEach((element) => expect(element).toMatchSnapshot());
+    for (const element of h.elements) expect(element).toMatchSnapshot();
   });
 
   it("diamond", async () => {
@@ -364,7 +364,7 @@ describe("select single element on the scene", () => {
     expect(h.elements.length).toEqual(1);
     expect(h.state.selectedElementIds[h.elements[0].id]).toBeTruthy();
 
-    h.elements.forEach((element) => expect(element).toMatchSnapshot());
+    for (const element of h.elements) expect(element).toMatchSnapshot();
   });
 
   it("ellipse", async () => {
@@ -397,7 +397,7 @@ describe("select single element on the scene", () => {
     expect(h.elements.length).toEqual(1);
     expect(h.state.selectedElementIds[h.elements[0].id]).toBeTruthy();
 
-    h.elements.forEach((element) => expect(element).toMatchSnapshot());
+    for (const element of h.elements) expect(element).toMatchSnapshot();
   });
 
   it("arrow", async () => {
@@ -442,7 +442,7 @@ describe("select single element on the scene", () => {
     expect(h.state.selectionElement).toBeNull();
     expect(h.elements.length).toEqual(1);
     expect(h.state.selectedElementIds[h.elements[0].id]).toBeTruthy();
-    h.elements.forEach((element) => expect(element).toMatchSnapshot());
+    for (const element of h.elements) expect(element).toMatchSnapshot();
   });
 
   it("arrow escape", async () => {
@@ -488,7 +488,7 @@ describe("select single element on the scene", () => {
     expect(h.elements.length).toEqual(1);
     expect(h.state.selectedElementIds[h.elements[0].id]).toBeTruthy();
 
-    h.elements.forEach((element) => expect(element).toMatchSnapshot());
+    for (const element of h.elements) expect(element).toMatchSnapshot();
   });
 });
 

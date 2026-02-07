@@ -67,17 +67,14 @@ const handlePositionChange: DragInputCallbackType<"x" | "y"> = ({
         const nextValueInNatural =
           nextValue * (crop.naturalWidth / uncroppedWidth);
 
-        if (isFlippedByX) {
-          nextCrop = {
+        nextCrop = isFlippedByX ? {
             ...crop,
             x: clamp(
               crop.naturalWidth - nextValueInNatural - crop.width,
               0,
               crop.naturalWidth - crop.width,
             ),
-          };
-        } else {
-          nextCrop = {
+          } : {
             ...crop,
             x: clamp(
               nextValue * (crop.naturalWidth / uncroppedWidth),
@@ -85,7 +82,6 @@ const handlePositionChange: DragInputCallbackType<"x" | "y"> = ({
               crop.naturalWidth - crop.width,
             ),
           };
-        }
       }
 
       if (property === "y") {

@@ -13,7 +13,7 @@ import { getTextEditor } from "./queries/dom";
 unmountComponent();
 
 const mouse = new Pointer("mouse");
-const h = window.h;
+const h = globalThis.h;
 
 describe("element locking", () => {
   beforeEach(async () => {

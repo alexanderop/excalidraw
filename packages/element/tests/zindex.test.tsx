@@ -35,7 +35,7 @@ beforeEach(() => {
   reseed(7);
 });
 
-const { h } = window;
+const { h } = globalThis;
 
 type ExcalidrawElementType = Exclude<
   ExcalidrawElement,
@@ -152,11 +152,11 @@ const assertZindex = ({
   operations: [Actions, string[]][];
 }) => {
   const selectedElementIds = populateElements(elements, appState);
-  operations.forEach(([action, expected]) => {
+  for (const [action, expected] of operations) {
     API.executeAction(action);
     expect(h.elements.map((element) => element.id)).toEqual(expected);
     expect(h.state.selectedElementIds).toEqual(selectedElementIds);
-  });
+  }
 };
 
 describe("z-index manipulation", () => {

@@ -20,8 +20,8 @@ export const WorkerUrl: URL | undefined = import.meta.url
   : undefined;
 
 // run only in the worker context
-if (typeof window === "undefined" && typeof self !== "undefined") {
-  self.onmessage = async (e: {
+if (globalThis.window === undefined && globalThis.self !== undefined) {
+  globalThis.onmessage = async (e: {
     data: {
       command: typeof Commands.Subset;
       arrayBuffer: ArrayBuffer;
@@ -29,7 +29,7 @@ if (typeof window === "undefined" && typeof self !== "undefined") {
     };
   }) => {
     switch (e.data.command) {
-      case Commands.Subset:
+      case Commands.Subset: {
         const buffer = await subsetToBinary(
           e.data.arrayBuffer,
           e.data.codePoints,
@@ -37,6 +37,7 @@ if (typeof window === "undefined" && typeof self !== "undefined") {
 
         self.postMessage(buffer, { transfer: [buffer] });
         break;
+      }
     }
   };
 }

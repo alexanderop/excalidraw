@@ -17,14 +17,14 @@ describe("YouTube timestamp parsing", () => {
       },
     ];
 
-    testCases.forEach(({ url, expectedStart }) => {
+    for (const { url, expectedStart } of testCases) {
       const result = getEmbedLink(url);
       expect(result).toBeTruthy();
       expect(result?.type).toBe("video");
       if (result?.type === "video" || result?.type === "generic") {
         expect(result.link).toContain(`start=${expectedStart}`);
       }
-    });
+    }
   });
 
   it("should parse YouTube URLs with timestamp in time format", () => {
@@ -55,14 +55,14 @@ describe("YouTube timestamp parsing", () => {
       },
     ];
 
-    testCases.forEach(({ url, expectedStart }) => {
+    for (const { url, expectedStart } of testCases) {
       const result = getEmbedLink(url);
       expect(result).toBeTruthy();
       expect(result?.type).toBe("video");
       if (result?.type === "video" || result?.type === "generic") {
         expect(result.link).toContain(`start=${expectedStart}`);
       }
-    });
+    }
   });
 
   it("should handle YouTube URLs without timestamps", () => {
@@ -72,14 +72,14 @@ describe("YouTube timestamp parsing", () => {
       "https://www.youtube.com/embed/dQw4w9WgXcQ",
     ];
 
-    testCases.forEach((url) => {
+    for (const url of testCases) {
       const result = getEmbedLink(url);
       expect(result).toBeTruthy();
       expect(result?.type).toBe("video");
       if (result?.type === "video" || result?.type === "generic") {
         expect(result.link).not.toContain("start=");
       }
-    });
+    }
   });
 
   it("should handle YouTube shorts URLs with timestamps", () => {
@@ -124,7 +124,7 @@ describe("YouTube timestamp parsing", () => {
       },
     ];
 
-    testCases.forEach(({ url, expectedStart }) => {
+    for (const { url, expectedStart } of testCases) {
       const result = getEmbedLink(url);
       expect(result).toBeTruthy();
       expect(result?.type).toBe("video");
@@ -135,7 +135,7 @@ describe("YouTube timestamp parsing", () => {
           expect(result.link).toContain(`start=${expectedStart}`);
         }
       }
-    });
+    }
   });
 
   it("should preserve other URL parameters", () => {

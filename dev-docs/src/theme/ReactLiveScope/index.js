@@ -10,8 +10,8 @@ if (ExecutionEnvironment.canUseDOM) {
   ExcalidrawComp = require("@excalidraw/excalidraw");
 }
 const Excalidraw = React.forwardRef((props, ref) => {
-  if (!window.EXCALIDRAW_ASSET_PATH) {
-    window.EXCALIDRAW_ASSET_PATH =
+  if (!globalThis.EXCALIDRAW_ASSET_PATH) {
+    globalThis.EXCALIDRAW_ASSET_PATH =
       "https://esm.sh/@excalidraw/excalidraw@0.18.0/dist/prod/";
   }
 

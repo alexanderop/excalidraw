@@ -53,20 +53,20 @@ export const Popover = ({
       if (event.key === KEYS.TAB) {
         const focusableElements = queryFocusableElements(container);
         const { activeElement } = document;
-        const currentIndex = focusableElements.findIndex(
-          (element) => element === activeElement,
+        const currentIndex = focusableElements.indexOf(
+          activeElement,
         );
 
         if (activeElement === container) {
           if (event.shiftKey) {
-            focusableElements[focusableElements.length - 1]?.focus();
+            focusableElements.at(-1)?.focus();
           } else {
             focusableElements[0].focus();
           }
           event.preventDefault();
           event.stopImmediatePropagation();
         } else if (currentIndex === 0 && event.shiftKey) {
-          focusableElements[focusableElements.length - 1]?.focus();
+          focusableElements.at(-1)?.focus();
           event.preventDefault();
           event.stopImmediatePropagation();
         } else if (

@@ -29,8 +29,8 @@ export const subsetToBase64 = async (
   try {
     const buffer = await subsetToBinary(arrayBuffer, codePoints);
     return toBase64(buffer);
-  } catch (e) {
-    console.error("Skipped glyph subsetting", e);
+  } catch (error) {
+    console.error("Skipped glyph subsetting", error);
     // Fallback to encoding whole font in case of errors
     return toBase64(arrayBuffer);
   }
@@ -65,16 +65,16 @@ export const subsetToBinary = async (
 export const toBase64 = async (arrayBuffer: ArrayBuffer) => {
   let base64: string;
 
-  if (typeof Buffer !== "undefined") {
-    // node, jsdom
-    base64 = Buffer.from(arrayBuffer).toString("base64");
-  } else {
+  if (typeof Buffer === "undefined") {
     // browser (main thread)
     // it's perfectly fine to treat each byte independently,
     // as we care only about turning individual bytes into codepoints,
     // not about multi-byte unicode characters
     const byteString = String.fromCharCode(...new Uint8Array(arrayBuffer));
     base64 = btoa(byteString);
+  } else {
+    // node, jsdom
+    base64 = Buffer.from(arrayBuffer).toString("base64");
   }
 
   return `data:font/woff2;base64,${base64}`;

@@ -1,7 +1,7 @@
 import { getDefaultAppState } from "./appState";
 import { exportToCanvas } from "./scene/export";
 
-const fs = require("fs");
+const fs = require("node:fs");
 
 const { registerFont, createCanvas } = require("canvas");
 
@@ -19,7 +19,7 @@ const elements = [
     strokeWidth: 1,
     roughness: 1,
     opacity: 100,
-    seed: 749612521,
+    seed: 749_612_521,
   },
   {
     id: "7W-iw5pEBPTU3eaCaLtFo",
@@ -34,7 +34,7 @@ const elements = [
     strokeWidth: 1,
     roughness: 1,
     opacity: 100,
-    seed: 952056308,
+    seed: 952_056_308,
   },
   {
     id: "kqKI231mvTrcsYo2DkUsR",
@@ -49,7 +49,7 @@ const elements = [
     strokeWidth: 1,
     roughness: 1,
     opacity: 100,
-    seed: 1683771448,
+    seed: 1_683_771_448,
     text: "test",
     font: "20px Virgil",
     baseline: 22,

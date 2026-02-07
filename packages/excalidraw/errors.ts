@@ -5,9 +5,8 @@ export class CanvasError extends Error {
     message: string = "Couldn't export canvas.",
     name: CANVAS_ERROR_NAMES = "CANVAS_ERROR",
   ) {
-    super();
+    super(message);
     this.name = name;
-    this.message = message;
   }
 }
 
@@ -81,9 +80,8 @@ export class RequestError extends Error {
     status = 500,
     data,
   }: { message?: string; status?: number; data?: any } = {}) {
-    super();
+    super(message);
     this.name = "RequestError";
-    this.message = message;
     this.status = status;
     this.data = data;
   }

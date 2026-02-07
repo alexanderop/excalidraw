@@ -178,10 +178,10 @@ export const EyeDropper: React.FC<{
       pointerDownListener,
     );
     eyeDropperContainer.addEventListener(EVENT.POINTER_UP, pointerUpListener);
-    window.addEventListener("pointermove", mouseMoveListener, {
+    globalThis.addEventListener("pointermove", mouseMoveListener, {
       passive: true,
     });
-    window.addEventListener(EVENT.BLUR, onCancel);
+    globalThis.addEventListener(EVENT.BLUR, onCancel);
 
     return () => {
       isHoldingPointerDown = false;
@@ -194,8 +194,8 @@ export const EyeDropper: React.FC<{
         EVENT.POINTER_UP,
         pointerUpListener,
       );
-      window.removeEventListener("pointermove", mouseMoveListener);
-      window.removeEventListener(EVENT.BLUR, onCancel);
+      globalThis.removeEventListener("pointermove", mouseMoveListener);
+      globalThis.removeEventListener(EVENT.BLUR, onCancel);
     };
   }, [
     stableProps,

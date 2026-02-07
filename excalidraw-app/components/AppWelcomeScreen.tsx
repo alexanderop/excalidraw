@@ -13,8 +13,7 @@ export const AppWelcomeScreen: React.FC<{
   const { t } = useI18n();
   let headingContent;
 
-  if (isExcalidrawPlusSignedUser) {
-    headingContent = t("welcomeScreen.app.center_heading_plus")
+  headingContent = isExcalidrawPlusSignedUser ? t("welcomeScreen.app.center_heading_plus")
       .split(/(Excalidraw\+)/)
       .map((bit, idx) => {
         if (bit === "Excalidraw+") {
@@ -31,9 +30,7 @@ export const AppWelcomeScreen: React.FC<{
           );
         }
         return bit;
-      });
-  } else {
-    headingContent = (
+      }) : (
       <>
         {t("welcomeScreen.app.center_heading")}
         <br />
@@ -42,7 +39,6 @@ export const AppWelcomeScreen: React.FC<{
         {t("welcomeScreen.app.center_heading_line3")}
       </>
     );
-  }
 
   return (
     <WelcomeScreen>

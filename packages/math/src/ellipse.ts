@@ -153,7 +153,7 @@ export function ellipseSegmentInterceptPoints<
 
   const a = vectorDot(dir, mDir);
   const b = vectorDot(dir, mDiff);
-  const c = vectorDot(diff, mDiff) - 1.0;
+  const c = vectorDot(diff, mDiff) - 1;
   const d = b * b - a * c;
 
   const intersections: Point[] = [];

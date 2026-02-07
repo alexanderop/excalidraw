@@ -24,12 +24,12 @@ const CollabError = ({ collabError }: { collabError: ErrorIndicator }) => {
 
   useEffect(() => {
     setIsAnimating(true);
-    clearAnimationRef.current = window.setTimeout(() => {
+    clearAnimationRef.current = globalThis.setTimeout(() => {
       setIsAnimating(false);
     }, 1000);
 
     return () => {
-      window.clearTimeout(clearAnimationRef.current);
+      globalThis.clearTimeout(clearAnimationRef.current);
     };
   }, [collabError.message, collabError.nonce]);
 

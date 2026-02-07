@@ -128,7 +128,7 @@ export const debounce = <T extends any[]>(
   const ret = (...args: T) => {
     lastArgs = args;
     clearTimeout(handle);
-    handle = window.setTimeout(() => {
+    handle = globalThis.setTimeout(() => {
       lastArgs = null;
       fn(...args);
     }, timeout);
@@ -158,7 +158,7 @@ export const throttleRAF = <T extends any[]>(
   let lastArgsTrailing: T | null = null;
 
   const scheduleFunc = (args: T) => {
-    timerId = window.requestAnimationFrame(() => {
+    timerId = globalThis.requestAnimationFrame(() => {
       timerId = null;
       fn(...args);
       lastArgs = null;
@@ -292,12 +292,12 @@ export const easeToValuesRAF = <
 
     const newValues = {} as T;
 
-    Object.keys(fromValues).forEach((key) => {
+    for (const key of Object.keys(fromValues)) {
       const _key = key as keyof T;
       const result = ((toValues[_key] - fromValues[_key]) * factor +
         fromValues[_key]) as T[keyof T];
       newValues[_key] = result;
-    });
+    }
 
     onStep(newValues);
 
@@ -306,7 +306,7 @@ export const easeToValuesRAF = <
 
       const newValues = {} as T;
 
-      Object.keys(fromValues).forEach((key) => {
+      for (const key of Object.keys(fromValues)) {
         const _key = key as K;
         const startValue = fromValues[_key];
         const endValue = toValues[_key];
@@ -322,22 +322,22 @@ export const easeToValuesRAF = <
         }
 
         newValues[_key] = result as T[K];
-      });
+      }
       onStep(newValues);
 
-      frameId = window.requestAnimationFrame(step);
+      frameId = globalThis.requestAnimationFrame(step);
     } else {
       onStep(toValues);
       onEnd?.();
     }
   }
 
-  frameId = window.requestAnimationFrame(step);
+  frameId = globalThis.requestAnimationFrame(step);
 
   return () => {
     onCancel?.();
     canceled = true;
-    window.cancelAnimationFrame(frameId);
+    globalThis.cancelAnimationFrame(frameId);
   };
 };
 
@@ -346,12 +346,12 @@ export const chunk = <T extends any>(
   array: readonly T[],
   size: number,
 ): T[][] => {
-  if (!array.length || size < 1) {
+  if (array.length === 0 || size < 1) {
     return [];
   }
   let index = 0;
   let resIndex = 0;
-  const result = Array(Math.ceil(array.length / size));
+  const result = new Array(Math.ceil(array.length / size));
   while (index < array.length) {
     result[resIndex++] = array.slice(index, (index += size));
   }
@@ -359,7 +359,7 @@ export const chunk = <T extends any>(
 };
 
 export const selectNode = (node: Element) => {
-  const selection = window.getSelection();
+  const selection = globalThis.getSelection();
   if (selection) {
     const range = document.createRange();
     range.selectNodeContents(node);
@@ -369,7 +369,7 @@ export const selectNode = (node: Element) => {
 };
 
 export const removeSelection = () => {
-  const selection = window.getSelection();
+  const selection = globalThis.getSelection();
   if (selection) {
     selection.removeAllRanges();
   }
@@ -538,8 +538,8 @@ export const mapFind = <T, K>(
   collection: readonly T[],
   iteratee: (value: T, index: number) => K | undefined | null,
 ): K | undefined => {
-  for (let idx = 0; idx < collection.length; idx++) {
-    const result = iteratee(collection[idx], idx);
+  for (const [idx, element] of collection.entries()) {
+    const result = iteratee(element, idx);
     if (result != null) {
       return result;
     }
@@ -573,7 +573,7 @@ export const nFormatter = (num: number, digits: number): string => {
     { value: 1e6, symbol: "M" },
     { value: 1e9, symbol: "G" },
   ];
-  const rx = /\.0+$|(\.[0-9]*[1-9])0+$/;
+  const rx = /\.0+$|(\.\d*[1-9])0+$/;
   let index;
   for (index = si.length - 1; index > 0; index--) {
     if (num >= si[index].value) {
@@ -617,7 +617,7 @@ export const getNearestScrollableContainer = (
     if (parent === document.body) {
       return document;
     }
-    const { overflowY } = window.getComputedStyle(parent);
+    const { overflowY } = globalThis.getComputedStyle(parent);
     const hasScrollableContent = parent.scrollHeight > parent.clientHeight;
     if (
       hasScrollableContent &&
@@ -650,7 +650,7 @@ export const preventUnload = (event: BeforeUnloadEvent) => {
 };
 
 export const bytesToHexString = (bytes: Uint8Array) => {
-  return Array.from(bytes)
+  return [...bytes]
     .map((byte) => `0${byte.toString(16)}`.slice(-2))
     .join("");
 };
@@ -741,7 +741,7 @@ export const toIterable = <T>(
 export const toArray = <T>(
   values: readonly T[] | ReadonlyMap<string, T>,
 ): T[] => {
-  return Array.isArray(values) ? values : Array.from(toIterable(values));
+  return Array.isArray(values) ? values : [...toIterable(values)];
 };
 
 export const isTestEnv = () => import.meta.env.MODE === ENV.TEST;
@@ -769,7 +769,7 @@ export const updateObject = <T extends Record<string, any>>(
   let didChange = false;
   for (const key in updates) {
     const value = (updates as any)[key];
-    if (typeof value !== "undefined") {
+    if (value !== undefined) {
       if (
         (obj as any)[key] === value &&
         // if object, always update because its attrs could have changed
@@ -798,8 +798,8 @@ export const isPrimitive = (val: any) => {
 
 export const getFrame = () => {
   try {
-    return window.self === window.top ? "top" : "iframe";
-  } catch (error) {
+    return globalThis.self === window.top ? "top" : "iframe";
+  } catch {
     return "iframe";
   }
 };
@@ -824,7 +824,7 @@ export const queryFocusableElements = (container: HTMLElement | null) => {
   );
 
   return focusableElements
-    ? Array.from(focusableElements).filter(
+    ? [...focusableElements].filter(
         (element) =>
           element.tabIndex > -1 && !(element as HTMLInputElement).disabled,
       )
@@ -1142,18 +1142,18 @@ export function getSvgPathFromStroke(points: number[][], closed = true) {
 }
 
 export const normalizeEOL = (str: string) => {
-  return str.replace(/\r?\n|\r/g, "\n");
+  return str.replaceAll(/\r?\n|\r/g, "\n");
 };
 
 // -----------------------------------------------------------------------------
 export type HasBrand<T> = {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+   
   [K in keyof T]: K extends `~brand${infer _}` | "_brand" ? true : never;
 }[keyof T];
 
 type RemoveAllBrands<T> = HasBrand<T> extends true
   ? {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+       
       [K in keyof T as K extends `~brand~${infer _}` | "_brand"
         ? never
         : K]: T[K];
@@ -1238,7 +1238,7 @@ export const safelyParseJSON = (json: string): Record<string, any> | null => {
  * the attribute is double-quoted when constructing the HTML string
  */
 export const escapeDoubleQuotes = (str: string) => {
-  return str.replace(/"/g, "&quot;");
+  return str.replaceAll('"', "&quot;");
 };
 
 export const castArray = <T>(value: T | T[]): T[] =>
@@ -1326,7 +1326,7 @@ export const setFeatureFlag = <F extends keyof FEATURE_FLAGS>(
       FEATURE_FLAGS_STORAGE_KEY,
       JSON.stringify(featureFlags),
     );
-  } catch (e) {
-    console.error("unable to set feature flag", e);
+  } catch (error) {
+    console.error("unable to set feature flag", error);
   }
 };

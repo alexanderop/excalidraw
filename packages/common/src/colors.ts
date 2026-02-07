@@ -11,7 +11,7 @@ import type { Degrees } from "@excalidraw/math";
 
 // Browser-only cache to avoid memory leaks on server
 const DARK_MODE_COLORS_CACHE: Map<string, string> | null =
-  typeof window !== "undefined" ? new Map() : null;
+  globalThis.window === undefined ? null : new Map();
 
 function cssHueRotate(
   red: number,

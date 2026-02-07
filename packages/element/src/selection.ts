@@ -41,11 +41,11 @@ export const excludeElementsInFramesFromSelection = <
 ) => {
   const framesInSelection = new Set<T["id"]>();
 
-  selectedElements.forEach((element) => {
+  for (const element of selectedElements) {
     if (isFrameLikeElement(element)) {
       framesInSelection.add(element.id);
     }
-  });
+  }
 
   return selectedElements.filter((element) => {
     if (element.frameId && framesInSelection.has(element.frameId)) {
@@ -198,14 +198,13 @@ export const getSelectedElements = (
 
   if (opts?.includeElementsInFrames) {
     const elementsToInclude: ExcalidrawElement[] = [];
-    selectedElements.forEach((element) => {
+    for (const element of selectedElements) {
       if (isFrameLikeElement(element)) {
-        getFrameChildren(elements, element.id).forEach(
-          (e) => !addedElements.has(e.id) && elementsToInclude.push(e),
-        );
+        for (const e of getFrameChildren(elements, element.id)) !addedElements.has(e.id) && elementsToInclude.push(e)
+        ;
       }
       elementsToInclude.push(element);
-    });
+    }
 
     return elementsToInclude;
   }

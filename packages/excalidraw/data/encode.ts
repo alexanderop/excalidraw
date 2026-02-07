@@ -47,14 +47,14 @@ const byteStringToString = (byteString: string) => {
  *  due to reencoding
  */
 export const stringToBase64 = (str: string, isByteString = false) => {
-  return isByteString ? window.btoa(str) : window.btoa(toByteString(str));
+  return isByteString ? globalThis.btoa(str) : globalThis.btoa(toByteString(str));
 };
 
 // async to align with stringToBase64
 export const base64ToString = (base64: string, isByteString = false) => {
   return isByteString
-    ? window.atob(base64)
-    : byteStringToString(window.atob(base64));
+    ? globalThis.atob(base64)
+    : byteStringToString(globalThis.atob(base64));
 };
 
 export const base64ToArrayBuffer = (base64: string): ArrayBuffer => {
@@ -71,11 +71,11 @@ export const base64ToArrayBuffer = (base64: string): ArrayBuffer => {
 // -----------------------------------------------------------------------------
 
 export const base64urlToString = (str: string) => {
-  return window.atob(
+  return globalThis.atob(
     // normalize base64URL to base64
     str
-      .replace(/-/g, "+")
-      .replace(/_/g, "/")
+      .replaceAll('-', "+")
+      .replaceAll('_', "/")
       .padEnd(str.length + ((4 - (str.length % 4)) % 4), "="),
   );
 };
@@ -124,14 +124,16 @@ export const decode = (data: EncodedData): string => {
   let decoded: string;
 
   switch (data.encoding) {
-    case "bstring":
+    case "bstring": {
       // if compressed, do not double decode the bstring
       decoded = data.compressed
         ? data.encoded
         : byteStringToString(data.encoded);
       break;
-    default:
+    }
+    default: {
       throw new Error(`decode: unknown encoding "${data.encoding}"`);
+    }
   }
 
   if (data.compressed) {

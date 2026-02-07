@@ -96,8 +96,7 @@ const handleFontSizeChange: DragInputCallbackType<
   } else {
     const originalTextElements = originalElements as ExcalidrawTextElement[];
 
-    for (let i = 0; i < latestTextElements.length; i++) {
-      const latestElement = latestTextElements[i];
+    for (const [i, latestElement] of latestTextElements.entries()) {
       const originalElement = originalTextElements[i];
 
       const originalFontSize = Math.round(originalElement.fontSize);
@@ -133,7 +132,7 @@ const MultiFontSize = ({
 }: MultiFontSizeProps) => {
   const latestTextElements = getApplicableTextElements(elements, elementsMap);
 
-  if (!latestTextElements.length) {
+  if (latestTextElements.length === 0) {
     return null;
   }
 

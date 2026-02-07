@@ -43,7 +43,7 @@ import { mockHTMLImageElement } from "./helpers/mocks";
 
 import type { NormalizedZoomValue } from "../types";
 
-const { h } = window;
+const { h } = globalThis;
 const mouse = new Pointer("mouse");
 
 beforeEach(() => {
@@ -139,10 +139,10 @@ const createLinearElementWithCurveInsideMinMaxPoints = (
 ) => {
   return newLinearElement({
     type,
-    x: 2256.910668124894,
-    y: -2412.5069664197654,
-    width: 1750.4888916015625,
-    height: 410.51605224609375,
+    x: 2256.910_668_124_894,
+    y: -2412.506_966_419_765_4,
+    width: 1750.488_891_601_562_5,
+    height: 410.516_052_246_093_75,
     angle: 0 as Radians,
     strokeColor: "#000000",
     backgroundColor: "#fa5252",
@@ -158,8 +158,8 @@ const createLinearElementWithCurveInsideMinMaxPoints = (
     locked: false,
     points: [
       pointFrom<LocalPoint>(0, 0),
-      pointFrom<LocalPoint>(-922.4761962890625, 300.3277587890625),
-      pointFrom<LocalPoint>(828.0126953125, 410.51605224609375),
+      pointFrom<LocalPoint>(-922.476_196_289_062_5, 300.327_758_789_062_5),
+      pointFrom<LocalPoint>(828.012_695_312_5, 410.516_052_246_093_75),
     ],
   });
 };
@@ -170,10 +170,10 @@ const createLinearElementsWithCurveOutsideMinMaxPoints = (
 ) => {
   return newLinearElement({
     type,
-    x: -1388.6555370382996,
-    y: 1037.698247710191,
-    width: 591.2804897585779,
-    height: 69.32871961377737,
+    x: -1388.655_537_038_299_6,
+    y: 1037.698_247_710_191,
+    width: 591.280_489_758_577_9,
+    height: 69.328_719_613_777_37,
     angle: 0,
     strokeColor: "#000000",
     backgroundColor: "transparent",
@@ -189,9 +189,9 @@ const createLinearElementsWithCurveOutsideMinMaxPoints = (
     locked: false,
     points: [
       [0, 0],
-      [-584.1485186423079, -15.365636022723947],
-      [-591.2804897585779, 36.09360810181511],
-      [-148.56510566829502, 53.96308359105342],
+      [-584.148_518_642_307_9, -15.365_636_022_723_947],
+      [-591.280_489_758_577_9, 36.093_608_101_815_11],
+      [-148.565_105_668_295_02, 53.963_083_591_053_42],
     ],
     ...extraProps,
   });
@@ -214,7 +214,7 @@ const checkElementsBoundingBox = async (
   });
 };
 
-const checkHorizontalFlip = async (toleranceInPx: number = 0.00001) => {
+const checkHorizontalFlip = async (toleranceInPx: number = 0.000_01) => {
   const originalElement = cloneJSON(h.elements[0]);
   API.executeAction(actionFlipHorizontal);
   const newElement = h.elements[0];
@@ -271,7 +271,7 @@ const checkTwoPointsLineVerticalFlip = async () => {
 
 const checkRotatedHorizontalFlip = async (
   expectedAngle: number,
-  toleranceInPx: number = 0.00001,
+  toleranceInPx: number = 0.000_01,
 ) => {
   const originalElement = cloneJSON(h.elements[0]);
   API.executeAction(actionFlipHorizontal);
@@ -284,7 +284,7 @@ const checkRotatedHorizontalFlip = async (
 
 const checkRotatedVerticalFlip = async (
   expectedAngle: number,
-  toleranceInPx: number = 0.00001,
+  toleranceInPx: number = 0.000_01,
 ) => {
   const originalElement = cloneJSON(h.elements[0]);
   API.executeAction(actionFlipVertical);
@@ -295,7 +295,7 @@ const checkRotatedVerticalFlip = async (
   await checkElementsBoundingBox(originalElement, newElement, toleranceInPx);
 };
 
-const checkVerticalFlip = async (toleranceInPx: number = 0.00001) => {
+const checkVerticalFlip = async (toleranceInPx: number = 0.000_01) => {
   const originalElement = cloneJSON(h.elements[0]);
 
   API.executeAction(actionFlipVertical);
@@ -304,7 +304,7 @@ const checkVerticalFlip = async (toleranceInPx: number = 0.00001) => {
   await checkElementsBoundingBox(originalElement, newElement, toleranceInPx);
 };
 
-const checkVerticalHorizontalFlip = async (toleranceInPx: number = 0.00001) => {
+const checkVerticalHorizontalFlip = async (toleranceInPx: number = 0.000_01) => {
   const originalElement = cloneJSON(h.elements[0]);
 
   API.executeAction(actionFlipHorizontal);

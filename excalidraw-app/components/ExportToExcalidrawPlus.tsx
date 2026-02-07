@@ -67,7 +67,7 @@ export const exportToExcalidrawPlus = async (
     }
   }
 
-  if (filesMap.size) {
+  if (filesMap.size > 0) {
     const filesToUpload = await encodeFilesForUpload({
       files: filesMap,
       encryptionKey,

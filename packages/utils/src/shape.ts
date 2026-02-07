@@ -125,21 +125,17 @@ export const getPolygonShape = <Point extends GlobalPoint | LocalPoint>(
 
   let data: Polygon<Point>;
 
-  if (element.type === "diamond") {
-    data = polygon(
+  data = element.type === "diamond" ? polygon(
       pointRotateRads(pointFrom(cx, y), center, angle),
       pointRotateRads(pointFrom(x + width, cy), center, angle),
       pointRotateRads(pointFrom(cx, y + height), center, angle),
       pointRotateRads(pointFrom(x, cy), center, angle),
-    );
-  } else {
-    data = polygon(
+    ) : polygon(
       pointRotateRads(pointFrom(x, y), center, angle),
       pointRotateRads(pointFrom(x + width, y), center, angle),
       pointRotateRads(pointFrom(x + width, y + height), center, angle),
       pointRotateRads(pointFrom(x, y + height), center, angle),
     );
-  }
 
   return {
     type: "polygon",
@@ -321,21 +317,32 @@ export const getClosedCurveShape = <Point extends GlobalPoint | LocalPoint>(
   const points: Point[] = [];
   let odd = false;
   for (const operation of ops) {
-    if (operation.op === "move") {
+    switch (operation.op) {
+    case "move": {
       odd = !odd;
       if (odd) {
         points.push(pointFrom(operation.data[0], operation.data[1]));
       }
-    } else if (operation.op === "bcurveTo") {
+    
+    break;
+    }
+    case "bcurveTo": {
       if (odd) {
         points.push(pointFrom(operation.data[0], operation.data[1]));
         points.push(pointFrom(operation.data[2], operation.data[3]));
         points.push(pointFrom(operation.data[4], operation.data[5]));
       }
-    } else if (operation.op === "lineTo") {
+    
+    break;
+    }
+    case "lineTo": {
       if (odd) {
         points.push(pointFrom(operation.data[0], operation.data[1]));
       }
+    
+    break;
+    }
+    // No default
     }
   }
 

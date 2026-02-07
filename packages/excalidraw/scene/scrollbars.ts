@@ -18,7 +18,7 @@ export const getScrollBars = (
   viewportHeight: number,
   appState: InteractiveCanvasAppState,
 ): ScrollBars => {
-  if (!elements.size) {
+  if (elements.size === 0) {
     return {
       horizontal: null,
       vertical: null,
@@ -33,10 +33,10 @@ export const getScrollBars = (
   const viewportHeightWithZoom = viewportHeight / appState.zoom.value;
 
   const safeArea = {
-    top: parseInt(getGlobalCSSVariable("sat")) || 0,
-    bottom: parseInt(getGlobalCSSVariable("sab")) || 0,
-    left: parseInt(getGlobalCSSVariable("sal")) || 0,
-    right: parseInt(getGlobalCSSVariable("sar")) || 0,
+    top: Number.parseInt(getGlobalCSSVariable("sat")) || 0,
+    bottom: Number.parseInt(getGlobalCSSVariable("sab")) || 0,
+    left: Number.parseInt(getGlobalCSSVariable("sal")) || 0,
+    right: Number.parseInt(getGlobalCSSVariable("sar")) || 0,
   };
 
   const isRTL = getLanguage().rtl;

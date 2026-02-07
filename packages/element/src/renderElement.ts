@@ -91,17 +91,21 @@ const isPendingImageElement = (
 
 const getCanvasPadding = (element: ExcalidrawElement) => {
   switch (element.type) {
-    case "freedraw":
+    case "freedraw": {
       return element.strokeWidth * 12;
-    case "text":
+    }
+    case "text": {
       return element.fontSize / 2;
-    case "arrow":
+    }
+    case "arrow": {
       if (element.endArrowhead || element.endArrowhead) {
         return 40;
       }
       return 20;
-    default:
+    }
+    default: {
       return 20;
+    }
   }
 };
 
@@ -115,7 +119,7 @@ export const getRenderOpacity = (
   // multiplying frame opacity with element opacity to combine them
   // (e.g. frame 50% and element 50% opacity should result in 25% opacity)
   let opacity =
-    (((containingFrame?.opacity ?? 100) * element.opacity) / 10000) *
+    (((containingFrame?.opacity ?? 100) * element.opacity) / 10_000) *
     globalAlpha;
 
   // if pending erasure, multiply again to combine further
@@ -161,9 +165,9 @@ const cappedElementCanvasSize = (
   // on zoom.
   //
   // ~ safari mobile canvas area limit
-  const AREA_LIMIT = 16777216;
+  const AREA_LIMIT = 16_777_216;
   // ~ safari width/height limit based on developer.mozilla.org.
-  const WIDTH_HEIGHT_LIMIT = 32767;
+  const WIDTH_HEIGHT_LIMIT = 32_767;
 
   const padding = getCanvasPadding(element);
 
@@ -341,18 +345,18 @@ const generateElementCanvas = (
 export const DEFAULT_LINK_SIZE = 14;
 
 const IMAGE_PLACEHOLDER_IMG =
-  typeof document !== "undefined"
-    ? document.createElement("img")
-    : ({ src: "" } as HTMLImageElement); // mock image element outside of browser
+  typeof document === "undefined"
+    ? ({ src: "" } as HTMLImageElement)
+    : document.createElement("img"); // mock image element outside of browser
 
 IMAGE_PLACEHOLDER_IMG.src = `data:${MIME_TYPES.svg},${encodeURIComponent(
   `<svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="image" class="svg-inline--fa fa-image fa-w-16" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="#888" d="M464 448H48c-26.51 0-48-21.49-48-48V112c0-26.51 21.49-48 48-48h416c26.51 0 48 21.49 48 48v288c0 26.51-21.49 48-48 48zM112 120c-30.928 0-56 25.072-56 56s25.072 56 56 56 56-25.072 56-56-25.072-56-56-56zM64 384h384V272l-87.515-87.515c-4.686-4.686-12.284-4.686-16.971 0L208 320l-55.515-55.515c-4.686-4.686-12.284-4.686-16.971 0L64 336v48z"></path></svg>`,
 )}`;
 
 const IMAGE_ERROR_PLACEHOLDER_IMG =
-  typeof document !== "undefined"
-    ? document.createElement("img")
-    : ({ src: "" } as HTMLImageElement); // mock image element outside of browser
+  typeof document === "undefined"
+    ? ({ src: "" } as HTMLImageElement)
+    : document.createElement("img"); // mock image element outside of browser
 
 IMAGE_ERROR_PLACEHOLDER_IMG.src = `data:${MIME_TYPES.svg},${encodeURIComponent(
   `<svg viewBox="0 0 668 668" xmlns="http://www.w3.org/2000/svg" xml:space="preserve" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2"><path d="M464 448H48c-26.51 0-48-21.49-48-48V112c0-26.51 21.49-48 48-48h416c26.51 0 48 21.49 48 48v288c0 26.51-21.49 48-48 48ZM112 120c-30.928 0-56 25.072-56 56s25.072 56 56 56 56-25.072 56-56-25.072-56-56-56ZM64 384h384V272l-87.515-87.515c-4.686-4.686-12.284-4.686-16.971 0L208 320l-55.515-55.515c-4.686-4.686-12.284-4.686-16.971 0L64 336v48Z" style="fill:#888;fill-rule:nonzero" transform="matrix(.81709 0 0 .81709 124.825 145.825)"/><path d="M256 8C119.034 8 8 119.033 8 256c0 136.967 111.034 248 248 248s248-111.034 248-248S392.967 8 256 8Zm130.108 117.892c65.448 65.448 70 165.481 20.677 235.637L150.47 105.216c70.204-49.356 170.226-44.735 235.638 20.676ZM125.892 386.108c-65.448-65.448-70-165.481-20.677-235.637L361.53 406.784c-70.203 49.356-170.226 44.736-235.638-20.676Z" style="fill:#888;fill-rule:nonzero" transform="matrix(.30366 0 0 .30366 506.822 60.065)"/></svg>`,
@@ -407,11 +411,10 @@ const drawElementOnCanvas = (
       context.lineJoin = "round";
       context.lineCap = "round";
 
-      ShapeCache.generateElementShape(element, renderConfig).forEach(
-        (shape) => {
+      for (const shape of ShapeCache.generateElementShape(element, renderConfig)) {
           rc.draw(shape);
-        },
-      );
+        }
+      
       break;
     }
     case "freedraw": {
@@ -438,9 +441,9 @@ const drawElementOnCanvas = (
     case "image": {
       context.save();
       const cacheEntry =
-        element.fileId !== null
-          ? renderConfig.imageCache.get(element.fileId)
-          : null;
+        element.fileId === null
+          ? null
+          : renderConfig.imageCache.get(element.fileId);
       const img = isInitializedImageElement(element)
         ? cacheEntry?.image
         : undefined;
@@ -550,7 +553,7 @@ const drawElementOnCanvas = (
         if (shouldTemporarilyAttach) {
           // to correctly render RTL text mixed with LTR, we have to append it
           // to the DOM
-          document.body.appendChild(context.canvas);
+          document.body.append(context.canvas);
         }
         context.canvas.setAttribute("dir", rtl ? "rtl" : "ltr");
         context.save();
@@ -562,7 +565,7 @@ const drawElementOnCanvas = (
         context.textAlign = element.textAlign as CanvasTextAlign;
 
         // Canvas does not support multiline text by default
-        const lines = element.text.replace(/\r\n?/g, "\n").split("\n");
+        const lines = element.text.replaceAll(/\r\n?/g, "\n").split("\n");
 
         const horizontalOffset =
           element.textAlign === "center"
@@ -582,9 +585,9 @@ const drawElementOnCanvas = (
           lineHeightPx,
         );
 
-        for (let index = 0; index < lines.length; index++) {
+        for (const [index, line] of lines.entries()) {
           context.fillText(
-            lines[index],
+            line,
             horizontalOffset,
             index * lineHeightPx + verticalOffset,
           );
@@ -1094,7 +1097,7 @@ export function getFreedrawOutlineAsSegments(
     (acc, curr) => {
       acc.push(
         lineSegment<GlobalPoint>(
-          acc[acc.length - 1][1],
+          acc.at(-1)[1],
           pointRotateRads(
             pointFrom<GlobalPoint>(curr[0] + element.x, curr[1] + element.y),
             center,

@@ -1,4 +1,4 @@
-import path from "path";
+import path from "node:path";
 import { defineConfig, loadEnv } from "vite";
 import react from "@vitejs/plugin-react";
 import svgrPlugin from "vite-plugin-svgr";
@@ -53,7 +53,7 @@ export default defineConfig(({ mode }) => {
           ),
         },
         {
-          find: /^@excalidraw\/excalidraw\/(.*?)/,
+          find: /^@(?:excalidraw\/){2}(.*?)/,
           replacement: path.resolve(__dirname, "../packages/excalidraw/$1"),
         },
         {
@@ -100,7 +100,7 @@ export default defineConfig(({ mode }) => {
             ) {
               const index = id.indexOf("locales/");
               // Taking the substring after "locales/"
-              return `locales/${id.substring(index + 8)}`;
+              return `locales/${id.slice(Math.max(0, index + 8))}`;
             }
 
             if (id.includes("@excalidraw/mermaid-to-excalidraw")) {

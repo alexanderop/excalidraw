@@ -23,38 +23,38 @@ type IframeDataWithSandbox = MarkRequired<IframeData, "sandbox">;
 const embeddedLinkCache = new Map<string, IframeDataWithSandbox>();
 
 const RE_YOUTUBE =
-  /^(?:http(?:s)?:\/\/)?(?:www\.)?youtu(?:be\.com|\.be)\/(embed\/|watch\?v=|shorts\/|playlist\?list=|embed\/videoseries\?list=)?([a-zA-Z0-9_-]+)/;
+  /^(?:https?:\/\/)?(?:www\.)?youtu(?:be\.com|\.be)\/(embed\/|watch\?v=|shorts\/|playlist\?list=|embed\/videoseries\?list=)?([\w-]+)/;
 
 const RE_VIMEO =
-  /^(?:http(?:s)?:\/\/)?(?:(?:w){3}\.)?(?:player\.)?vimeo\.com\/(?:video\/)?([^?\s]+)(?:\?.*)?$/;
+  /^(?:https?:\/\/)?(?:w{3}\.)?(?:player\.)?vimeo\.com\/(?:video\/)?([^\s?]+)(?:\?.*)?$/;
 const RE_FIGMA = /^https:\/\/(?:www\.)?figma\.com/;
 
-const RE_GH_GIST = /^https:\/\/gist\.github\.com\/([\w_-]+)\/([\w_-]+)/;
+const RE_GH_GIST = /^https:\/\/gist\.github\.com\/([\w-]+)\/([\w-]+)/;
 const RE_GH_GIST_EMBED =
-  /^<script[\s\S]*?\ssrc=["'](https:\/\/gist\.github\.com\/.*?)\.js["']/i;
+  /^<script[\S\s]*?\ssrc=["'](https:\/\/gist\.github\.com\/.*?)\.js["']/i;
 
 const RE_MSFORMS = /^(?:https?:\/\/)?forms\.microsoft\.com\//;
 
 // not anchored to start to allow <blockquote> twitter embeds
 const RE_TWITTER =
-  /(?:https?:\/\/)?(?:(?:w){3}\.)?(?:twitter|x)\.com\/[^/]+\/status\/(\d+)/;
+  /(?:https?:\/\/)?(?:w{3}\.)?(?:twitter|x)\.com\/[^/]+\/status\/(\d+)/;
 const RE_TWITTER_EMBED =
-  /^<blockquote[\s\S]*?\shref=["'](https?:\/\/(?:twitter|x)\.com\/[^"']*)/i;
+  /^<blockquote[\S\s]*?\shref=["'](https?:\/\/(?:twitter|x)\.com\/[^"']*)/i;
 
 const RE_VALTOWN =
-  /^https:\/\/(?:www\.)?val\.town\/(v|embed)\/[a-zA-Z_$][0-9a-zA-Z_$]+\.[a-zA-Z_$][0-9a-zA-Z_$]+/;
+  /^https:\/\/(?:www\.)?val\.town\/(v|embed)\/[$A-Z_a-z][\w$]+\.[$A-Z_a-z][\w$]+/;
 
 const RE_GENERIC_EMBED =
-  /^<(?:iframe|blockquote)[\s\S]*?\s(?:src|href)=["']([^"']*)["'][\s\S]*?>$/i;
+  /^<(?:iframe|blockquote)[\S\s]*?\s(?:src|href)=["']([^"']*)["'][\S\s]*?>$/i;
 
 const RE_GIPHY =
-  /giphy.com\/(?:clips|embed|gifs)\/[a-zA-Z0-9]*?-?([a-zA-Z0-9]+)(?:[^a-zA-Z0-9]|$)/;
+  /giphy.com\/(?:clips|embed|gifs)\/[\dA-Za-z]*?-?([\dA-Za-z]+)(?:[^\dA-Za-z]|$)/;
 
 const RE_REDDIT =
-  /^(?:http(?:s)?:\/\/)?(?:www\.)?reddit\.com\/r\/([a-zA-Z0-9_]+)\/comments\/([a-zA-Z0-9_]+)\/([a-zA-Z0-9_]+)\/?(?:\?[^#\s]*)?(?:#[^\s]*)?$/;
+  /^(?:https?:\/\/)?(?:www\.)?reddit\.com\/r\/(\w+)\/comments\/(\w+)\/(\w+)\/?(?:\?[^\s#]*)?(?:#\S*)?$/;
 
 const RE_REDDIT_EMBED =
-  /^<blockquote[\s\S]*?\shref=["'](https?:\/\/(?:www\.)?reddit\.com\/[^"']*)/i;
+  /^<blockquote[\S\s]*?\shref=["'](https?:\/\/(?:www\.)?reddit\.com\/[^"']*)/i;
 
 const parseYouTubeTimestamp = (url: string): number => {
   let timeParam: string | null | undefined;
@@ -63,8 +63,8 @@ const parseYouTubeTimestamp = (url: string): number => {
     const urlObj = new URL(url.startsWith("http") ? url : `https://${url}`);
     timeParam =
       urlObj.searchParams.get("t") || urlObj.searchParams.get("start");
-  } catch (error) {
-    const timeMatch = url.match(/[?&#](?:t|start)=([^&#\s]+)/);
+  } catch {
+    const timeMatch = url.match(/[#&?](?:t|start)=([^\s#&]+)/);
     timeParam = timeMatch?.[1];
   }
 
@@ -73,7 +73,7 @@ const parseYouTubeTimestamp = (url: string): number => {
   }
 
   if (/^\d+$/.test(timeParam)) {
-    return parseInt(timeParam, 10);
+    return Number.parseInt(timeParam, 10);
   }
 
   const timeMatch = timeParam.match(/^(?:(\d+)h)?(?:(\d+)m)?(?:(\d+)s)?$/);
@@ -82,7 +82,7 @@ const parseYouTubeTimestamp = (url: string): number => {
   }
 
   const [, hours = "0", minutes = "0", seconds = "0"] = timeMatch;
-  return parseInt(hours) * 3600 + parseInt(minutes) * 60 + parseInt(seconds);
+  return Number.parseInt(hours) * 3600 + Number.parseInt(minutes) * 60 + Number.parseInt(seconds);
 };
 
 const ALLOWED_DOMAINS = new Set([
@@ -149,16 +149,19 @@ export const getEmbedLink = (
     switch (ytLink[1]) {
       case "embed/":
       case "watch?v=":
-      case "shorts/":
+      case "shorts/": {
         link = `https://www.youtube.com/embed/${ytLink[2]}?enablejsapi=1${time}`;
         break;
+      }
       case "playlist?list=":
-      case "embed/videoseries?list=":
+      case "embed/videoseries?list=": {
         link = `https://www.youtube.com/embed/videoseries?list=${ytLink[2]}&enablejsapi=1${time}`;
         break;
-      default:
+      }
+      default: {
         link = `https://www.youtube.com/embed/${ytLink[2]}?enablejsapi=1${time}`;
         break;
+      }
     }
     aspectRatio = isPortrait ? { w: 315, h: 560 } : { w: 560, h: 315 };
     embeddedLinkCache.set(originalLink, {
@@ -178,9 +181,9 @@ export const getEmbedLink = (
   const vimeoLink = link.match(RE_VIMEO);
   if (vimeoLink?.[1]) {
     const target = vimeoLink?.[1];
-    const error = !/^\d+$/.test(target)
-      ? new URIError("Invalid embed link format")
-      : undefined;
+    const error = /^\d+$/.test(target)
+      ? undefined
+      : new URIError("Invalid embed link format");
     type = "video";
     link = `https://player.vimeo.com/video/${target}?api=1`;
     aspectRatio = { w: 560, h: 315 };
@@ -348,7 +351,7 @@ export const createPlaceholderEmbeddableLabel = (
     x: element.x + element.width / 2,
     y: element.y + element.height / 2,
     strokeColor:
-      element.strokeColor !== "transparent" ? element.strokeColor : "black",
+      element.strokeColor === "transparent" ? "black" : element.strokeColor,
     backgroundColor: "transparent",
     fontFamily,
     fontSize,
@@ -388,7 +391,7 @@ const matchHostname = (
     if (bareDomain === bareAllowedHostname) {
       return bareAllowedHostname;
     }
-  } catch (error) {
+  } catch {
     // ignore
   }
   return null;

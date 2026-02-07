@@ -284,13 +284,13 @@ const changeFontSize = (
   );
 
   // Update arrow elements after text elements have been updated
-  getSelectedElements(elements, appState, {
+  for (const element of getSelectedElements(elements, appState, {
     includeBoundTextElement: true,
-  }).forEach((element) => {
+  })) {
     if (isTextElement(element)) {
       updateBoundElements(element, app.scene);
     }
-  });
+  }
 
   return {
     elements: updatedElements,
@@ -335,7 +335,7 @@ export const actionChangeStrokeColor = register<
         ...appState,
         ...value,
       },
-      captureUpdate: !!value?.currentItemStrokeColor
+      captureUpdate: value?.currentItemStrokeColor
         ? CaptureUpdateAction.IMMEDIATELY
         : CaptureUpdateAction.EVENTUALLY,
     };
@@ -359,7 +359,7 @@ export const actionChangeStrokeColor = register<
             (element) => element.strokeColor,
             true,
             (hasSelection) =>
-              !hasSelection ? appState.currentItemStrokeColor : null,
+              hasSelection ? null : appState.currentItemStrokeColor,
           )}
           onChange={(color) => updateData({ currentItemStrokeColor: color })}
           elements={elements}
@@ -444,7 +444,7 @@ export const actionChangeBackgroundColor = register<
             (element) => element.backgroundColor,
             true,
             (hasSelection) =>
-              !hasSelection ? appState.currentItemBackgroundColor : null,
+              hasSelection ? null : appState.currentItemBackgroundColor,
           )}
           onChange={(color) =>
             updateData({ currentItemBackgroundColor: color })
@@ -982,7 +982,7 @@ export const actionChangeFontFamily = register<{
       let uniqueChars = new Set<string>();
       let skipFontFaceCheck = false;
 
-      const fontsCache = Array.from(Fonts.loadedFontsCache.values());
+      const fontsCache = [...Fonts.loadedFontsCache.values()];
       const fontFamily = Object.entries(FONT_FAMILY).find(
         ([_, value]) => value === nextFontFamily,
       )?.[0];
@@ -1029,7 +1029,7 @@ export const actionChangeFontFamily = register<{
               if (!skipFontFaceCheck) {
                 uniqueChars = new Set([
                   ...uniqueChars,
-                  ...Array.from(newElement.originalText),
+                  ...[...newElement.originalText],
                 ]);
               }
 
@@ -1048,9 +1048,9 @@ export const actionChangeFontFamily = register<{
       const fontString = `10px ${getFontFamilyString({
         fontFamily: nextFontFamily,
       })}`;
-      const chars = Array.from(uniqueChars.values()).join();
+      const chars = [...uniqueChars.values()].join(',');
 
-      if (skipFontFaceCheck || window.document.fonts.check(fontString, chars)) {
+      if (skipFontFaceCheck || globalThis.document.fonts.check(fontString, chars)) {
         // we either skip the check (have at least one font face loaded) or do the check and find out all the font faces have loaded
         for (const [element, container] of elementContainerMapping) {
           // trigger synchronous redraw
@@ -1058,7 +1058,7 @@ export const actionChangeFontFamily = register<{
         }
       } else {
         // otherwise try to load all font faces for the given chars and redraw elements once our font faces loaded
-        window.document.fonts.load(fontString, chars).then((fontFaces) => {
+        globalThis.document.fonts.load(fontString, chars).then((fontFaces) => {
           for (const [element, container] of elementContainerMapping) {
             // use latest element state to ensure we don't have closure over an old instance in order to avoid possible race conditions (i.e. font faces load out-of-order while rapidly switching fonts)
             const latestElement = app.scene.getElement(element.id);
@@ -1125,7 +1125,7 @@ export const actionChangeFontFamily = register<{
         appState.openPopup === "fontFamily"
       ) {
         return getFontFamily(
-          Array.from(cachedElementsRef.current?.values() ?? []),
+          [...cachedElementsRef.current?.values() ?? []],
           cachedElementsRef.current,
         );
       }
@@ -1144,7 +1144,7 @@ export const actionChangeFontFamily = register<{
     }, [selectedFontFamily]);
 
     useEffect(() => {
-      if (Object.keys(batchedData).length) {
+      if (Object.keys(batchedData).length > 0) {
         updateData(batchedData);
         // reset the data after we've used the data
         setBatchedData({});

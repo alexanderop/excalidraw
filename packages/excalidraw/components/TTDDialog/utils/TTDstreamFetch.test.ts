@@ -36,14 +36,14 @@ const createDataChunk = (data: string): string => {
 const DONE_CHUNK = "data: [DONE]\n\n";
 
 describe("TTDStreamFetch", () => {
-  let originalFetch: typeof global.fetch;
+  let originalFetch: typeof globalThis.fetch;
 
   beforeEach(() => {
-    originalFetch = global.fetch;
+    originalFetch = globalThis.fetch;
   });
 
   afterEach(() => {
-    global.fetch = originalFetch;
+    globalThis.fetch = originalFetch;
     vi.restoreAllMocks();
   });
 
@@ -56,7 +56,7 @@ describe("TTDStreamFetch", () => {
         DONE_CHUNK,
       ];
 
-      global.fetch = vi.fn().mockResolvedValue({
+      globalThis.fetch = vi.fn().mockResolvedValue({
         ok: true,
         headers: new Headers(),
         body: createMockStream(mockChunks),
@@ -80,7 +80,7 @@ describe("TTDStreamFetch", () => {
         DONE_CHUNK,
       ];
 
-      global.fetch = vi.fn().mockResolvedValue({
+      globalThis.fetch = vi.fn().mockResolvedValue({
         ok: true,
         headers: new Headers(),
         body: createMockStream(mockChunks),
@@ -98,7 +98,7 @@ describe("TTDStreamFetch", () => {
       const onStreamCreated = vi.fn();
       const mockChunks = [createContentChunk("test"), DONE_CHUNK];
 
-      global.fetch = vi.fn().mockResolvedValue({
+      globalThis.fetch = vi.fn().mockResolvedValue({
         ok: true,
         headers: new Headers(),
         body: createMockStream(mockChunks),
@@ -120,7 +120,7 @@ describe("TTDStreamFetch", () => {
         DONE_CHUNK,
       ];
 
-      global.fetch = vi.fn().mockResolvedValue({
+      globalThis.fetch = vi.fn().mockResolvedValue({
         ok: true,
         headers: new Headers(),
         body: createMockStream(mockChunks),
@@ -141,7 +141,7 @@ describe("TTDStreamFetch", () => {
         createContentChunk("after null"),
       ];
 
-      global.fetch = vi.fn().mockResolvedValue({
+      globalThis.fetch = vi.fn().mockResolvedValue({
         ok: true,
         headers: new Headers(),
         body: createMockStream(mockChunks),
@@ -164,7 +164,7 @@ describe("TTDStreamFetch", () => {
       headers.set("X-Ratelimit-Limit", "100");
       headers.set("X-Ratelimit-Remaining", "95");
 
-      global.fetch = vi.fn().mockResolvedValue({
+      globalThis.fetch = vi.fn().mockResolvedValue({
         ok: true,
         headers,
         body: createMockStream(mockChunks),
@@ -187,7 +187,7 @@ describe("TTDStreamFetch", () => {
       headers.set("X-Ratelimit-Limit", "100");
       headers.set("X-Ratelimit-Remaining", "95");
 
-      global.fetch = vi.fn().mockResolvedValue({
+      globalThis.fetch = vi.fn().mockResolvedValue({
         ok: true,
         headers,
         body: createMockStream(mockChunks),
@@ -206,7 +206,7 @@ describe("TTDStreamFetch", () => {
     it("should handle missing rate limit headers", async () => {
       const mockChunks = [createContentChunk("test"), DONE_CHUNK];
 
-      global.fetch = vi.fn().mockResolvedValue({
+      globalThis.fetch = vi.fn().mockResolvedValue({
         ok: true,
         headers: new Headers(),
         body: createMockStream(mockChunks),
@@ -227,7 +227,7 @@ describe("TTDStreamFetch", () => {
       headers.set("X-Ratelimit-Limit", "100");
       headers.set("X-Ratelimit-Remaining", "0");
 
-      global.fetch = vi.fn().mockResolvedValue({
+      globalThis.fetch = vi.fn().mockResolvedValue({
         ok: false,
         status: 429,
         headers,
@@ -247,7 +247,7 @@ describe("TTDStreamFetch", () => {
 
   describe("error handling", () => {
     it("should handle non-ok response with text", async () => {
-      global.fetch = vi.fn().mockResolvedValue({
+      globalThis.fetch = vi.fn().mockResolvedValue({
         ok: false,
         status: 500,
         headers: new Headers(),
@@ -264,7 +264,7 @@ describe("TTDStreamFetch", () => {
     });
 
     it("should handle non-ok response without text", async () => {
-      global.fetch = vi.fn().mockResolvedValue({
+      globalThis.fetch = vi.fn().mockResolvedValue({
         ok: false,
         status: 500,
         headers: new Headers(),
@@ -281,7 +281,7 @@ describe("TTDStreamFetch", () => {
     });
 
     it("should handle missing response body", async () => {
-      global.fetch = vi.fn().mockResolvedValue({
+      globalThis.fetch = vi.fn().mockResolvedValue({
         ok: true,
         headers: new Headers(),
         body: null,
@@ -301,7 +301,7 @@ describe("TTDStreamFetch", () => {
     it("should handle empty response", async () => {
       const mockChunks = [DONE_CHUNK];
 
-      global.fetch = vi.fn().mockResolvedValue({
+      globalThis.fetch = vi.fn().mockResolvedValue({
         ok: true,
         headers: new Headers(),
         body: createMockStream(mockChunks),
@@ -317,7 +317,7 @@ describe("TTDStreamFetch", () => {
     });
 
     it("should handle network errors", async () => {
-      global.fetch = vi
+      globalThis.fetch = vi
         .fn()
         .mockRejectedValue(new Error("Network connection failed"));
 
@@ -341,7 +341,7 @@ describe("TTDStreamFetch", () => {
         DONE_CHUNK,
       ];
 
-      global.fetch = vi.fn().mockResolvedValue({
+      globalThis.fetch = vi.fn().mockResolvedValue({
         ok: true,
         headers: new Headers(),
         body: createMockStream(mockChunks),
@@ -363,7 +363,7 @@ describe("TTDStreamFetch", () => {
     it("should handle abort signal during fetch", async () => {
       const abortController = new AbortController();
 
-      global.fetch = vi.fn().mockImplementation(() => {
+      globalThis.fetch = vi.fn().mockImplementation(() => {
         abortController.abort();
         const error = new Error("The operation was aborted");
         error.name = "AbortError";
@@ -390,7 +390,7 @@ describe("TTDStreamFetch", () => {
         },
       });
 
-      global.fetch = vi.fn().mockResolvedValue({
+      globalThis.fetch = vi.fn().mockResolvedValue({
         ok: true,
         headers: new Headers(),
         body: stream,
@@ -414,7 +414,7 @@ describe("TTDStreamFetch", () => {
         DONE_CHUNK,
       ];
 
-      global.fetch = vi.fn().mockResolvedValue({
+      globalThis.fetch = vi.fn().mockResolvedValue({
         ok: true,
         headers: new Headers(),
         body: createMockStream(mockChunks),
@@ -436,7 +436,7 @@ describe("TTDStreamFetch", () => {
         DONE_CHUNK,
       ];
 
-      global.fetch = vi.fn().mockResolvedValue({
+      globalThis.fetch = vi.fn().mockResolvedValue({
         ok: true,
         headers: new Headers(),
         body: createMockStream(mockChunks),
@@ -459,7 +459,7 @@ describe("TTDStreamFetch", () => {
         DONE_CHUNK,
       ];
 
-      global.fetch = vi.fn().mockResolvedValue({
+      globalThis.fetch = vi.fn().mockResolvedValue({
         ok: true,
         headers: new Headers(),
         body: createMockStream(mockChunks),
@@ -480,7 +480,7 @@ describe("TTDStreamFetch", () => {
         createContentChunk("should not appear"),
       ];
 
-      global.fetch = vi.fn().mockResolvedValue({
+      globalThis.fetch = vi.fn().mockResolvedValue({
         ok: true,
         headers: new Headers(),
         body: createMockStream(mockChunks),

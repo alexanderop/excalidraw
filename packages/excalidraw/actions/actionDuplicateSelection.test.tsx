@@ -11,7 +11,7 @@ import {
 
 import { actionDuplicateSelection } from "./actionDuplicateSelection";
 
-const { h } = window;
+const { h } = globalThis;
 
 describe("actionDuplicateSelection", () => {
   beforeEach(async () => {

@@ -22,7 +22,7 @@ export const actionCopyElementLink = register({
     const selectedElements = getSelectedElements(elements, appState);
 
     try {
-      if (window.location) {
+      if (globalThis.location) {
         const idAndType = getLinkIdAndTypeFromSelection(
           selectedElements,
           appState,

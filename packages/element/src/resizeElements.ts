@@ -455,16 +455,12 @@ const rotateMultipleElements = (
       });
 
       if (isBindingElement(element)) {
-        if (element.startBinding) {
-          if (!rotatedElementsMap.has(element.startBinding.elementId)) {
+        if (element.startBinding && !rotatedElementsMap.has(element.startBinding.elementId)) {
             unbindBindingElement(element, "start", scene);
           }
-        }
-        if (element.endBinding) {
-          if (!rotatedElementsMap.has(element.endBinding.elementId)) {
+        if (element.endBinding && !rotatedElementsMap.has(element.endBinding.elementId)) {
             unbindBindingElement(element, "end", scene);
           }
-        }
       }
 
       const boundText = getBoundTextElement(element, elementsMap);
@@ -509,40 +505,49 @@ export const getResizeOffsetXY = (
     -angle as Radians,
   );
   switch (transformHandleType) {
-    case "n":
+    case "n": {
       return pointRotateRads(
         pointFrom(x - (x1 + x2) / 2, y - y1),
         pointFrom(0, 0),
         angle,
       );
-    case "s":
+    }
+    case "s": {
       return pointRotateRads(
         pointFrom(x - (x1 + x2) / 2, y - y2),
         pointFrom(0, 0),
         angle,
       );
-    case "w":
+    }
+    case "w": {
       return pointRotateRads(
         pointFrom(x - x1, y - (y1 + y2) / 2),
         pointFrom(0, 0),
         angle,
       );
-    case "e":
+    }
+    case "e": {
       return pointRotateRads(
         pointFrom(x - x2, y - (y1 + y2) / 2),
         pointFrom(0, 0),
         angle,
       );
-    case "nw":
+    }
+    case "nw": {
       return pointRotateRads(pointFrom(x - x1, y - y1), pointFrom(0, 0), angle);
-    case "ne":
+    }
+    case "ne": {
       return pointRotateRads(pointFrom(x - x2, y - y1), pointFrom(0, 0), angle);
-    case "sw":
+    }
+    case "sw": {
       return pointRotateRads(pointFrom(x - x1, y - y2), pointFrom(0, 0), angle);
-    case "se":
+    }
+    case "se": {
       return pointRotateRads(pointFrom(x - x2, y - y2), pointFrom(0, 0), angle);
-    default:
+    }
+    default: {
       return [0, 0];
+    }
   }
 };
 
@@ -581,23 +586,30 @@ const getResizeAnchor = (
 
   if (shouldMaintainAspectRatio) {
     switch (handleDirection) {
-      case "n":
+      case "n": {
         return "south-side";
+      }
       case "e": {
         return "west-side";
       }
-      case "s":
+      case "s": {
         return "north-side";
-      case "w":
+      }
+      case "w": {
         return "east-side";
-      case "ne":
+      }
+      case "ne": {
         return "bottom-left";
-      case "nw":
+      }
+      case "nw": {
         return "bottom-right";
-      case "se":
+      }
+      case "se": {
         return "top-left";
-      case "sw":
+      }
+      case "sw": {
         return "top-right";
+      }
     }
   }
 
@@ -631,7 +643,7 @@ const getResizedOrigin = (
   const [x, y] = prevOrigin;
 
   switch (anchor) {
-    case "top-left":
+    case "top-left": {
       return {
         x:
           x +
@@ -644,7 +656,8 @@ const getResizedOrigin = (
           ((newWidth - prevWidth) / 2) * Math.sin(angle) +
           ((newHeight - prevHeight) / 2) * Math.cos(angle),
       };
-    case "top-right":
+    }
+    case "top-right": {
       return {
         x:
           x +
@@ -656,8 +669,9 @@ const getResizedOrigin = (
           ((prevWidth - newWidth) / 2) * Math.sin(angle) +
           ((newHeight - prevHeight) / 2) * Math.cos(angle),
       };
+    }
 
-    case "bottom-left":
+    case "bottom-left": {
       return {
         x:
           x +
@@ -668,7 +682,8 @@ const getResizedOrigin = (
           ((prevHeight - newHeight) / 2) * (Math.cos(angle) + 1) +
           ((newWidth - prevWidth) / 2) * Math.sin(angle),
       };
-    case "bottom-right":
+    }
+    case "bottom-right": {
       return {
         x:
           x +
@@ -679,12 +694,14 @@ const getResizedOrigin = (
           ((prevHeight - newHeight) / 2) * (Math.cos(angle) + 1) +
           ((prevWidth - newWidth) / 2) * Math.sin(angle),
       };
-    case "center":
+    }
+    case "center": {
       return {
         x: x - (newWidth - prevWidth) / 2,
         y: y - (newHeight - prevHeight) / 2,
       };
-    case "east-side":
+    }
+    case "east-side": {
       return {
         x: x + ((prevWidth - newWidth) / 2) * (Math.cos(angle) + 1),
         y:
@@ -692,7 +709,8 @@ const getResizedOrigin = (
           ((prevWidth - newWidth) / 2) * Math.sin(angle) +
           (prevHeight - newHeight) / 2,
       };
-    case "west-side":
+    }
+    case "west-side": {
       return {
         x: x + ((prevWidth - newWidth) / 2) * (1 - Math.cos(angle)),
         y:
@@ -700,7 +718,8 @@ const getResizedOrigin = (
           ((newWidth - prevWidth) / 2) * Math.sin(angle) +
           (prevHeight - newHeight) / 2,
       };
-    case "north-side":
+    }
+    case "north-side": {
       return {
         x:
           x +
@@ -708,7 +727,8 @@ const getResizedOrigin = (
           ((prevHeight - newHeight) / 2) * Math.sin(angle),
         y: y + ((newHeight - prevHeight) / 2) * (Math.cos(angle) - 1),
       };
-    case "south-side":
+    }
+    case "south-side": {
       return {
         x:
           x +
@@ -716,6 +736,7 @@ const getResizedOrigin = (
           ((newHeight - prevHeight) / 2) * Math.sin(angle),
         y: y + ((prevHeight - newHeight) / 2) * (Math.cos(angle) + 1),
       };
+    }
   }
 };
 
@@ -1473,16 +1494,12 @@ export const resizeMultipleElements = (
       });
 
       if (isBindingElement(element)) {
-        if (element.startBinding) {
-          if (!resizedElementsMap.has(element.startBinding.elementId)) {
+        if (element.startBinding && !resizedElementsMap.has(element.startBinding.elementId)) {
             unbindBindingElement(element, "start", scene);
           }
-        }
-        if (element.endBinding) {
-          if (!resizedElementsMap.has(element.endBinding.elementId)) {
+        if (element.endBinding && !resizedElementsMap.has(element.endBinding.elementId)) {
             unbindBindingElement(element, "end", scene);
           }
-        }
       }
 
       const boundTextElement = getBoundTextElement(element, elementsMap);

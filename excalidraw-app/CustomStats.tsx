@@ -50,11 +50,11 @@ const CustomStats = (props: Props) => {
   let hash;
   let timestamp;
 
-  if (version !== DEFAULT_VERSION) {
+  if (version === DEFAULT_VERSION) {
+    timestamp = t("stats.versionNotAvailable");
+  } else {
     timestamp = version.slice(0, 16).replace("T", " ");
     hash = version.slice(21);
-  } else {
-    timestamp = t("stats.versionNotAvailable");
   }
 
   return (

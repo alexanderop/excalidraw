@@ -357,15 +357,13 @@ export const getElementLineSegments = (
   } else if (_isRectanguloidElement(element)) {
     const [sides, corners] = deconstructRectanguloidElement(element);
     const cornerSegments: LineSegment<GlobalPoint>[] = corners
-      .map((corner) => getSegmentsOnCurve(corner, center, element.angle))
-      .flat();
+      .flatMap((corner) => getSegmentsOnCurve(corner, center, element.angle));
     const rotatedSides = getRotatedSides(sides, center, element.angle);
     return [...rotatedSides, ...cornerSegments];
   } else if (element.type === "diamond") {
     const [sides, corners] = deconstructDiamondElement(element);
     const cornerSegments = corners
-      .map((corner) => getSegmentsOnCurve(corner, center, element.angle))
-      .flat();
+      .flatMap((corner) => getSegmentsOnCurve(corner, center, element.angle));
     const rotatedSides = getRotatedSides(sides, center, element.angle);
 
     return [...rotatedSides, ...cornerSegments];
@@ -502,7 +500,7 @@ const getSegmentsOnEllipse = (
     segments.push(lineSegment(points[i], points[i + 1]));
   }
 
-  segments.push(lineSegment(points[points.length - 1], points[0]));
+  segments.push(lineSegment(points.at(-1), points[0]));
   return segments;
 };
 
@@ -637,14 +635,18 @@ export const getMinMaxXYFromCurvePathOps = (
     (limits, { op, data }) => {
       // There are only four operation types:
       // move, bcurveTo, lineTo, and curveTo
-      if (op === "move") {
+      switch (op) {
+      case "move": {
         // change starting point
         const p: GlobalPoint | undefined = pointFromArray(data);
         invariant(p != null, "Op data is not a point");
         currentP = p;
         // move operation does not draw anything; so, it always
         // returns false
-      } else if (op === "bcurveTo") {
+      
+      break;
+      }
+      case "bcurveTo": {
         const _p1 = pointFrom<GlobalPoint>(data[0], data[1]);
         const _p2 = pointFrom<GlobalPoint>(data[2], data[3]);
         const _p3 = pointFrom<GlobalPoint>(data[4], data[5]);
@@ -668,10 +670,20 @@ export const getMinMaxXYFromCurvePathOps = (
 
         limits.maxX = Math.max(limits.maxX, maxX);
         limits.maxY = Math.max(limits.maxY, maxY);
-      } else if (op === "lineTo") {
+      
+      break;
+      }
+      case "lineTo": {
         // TODO: Implement this
-      } else if (op === "qcurveTo") {
+      
+      break;
+      }
+      case "qcurveTo": {
         // TODO: Implement this
+      
+      break;
+      }
+      // No default
       }
       return limits;
     },
@@ -712,29 +724,36 @@ const getFreeDrawElementAbsoluteCoords = (
 /** @returns number in pixels */
 export const getArrowheadSize = (arrowhead: Arrowhead): number => {
   switch (arrowhead) {
-    case "arrow":
+    case "arrow": {
       return 25;
+    }
     case "diamond":
-    case "diamond_outline":
+    case "diamond_outline": {
       return 12;
+    }
     case "crowfoot_many":
     case "crowfoot_one":
-    case "crowfoot_one_or_many":
+    case "crowfoot_one_or_many": {
       return 20;
-    default:
+    }
+    default: {
       return 15;
+    }
   }
 };
 
 /** @returns number in degrees */
 export const getArrowheadAngle = (arrowhead: Arrowhead): Degrees => {
   switch (arrowhead) {
-    case "bar":
+    case "bar": {
       return 90 as Degrees;
-    case "arrow":
+    }
+    case "arrow": {
       return 20 as Degrees;
-    default:
+    }
+    default: {
       return 25 as Degrees;
+    }
   }
 };
 
@@ -744,12 +763,12 @@ export const getArrowheadPoints = (
   position: "start" | "end",
   arrowhead: Arrowhead,
 ) => {
-  if (shape.length < 1) {
+  if (shape.length === 0) {
     return null;
   }
 
   const ops = getCurvePathOps(shape[0]);
-  if (ops.length < 1) {
+  if (ops.length === 0) {
     return null;
   }
 
@@ -807,12 +826,12 @@ export const getArrowheadPoints = (
     // Length for -> arrows is based on the length of the last section
     const [cx, cy] =
       position === "end"
-        ? element.points[element.points.length - 1]
+        ? element.points.at(-1)
         : element.points[0];
     const [px, py] =
       element.points.length > 1
         ? position === "end"
-          ? element.points[element.points.length - 2]
+          ? element.points.at(-2)
           : element.points[1]
         : [0, 0];
 
@@ -881,7 +900,7 @@ export const getArrowheadPoints = (
     } else {
       const [px, py] =
         element.points.length > 1
-          ? element.points[element.points.length - 2]
+          ? element.points.at(-2)
           : [0, 0];
 
       [ox, oy] = pointRotateRads(
@@ -1006,13 +1025,13 @@ export const getCommonBounds = (
 
   const _elementsMap = elementsMap || arrayToMap(elements);
 
-  elements.forEach((element) => {
+  for (const element of elements) {
     const [x1, y1, x2, y2] = getElementBounds(element, _elementsMap);
     minX = Math.min(minX, x1);
     minY = Math.min(minY, y1);
     maxX = Math.max(maxX, x2);
     maxY = Math.max(maxY, y2);
-  });
+  }
 
   return [minX, minY, maxX, maxY];
 };
@@ -1060,12 +1079,12 @@ export const getResizedElementAbsoluteCoords = (
   } else {
     // Line
     const gen = rough.generator();
-    const curve = !element.roundness
-      ? gen.linearPath(
+    const curve = element.roundness
+      ? gen.curve(points as [number, number][], generateRoughOptions(element))
+      : gen.linearPath(
           points as [number, number][],
           generateRoughOptions(element),
-        )
-      : gen.curve(points as [number, number][], generateRoughOptions(element));
+        );
 
     const ops = getCurvePathOps(curve);
     bounds = getMinMaxXYFromCurvePathOps(ops);
@@ -1107,14 +1126,14 @@ export const getClosestElementBounds = (
   elements: readonly ExcalidrawElement[],
   from: { x: number; y: number },
 ): Bounds => {
-  if (!elements.length) {
+  if (elements.length === 0) {
     return [0, 0, 0, 0];
   }
 
   let minDistance = Infinity;
   let closestElement = elements[0];
   const elementsMap = arrayToMap(elements);
-  elements.forEach((element) => {
+  for (const element of elements) {
     const [x1, y1, x2, y2] = getElementBounds(element, elementsMap);
     const distance = pointDistance(
       pointFrom((x1 + x2) / 2, (y1 + y2) / 2),
@@ -1125,7 +1144,7 @@ export const getClosestElementBounds = (
       minDistance = distance;
       closestElement = element;
     }
-  });
+  }
 
   return getElementBounds(closestElement, elementsMap);
 };

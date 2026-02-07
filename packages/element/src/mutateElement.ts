@@ -51,8 +51,8 @@ export const mutateElement = <TElement extends Mutable<ExcalidrawElement>>(
   if (
     isElbowArrow(element) &&
     (Object.keys(updates).length === 0 || // normalization case
-      typeof points !== "undefined" || // repositioning
-      typeof fixedSegments !== "undefined") // segment fixing
+      points !== undefined || // repositioning
+      fixedSegments !== undefined) // segment fixing
   ) {
     updates = {
       ...updates,
@@ -68,13 +68,13 @@ export const mutateElement = <TElement extends Mutable<ExcalidrawElement>>(
         options,
       ),
     };
-  } else if (typeof points !== "undefined") {
+  } else if (points !== undefined) {
     updates = { ...getSizeFromPoints(points), ...updates };
   }
 
   for (const key in updates) {
     const value = (updates as any)[key];
-    if (typeof value !== "undefined") {
+    if (value !== undefined) {
       if (
         (element as any)[key] === value &&
         // if object, always update because its attrs could have changed
@@ -126,10 +126,10 @@ export const mutateElement = <TElement extends Mutable<ExcalidrawElement>>(
   }
 
   if (
-    typeof updates.height !== "undefined" ||
-    typeof updates.width !== "undefined" ||
-    typeof fileId != "undefined" ||
-    typeof points !== "undefined"
+    updates.height !== undefined ||
+    updates.width !== undefined ||
+    fileId !== undefined ||
+    points !== undefined
   ) {
     ShapeCache.delete(element);
   }
@@ -150,7 +150,7 @@ export const newElementWith = <TElement extends ExcalidrawElement>(
   let didChange = false;
   for (const key in updates) {
     const value = (updates as any)[key];
-    if (typeof value !== "undefined") {
+    if (value !== undefined) {
       if (
         (element as any)[key] === value &&
         // if object, always update because its attrs could have changed

@@ -66,7 +66,7 @@ const getNonDeletedElements = <T extends ExcalidrawElement>(
 
 const validateIndicesThrottled = throttle(
   (elements: readonly ExcalidrawElement[]) => {
-    if (isDevEnv() || isTestEnv() || window?.DEBUG_FRACTIONAL_INDICES) {
+    if (isDevEnv() || isTestEnv() || globalThis?.DEBUG_FRACTIONAL_INDICES) {
       validateFractionalIndices(elements, {
         // throw only in dev & test, to remain functional on `DEBUG_FRACTIONAL_INDICES`
         shouldThrow: isDevEnv() || isTestEnv(),
@@ -86,7 +86,7 @@ const hashSelectionOpts = (
   type HashableKeys = Omit<typeof opts, "selectedElementIds" | "elements">;
 
   // just to ensure we're hashing all expected keys
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+   
   type _ = Assert<
     SameType<
       Required<HashableKeys>,
@@ -284,12 +284,12 @@ export class Scene {
 
     this.elements = syncInvalidIndices(_nextElements);
     this.elementsMap.clear();
-    this.elements.forEach((element) => {
+    for (const element of this.elements) {
       if (isFrameLikeElement(element)) {
         nextFrameLikes.push(element);
       }
       this.elementsMap.set(element.id, element);
-    });
+    }
     const nonDeletedElements = getNonDeletedElements(this.elements);
     this.nonDeletedElements = nonDeletedElements.elements;
     this.nonDeletedElementsMap = nonDeletedElements.elementsMap;
@@ -303,7 +303,7 @@ export class Scene {
   triggerUpdate() {
     this.sceneNonce = randomInteger();
 
-    for (const callback of Array.from(this.callbacks)) {
+    for (const callback of [...this.callbacks]) {
       callback();
     }
   }
@@ -357,7 +357,7 @@ export class Scene {
   }
 
   insertElementsAtIndex(elements: ExcalidrawElement[], index: number) {
-    if (!elements.length) {
+    if (elements.length === 0) {
       return;
     }
 
@@ -387,7 +387,7 @@ export class Scene {
   };
 
   insertElements = (elements: ExcalidrawElement[]) => {
-    if (!elements.length) {
+    if (elements.length === 0) {
       return;
     }
 

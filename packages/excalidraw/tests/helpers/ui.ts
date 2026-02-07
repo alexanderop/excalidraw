@@ -50,7 +50,7 @@ import type { ToolType } from "../../types";
 // so that window.h is available when App.tsx is not imported as well.
 createTestHook();
 
-const { h } = window;
+const { h } = globalThis;
 
 let altKey = false;
 let shiftKey = false;
@@ -61,8 +61,8 @@ export type KeyboardModifiers = {
   shift?: boolean;
   ctrl?: boolean;
 };
-export class Keyboard {
-  static withModifierKeys = (modifiers: KeyboardModifiers, cb: () => void) => {
+export const Keyboard = {
+  withModifierKeys : (modifiers: KeyboardModifiers, cb: () => void) => {
     const prevAltKey = altKey;
     const prevShiftKey = shiftKey;
     const prevCtrlKey = ctrlKey;
@@ -78,9 +78,9 @@ export class Keyboard {
       shiftKey = prevShiftKey;
       ctrlKey = prevCtrlKey;
     }
-  };
+  },
 
-  static keyDown = (
+  keyDown : (
     key: string,
     target: HTMLElement | Document | Window = document,
   ) => {
@@ -90,9 +90,9 @@ export class Keyboard {
       shiftKey,
       altKey,
     });
-  };
+  },
 
-  static keyUp = (
+  keyUp : (
     key: string,
     target: HTMLElement | Document | Window = document,
   ) => {
@@ -102,52 +102,52 @@ export class Keyboard {
       shiftKey,
       altKey,
     });
-  };
+  },
 
-  static keyPress = (key: string, target?: HTMLElement | Document | Window) => {
+  keyPress : (key: string, target?: HTMLElement | Document | Window) => {
     Keyboard.keyDown(key, target);
     Keyboard.keyUp(key, target);
-  };
+  },
 
-  static codeDown = (code: string) => {
+  codeDown : (code: string) => {
     fireEvent.keyDown(document, {
       code,
       ctrlKey,
       shiftKey,
       altKey,
     });
-  };
+  },
 
-  static codeUp = (code: string) => {
+  codeUp : (code: string) => {
     fireEvent.keyUp(document, {
       code,
       ctrlKey,
       shiftKey,
       altKey,
     });
-  };
+  },
 
-  static codePress = (code: string) => {
+  codePress : (code: string) => {
     Keyboard.codeDown(code);
     Keyboard.codeUp(code);
-  };
+  },
 
-  static undo = () => {
+  undo : () => {
     Keyboard.withModifierKeys({ ctrl: true }, () => {
       Keyboard.keyPress("z");
     });
-  };
+  },
 
-  static redo = () => {
+  redo : () => {
     Keyboard.withModifierKeys({ ctrl: true, shift: true }, () => {
       Keyboard.keyPress("z");
     });
-  };
+  },
 
-  static exitTextEditor = (textarea: HTMLTextAreaElement) => {
+  exitTextEditor : (textarea: HTMLTextAreaElement) => {
     fireEvent.keyDown(textarea, { key: KEYS.ESCAPE });
-  };
-}
+  },
+};
 
 const getElementPointForSelection = (
   element: ExcalidrawElement,
@@ -184,7 +184,7 @@ export class Pointer {
 
   static activePointers: Pointer[] = [];
   static resetAll() {
-    Pointer.activePointers.forEach((pointer) => pointer.reset());
+    for (const pointer of Pointer.activePointers) pointer.reset();
   }
 
   constructor(
@@ -303,7 +303,7 @@ export class Pointer {
 
     Keyboard.withModifierKeys({ shift: true }, () => {
       elements = Array.isArray(elements) ? elements : [elements];
-      elements.forEach((element) => {
+      for (const element of elements) {
         this.reset();
         this.click(
           ...getElementPointForSelection(
@@ -311,7 +311,7 @@ export class Pointer {
             h.app.scene.getElementsMapIncludingDeleted(),
           ),
         );
-      });
+      }
     });
 
     this.reset();
@@ -351,13 +351,9 @@ const transform = (
   const elements = Array.isArray(element) ? element : [element];
   act(() => {
     h.setState({
-      selectedElementIds: elements.reduce(
-        (acc, e) => ({
-          ...acc,
-          [e.id]: true,
-        }),
-        {},
-      ),
+      selectedElementIds: Object.fromEntries(elements.map(
+        ( e) => [e.id, true],
+      )),
     });
   });
   let handleCoords: TransformHandle | undefined;
@@ -445,31 +441,31 @@ type Element<T extends DrawingToolName> = T extends "line" | "freedraw"
   ? ExcalidrawDiamondElement
   : ExcalidrawElement;
 
-export class UI {
-  static clickTool = (toolName: ToolType | "lock") => {
+export const UI = {
+  clickTool : (toolName: ToolType | "lock") => {
     fireEvent.click(GlobalTestState.renderResult.getByToolName(toolName));
-  };
+  },
 
-  static clickLabeledElement = (label: string) => {
+  clickLabeledElement : (label: string) => {
     const element = document.querySelector(`[aria-label='${label}']`);
     if (!element) {
       throw new Error(`No labeled element found: ${label}`);
     }
     fireEvent.click(element);
-  };
+  },
 
-  static clickOnTestId = (testId: string) => {
+  clickOnTestId : (testId: string) => {
     const element = document.querySelector(`[data-testid='${testId}']`);
     // const element = GlobalTestState.renderResult.queryByTestId(testId);
     if (!element) {
       throw new Error(`No element with testid "${testId}" found`);
     }
     fireEvent.click(element);
-  };
+  },
 
-  static clickByTitle = (title: string) => {
+  clickByTitle : (title: string) => {
     fireEvent.click(screen.getByTitle(title));
-  };
+  },
 
   /**
    * Creates an Excalidraw element, and returns a proxy that wraps it so that
@@ -480,7 +476,7 @@ export class UI {
    * If you need to get the actual element, not the proxy, call `get()` method
    * on the proxy object.
    */
-  static createElement<T extends DrawingToolName>(
+  createElement<T extends DrawingToolName>(
     type: T,
     {
       position = 0,
@@ -519,18 +515,17 @@ export class UI {
       mouse.reset();
       mouse.click(x, y);
     } else if ((type === "line" || type === "arrow") && points.length > 2) {
-      points.forEach((point) => {
+      for (const point of points) {
         mouse.reset();
         mouse.click(x + point[0], y + point[1]);
-      });
+      }
       Keyboard.keyPress(KEYS.ESCAPE);
     } else if (type === "freedraw" && points.length > 2) {
       const firstPoint = points[0];
       mouse.reset();
       mouse.down(x + firstPoint[0], y + firstPoint[1]);
-      points
-        .slice(1)
-        .forEach((point) => mouse.moveTo(x + point[0], y + point[1]));
+      for (const point of points
+        .slice(1)) mouse.moveTo(x + point[0], y + point[1]);
       mouse.upAt();
       Keyboard.keyPress(KEYS.ESCAPE);
     } else {
@@ -539,7 +534,7 @@ export class UI {
       mouse.reset();
       mouse.up(x + width, y + height);
     }
-    const origElement = h.elements[h.elements.length - 1] as any;
+    const origElement = h.elements.at(-1) as any;
 
     if (angle !== 0) {
       act(() => {
@@ -548,9 +543,9 @@ export class UI {
     }
 
     return proxy(origElement);
-  }
+  },
 
-  static async editText<
+  async editText<
     T extends ExcalidrawTextElement | ExcalidrawTextContainer,
   >(element: T, text: string) {
     const openedEditor =
@@ -574,30 +569,30 @@ export class UI {
     return isTextElement(element)
       ? element
       : proxy(
-          h.elements[
-            h.elements.length - 1
-          ] as ExcalidrawTextElementWithContainer,
+          h.elements.at(
+            -1
+          ) as ExcalidrawTextElementWithContainer,
         );
-  }
+  },
 
-  static updateInput = (input: HTMLInputElement, value: string | number) => {
+  updateInput : (input: HTMLInputElement, value: string | number) => {
     act(() => {
       input.focus();
       fireEvent.change(input, { target: { value: String(value) } });
       input.blur();
     });
-  };
+  },
 
-  static resize(
+  resize(
     element: ExcalidrawElement | ExcalidrawElement[],
     handle: TransformHandleDirection,
     mouseMove: [deltaX: number, deltaY: number],
     keyboardModifiers: KeyboardModifiers = {},
   ) {
     return transform(element, handle, mouseMove, keyboardModifiers);
-  }
+  },
 
-  static crop(
+  crop(
     element: ExcalidrawImageElement,
     handle: TransformHandleDirection,
     naturalWidth: number,
@@ -628,43 +623,43 @@ export class UI {
     );
 
     API.updateElement(element, mutations);
-  }
+  },
 
-  static rotate(
+  rotate(
     element: ExcalidrawElement | ExcalidrawElement[],
     mouseMove: [deltaX: number, deltaY: number],
     keyboardModifiers: KeyboardModifiers = {},
   ) {
     return transform(element, "rotation", mouseMove, keyboardModifiers);
-  }
+  },
 
-  static group(elements: ExcalidrawElement[]) {
+  group(elements: ExcalidrawElement[]) {
     mouse.select(elements);
     Keyboard.withModifierKeys({ ctrl: true }, () => {
       Keyboard.keyPress(KEYS.G);
     });
-  }
+  },
 
-  static ungroup(elements: ExcalidrawElement[]) {
+  ungroup(elements: ExcalidrawElement[]) {
     mouse.select(elements);
     Keyboard.withModifierKeys({ ctrl: true, shift: true }, () => {
       Keyboard.keyPress(KEYS.G);
     });
-  }
+  },
 
-  static queryContextMenu = () => {
+  queryContextMenu : () => {
     return GlobalTestState.renderResult.container.querySelector(
       ".context-menu",
     ) as HTMLElement | null;
-  };
+  },
 
-  static queryStats = () => {
+  queryStats : () => {
     return GlobalTestState.renderResult.container.querySelector(
       ".exc-stats",
     ) as HTMLElement | null;
-  };
+  },
 
-  static queryStatsProperty = (label: string) => {
+  queryStatsProperty : (label: string) => {
     const elementStats = UI.queryStats()?.querySelector("#elementStats");
 
     expect(elementStats).not.toBeNull();
@@ -678,5 +673,5 @@ export class UI {
     }
 
     return null;
-  };
-}
+  },
+};

@@ -14,7 +14,7 @@ export const renderSnaps = (
   context: CanvasRenderingContext2D,
   appState: InteractiveCanvasAppState,
 ) => {
-  if (!appState.snapLines.length) {
+  if (appState.snapLines.length === 0) {
     return;
   }
 
@@ -34,12 +34,16 @@ export const renderSnaps = (
   context.translate(appState.scrollX, appState.scrollY);
 
   for (const snapLine of appState.snapLines) {
-    if (snapLine.type === "pointer") {
+    switch (snapLine.type) {
+    case "pointer": {
       context.lineWidth = snapWidth;
       context.strokeStyle = snapColor;
 
       drawPointerSnapLine(snapLine, context, appState);
-    } else if (snapLine.type === "gap") {
+    
+    break;
+    }
+    case "gap": {
       context.lineWidth = snapWidth;
       context.strokeStyle = snapColor;
 
@@ -50,10 +54,17 @@ export const renderSnaps = (
         appState,
         context,
       );
-    } else if (snapLine.type === "points") {
+    
+    break;
+    }
+    case "points": {
       context.lineWidth = snapWidth;
       context.strokeStyle = snapColor;
       drawPointsSnapLine(snapLine, context, appState);
+    
+    break;
+    }
+    // No default
     }
   }
 
@@ -67,7 +78,7 @@ const drawPointsSnapLine = (
 ) => {
   if (!appState.zenModeEnabled) {
     const firstPoint = pointSnapLine.points[0];
-    const lastPoint = pointSnapLine.points[pointSnapLine.points.length - 1];
+    const lastPoint = pointSnapLine.points.at(-1);
 
     drawLine(firstPoint, lastPoint, context);
   }

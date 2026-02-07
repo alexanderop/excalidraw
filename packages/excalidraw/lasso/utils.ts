@@ -112,10 +112,9 @@ const intersectionTest = (
   element: ExcalidrawElement,
   elementsMap: ElementsMap,
 ): boolean => {
-  const lassoSegments = lassoPath
+  const lassoSegments = [...lassoPath
     .slice(1)
-    .map((point: GlobalPoint, index) => lineSegment(lassoPath[index], point))
-    .concat([lineSegment(lassoPath[lassoPath.length - 1], lassoPath[0])]);
+    .map((point: GlobalPoint, index) => lineSegment(lassoPath[index], point)), lineSegment(lassoPath.at(-1), lassoPath[0])];
 
   const boundTextElement = getBoundTextElement(element, elementsMap);
 

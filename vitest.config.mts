@@ -1,4 +1,4 @@
-import path from "path";
+import path from "node:path";
 
 import { defineConfig } from "vitest/config";
 
@@ -26,7 +26,7 @@ export default defineConfig({
         replacement: path.resolve(__dirname, "./packages/excalidraw/index.tsx"),
       },
       {
-        find: /^@excalidraw\/excalidraw\/(.*?)/,
+        find: /^@(?:excalidraw\/){2}(.*?)/,
         replacement: path.resolve(__dirname, "./packages/excalidraw/$1"),
       },
       {

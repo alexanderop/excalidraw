@@ -66,7 +66,7 @@ export const Range = ({ updateData, app, testId }: RangeProps) => {
           data-testid={testId}
         />
         <div className="value-bubble" ref={valueRef}>
-          {value !== 0 ? value : null}
+          {value === 0 ? null : value}
         </div>
         <div className="zero-label">0</div>
       </div>

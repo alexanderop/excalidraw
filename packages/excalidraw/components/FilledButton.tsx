@@ -60,16 +60,16 @@ export const FilledButton = forwardRef<HTMLButtonElement, FilledButtonProps>(
 
       if (isPromiseLike(ret)) {
         // delay loading state to prevent flicker in case of quick response
-        const timer = window.setTimeout(() => {
+        const timer = globalThis.setTimeout(() => {
           setIsLoading(true);
         }, 50);
         try {
           await ret;
         } catch (error: any) {
-          if (!(error instanceof AbortError)) {
-            throw error;
-          } else {
+          if (error instanceof AbortError) {
             console.warn(error);
+          } else {
+            throw error;
           }
         } finally {
           clearTimeout(timer);

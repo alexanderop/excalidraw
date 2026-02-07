@@ -120,7 +120,7 @@ export const TTDChatPanel = ({
           <div className="ttd-dialog-panel__label-group"></div>
           <div className="ttd-dialog-panel__header-right">
             <ChatHistoryMenu
-              isNewChatBtnVisible={!!messages.length}
+              isNewChatBtnVisible={messages.length > 0}
               isOpen={isMenuOpen}
               onToggle={onMenuToggle}
               onClose={onMenuClose}

@@ -37,7 +37,7 @@ export const isInvisiblySmallElement = (
         isArrowElement(element) &&
         pointsEqual(
           element.points[0],
-          element.points[element.points.length - 1],
+          element.points.at(-1),
           INVISIBLY_SMALL_ELEMENT_SIZE,
         ))
     );

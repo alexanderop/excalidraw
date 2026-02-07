@@ -47,7 +47,7 @@ describe("applyDarkModeFilter", () => {
     it("handles hex with hash", () => {
       const result = applyDarkModeFilter("#ff0000");
       // Fully opaque colors return 6-char hex
-      expect(result).toMatch(/^#[0-9a-f]{6}$/);
+      expect(result).toMatch(/^#[\da-f]{6}$/);
     });
 
     it("handles named colors", () => {
@@ -63,7 +63,7 @@ describe("applyDarkModeFilter", () => {
 
     it("handles rgba format and preserves alpha", () => {
       const result = applyDarkModeFilter("rgba(255, 0, 0, 0.5)");
-      expect(result).toMatch(/^#[0-9a-f]{8}$/);
+      expect(result).toMatch(/^#[\da-f]{8}$/);
       // Alpha 0.5 = 128 in hex = 80
       expect(result).toBe("#ff909080");
     });
@@ -122,7 +122,7 @@ describe("applyDarkModeFilter", () => {
         "transforms red shade %s (index %d)",
         (color) => {
           const result = applyDarkModeFilter(color as string);
-          expect(result).toMatch(/^#[0-9a-f]{6}$/);
+          expect(result).toMatch(/^#[\da-f]{6}$/);
         },
       );
     });
@@ -133,7 +133,7 @@ describe("applyDarkModeFilter", () => {
         "transforms blue shade %s (index %d)",
         (color) => {
           const result = applyDarkModeFilter(color as string);
-          expect(result).toMatch(/^#[0-9a-f]{6}$/);
+          expect(result).toMatch(/^#[\da-f]{6}$/);
         },
       );
     });
@@ -144,7 +144,7 @@ describe("applyDarkModeFilter", () => {
         "transforms green shade %s (index %d)",
         (color) => {
           const result = applyDarkModeFilter(color as string);
-          expect(result).toMatch(/^#[0-9a-f]{6}$/);
+          expect(result).toMatch(/^#[\da-f]{6}$/);
         },
       );
     });
@@ -155,7 +155,7 @@ describe("applyDarkModeFilter", () => {
         "transforms gray shade %s (index %d)",
         (color) => {
           const result = applyDarkModeFilter(color as string);
-          expect(result).toMatch(/^#[0-9a-f]{6}$/);
+          expect(result).toMatch(/^#[\da-f]{6}$/);
         },
       );
     });
@@ -166,7 +166,7 @@ describe("applyDarkModeFilter", () => {
         "transforms bronze shade %s (index %d)",
         (color) => {
           const result = applyDarkModeFilter(color as string);
-          expect(result).toMatch(/^#[0-9a-f]{6}$/);
+          expect(result).toMatch(/^#[\da-f]{6}$/);
         },
       );
     });

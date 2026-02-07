@@ -52,13 +52,9 @@ const UnlockPopup = ({
         flushSync(() => {
           const groupIds = selectGroupsFromGivenElements(elements, app.state);
           app.setState({
-            selectedElementIds: elements.reduce(
-              (acc, element) => ({
-                ...acc,
-                [element.id]: true,
-              }),
-              {},
-            ),
+            selectedElementIds: Object.fromEntries(elements.map(
+              ( element) => [element.id, true],
+            )),
             selectedGroupIds: groupIds,
             activeLockedId: null,
           });

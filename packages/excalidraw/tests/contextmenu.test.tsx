@@ -35,9 +35,8 @@ const checkpoint = (name: string) => {
   );
   expect(h.state).toMatchSnapshot(`[${name}] appState`);
   expect(h.elements.length).toMatchSnapshot(`[${name}] number of elements`);
-  h.elements.forEach((element, i) =>
-    expect(element).toMatchSnapshot(`[${name}] element ${i}`),
-  );
+  for (const [i, element] of h.elements.entries()) expect(element).toMatchSnapshot(`[${name}] element ${i}`)
+  ;
 
   checkpointHistory(h.history, name);
 };
@@ -53,7 +52,7 @@ beforeEach(() => {
   reseed(7);
 });
 
-const { h } = window;
+const { h } = globalThis;
 
 describe("contextMenu element", () => {
   beforeEach(async () => {
@@ -101,11 +100,11 @@ describe("contextMenu element", () => {
 
     expect(contextMenu).not.toBeNull();
     expect(contextMenuOptions?.length).toBe(expectedShortcutNames.length);
-    expectedShortcutNames.forEach((shortcutName) => {
+    for (const shortcutName of expectedShortcutNames) {
       expect(
         contextMenu?.querySelector(`li[data-testid="${shortcutName}"]`),
       ).not.toBeNull();
-    });
+    }
   });
 
   it("shows context menu for element", () => {
@@ -144,11 +143,11 @@ describe("contextMenu element", () => {
 
     expect(contextMenu).not.toBeNull();
     expect(contextMenuOptions?.length).toBe(expectedContextMenuItems.length);
-    expectedContextMenuItems.forEach((item) => {
+    for (const item of expectedContextMenuItems) {
       expect(
         contextMenu?.querySelector(`li[data-testid="${item}"]`),
       ).not.toBeNull();
-    });
+    }
   });
 
   it("shows context menu for element", () => {
@@ -237,11 +236,11 @@ describe("contextMenu element", () => {
 
     expect(contextMenu).not.toBeNull();
     expect(contextMenuOptions?.length).toBe(expectedShortcutNames.length);
-    expectedShortcutNames.forEach((shortcutName) => {
+    for (const shortcutName of expectedShortcutNames) {
       expect(
         contextMenu?.querySelector(`li[data-testid="${shortcutName}"]`),
       ).not.toBeNull();
-    });
+    }
   });
 
   it("shows 'Ungroup selection' in context menu for group inside selected elements", () => {
@@ -295,11 +294,11 @@ describe("contextMenu element", () => {
 
     expect(contextMenu).not.toBeNull();
     expect(contextMenuOptions?.length).toBe(expectedContextMenuItems.length);
-    expectedContextMenuItems.forEach((item) => {
+    for (const item of expectedContextMenuItems) {
       expect(
         contextMenu?.querySelector(`li[data-testid="${item}"]`),
       ).not.toBeNull();
-    });
+    }
   });
 
   it("selecting 'Copy styles' in context menu copies styles", () => {

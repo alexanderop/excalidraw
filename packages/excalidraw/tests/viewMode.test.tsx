@@ -28,7 +28,7 @@ describe("view mode", () => {
   it("after switching to view mode, moving, clicking, and pressing space key – cursor type should be pointer", async () => {
     API.setAppState({ viewModeEnabled: true });
 
-    pointerTypes.forEach((pointerType) => {
+    for (const pointerType of pointerTypes) {
       const pointer = pointerType;
       pointer.reset();
       pointer.move(100, 100);
@@ -37,7 +37,7 @@ describe("view mode", () => {
       expect(GlobalTestState.interactiveCanvas.style.cursor).toBe(
         CURSOR_TYPE.GRAB,
       );
-    });
+    }
   });
 
   it("cursor should stay as grabbing type when hovering over canvas elements", async () => {
@@ -46,11 +46,11 @@ describe("view mode", () => {
     // then switch to view-mode and cursor should be grabbing type
     UI.createElement("rectangle", { size: 100 });
 
-    pointerTypes.forEach((pointerType) => {
+    for (const pointerType of pointerTypes) {
       const pointer = pointerType;
 
       pointer.moveTo(50, 50);
-      // eslint-disable-next-line dot-notation
+       
       if (pointerType["pointerType"] === "mouse") {
         expect(GlobalTestState.interactiveCanvas.style.cursor).toBe(
           CURSOR_TYPE.MOVE,
@@ -65,6 +65,6 @@ describe("view mode", () => {
       expect(GlobalTestState.interactiveCanvas.style.cursor).toBe(
         CURSOR_TYPE.GRAB,
       );
-    });
+    }
   });
 });

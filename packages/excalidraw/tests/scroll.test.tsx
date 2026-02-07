@@ -13,7 +13,7 @@ import {
   waitFor,
 } from "./test-utils";
 
-const { h } = window;
+const { h } = globalThis;
 
 describe("appState", () => {
   it("scroll-to-content on init works with non-zero offsets", async () => {

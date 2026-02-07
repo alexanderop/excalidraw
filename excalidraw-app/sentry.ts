@@ -14,7 +14,7 @@ const SENTRY_DISABLED = import.meta.env.VITE_APP_DISABLE_SENTRY === "true";
 const onlineEnv =
   !SENTRY_DISABLED &&
   Object.keys(SentryEnvHostnameMap).find(
-    (item) => window.location.hostname.indexOf(item) >= 0,
+    (item) => globalThis.location.hostname.includes(item),
   );
 
 Sentry.init({
@@ -26,8 +26,8 @@ Sentry.init({
   ignoreErrors: [
     "undefined is not an object (evaluating 'window.__pad.performLoop')", // Only happens on Safari, but spams our servers. Doesn't break anything
     "InvalidStateError: Failed to execute 'transaction' on 'IDBDatabase': The database connection is closing.", // Not much we can do about the IndexedDB closing error
-    /(Failed to fetch|(fetch|loading) dynamically imported module)/i, // This is happening when a service worker tries to load an old asset
-    /QuotaExceededError: (The quota has been exceeded|.*setItem.*Storage)/i, // localStorage quota exceeded
+    /(failed to fetch|(fetch|loading) dynamically imported module)/i, // This is happening when a service worker tries to load an old asset
+    /quotaexceedederror: (the quota has been exceeded|.*setitem.*storage)/i, // localStorage quota exceeded
     "Internal error opening backing store for indexedDB.open", // Private mode and disabled indexedDB
   ],
   integrations: [

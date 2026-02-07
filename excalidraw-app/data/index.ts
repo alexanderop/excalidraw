@@ -67,7 +67,7 @@ const BACKEND_V2_POST = import.meta.env.VITE_APP_BACKEND_V2_POST_URL;
 
 const generateRoomId = async () => {
   const buffer = new Uint8Array(ROOM_ID_BYTES);
-  window.crypto.getRandomValues(buffer);
+  globalThis.crypto.getRandomValues(buffer);
   return bytesToHexString(buffer);
 };
 
@@ -128,7 +128,7 @@ export type SocketUpdateData =
     _brand: "socketUpdateData";
   };
 
-const RE_COLLAB_LINK = /^#room=([a-zA-Z0-9_-]+),([a-zA-Z0-9_-]+)$/;
+const RE_COLLAB_LINK = /^#room=([\w-]+),([\w-]+)$/;
 
 export const isCollaborationLink = (link: string) => {
   const hash = new URL(link).hash;
@@ -139,7 +139,7 @@ export const getCollaborationLinkData = (link: string) => {
   const hash = new URL(link).hash;
   const match = hash.match(RE_COLLAB_LINK);
   if (match && match[2].length !== 22) {
-    window.alert(t("alerts.invalidEncryptionKey"));
+    globalThis.alert(t("alerts.invalidEncryptionKey"));
     return null;
   }
   return match ? { roomId: match[1], roomKey: match[2] } : null;
@@ -160,7 +160,7 @@ export const getCollaborationLink = (data: {
   roomId: string;
   roomKey: string;
 }) => {
-  return `${window.location.origin}${window.location.pathname}#room=${data.roomId},${data.roomKey}`;
+  return `${globalThis.location.origin}${globalThis.location.pathname}#room=${data.roomId},${data.roomKey}`;
 };
 
 /**
@@ -181,14 +181,14 @@ const legacy_decodeFromBackend = async ({
     const iv = buffer.slice(0, IV_LENGTH_BYTES);
     const encrypted = buffer.slice(IV_LENGTH_BYTES, buffer.byteLength);
     decrypted = await decryptData(new Uint8Array(iv), encrypted, decryptionKey);
-  } catch (error: any) {
+  } catch {
     // Fixed IV (old format, backward compatibility)
     const fixedIv = new Uint8Array(IV_LENGTH_BYTES);
     decrypted = await decryptData(fixedIv, buffer, decryptionKey);
   }
 
   // We need to convert the decrypted array buffer to a string
-  const string = new window.TextDecoder("utf-8").decode(
+  const string = new globalThis.TextDecoder("utf-8").decode(
     new Uint8Array(decrypted),
   );
   const data: ImportedDataState = JSON.parse(string);
@@ -207,7 +207,7 @@ export const importFromBackend = async (
     const response = await fetch(`${BACKEND_V2_GET}${id}`);
 
     if (!response.ok) {
-      window.alert(t("alerts.importBackendFailed"));
+      globalThis.alert(t("alerts.importBackendFailed"));
       return {};
     }
     const buffer = await response.arrayBuffer();
@@ -235,7 +235,7 @@ export const importFromBackend = async (
       return legacy_decodeFromBackend({ buffer, decryptionKey });
     }
   } catch (error: any) {
-    window.alert(t("alerts.importBackendFailed"));
+    globalThis.alert(t("alerts.importBackendFailed"));
     console.error(error);
     return {};
   }
@@ -279,7 +279,7 @@ export const exportToBackend = async (
     });
     const json = await response.json();
     if (json.id) {
-      const url = new URL(window.location.href);
+      const url = new URL(globalThis.location.href);
       // We need to store the key (and less importantly the id) as hash instead
       // of queryParam in order to never send it to the server
       url.hash = `json=${json.id},${encryptionKey}`;

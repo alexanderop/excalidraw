@@ -7,7 +7,7 @@ import type { AppProps, AppState } from "@excalidraw/excalidraw/types";
 import { COLOR_PALETTE } from "./colors";
 
 export const supportsResizeObserver =
-  typeof window !== "undefined" && "ResizeObserver" in window;
+  globalThis.window !== undefined && "ResizeObserver" in globalThis;
 
 export const APP_NAME = "Excalidraw";
 
@@ -160,11 +160,13 @@ export function getGenericFontFamilyFallback(
 ): keyof typeof FONT_FAMILY_GENERIC_FALLBACKS {
   switch (fontFamily) {
     case FONT_FAMILY.Cascadia:
-    case FONT_FAMILY["Comic Shanns"]:
+    case FONT_FAMILY["Comic Shanns"]: {
       return MONOSPACE_GENERIC_FONT;
+    }
 
-    default:
+    default: {
       return SANS_SERIF_GENERIC_FONT;
+    }
   }
 }
 
@@ -174,14 +176,16 @@ export const getFontFamilyFallbacks = (
   const genericFallbackFont = getGenericFontFamilyFallback(fontFamily);
 
   switch (fontFamily) {
-    case FONT_FAMILY.Excalifont:
+    case FONT_FAMILY.Excalifont: {
       return [
         CJK_HAND_DRAWN_FALLBACK_FONT,
         genericFallbackFont,
         WINDOWS_EMOJI_FALLBACK_FONT,
       ];
-    default:
+    }
+    default: {
       return [genericFallbackFont, WINDOWS_EMOJI_FALLBACK_FONT];
+    }
   }
 };
 
@@ -219,7 +223,7 @@ export const DEFAULT_TRANSFORM_HANDLE_SPACING = 2;
 export const SIDE_RESIZING_THRESHOLD = 2 * DEFAULT_TRANSFORM_HANDLE_SPACING;
 // a small epsilon to make side resizing always take precedence
 // (avoids an increase in renders and changes to tests)
-export const EPSILON = 0.00001;
+export const EPSILON = 0.000_01;
 export const DEFAULT_COLLISION_THRESHOLD =
   2 * SIDE_RESIZING_THRESHOLD - EPSILON;
 
@@ -289,14 +293,14 @@ export const EXPORT_DATA_TYPES = {
 } as const;
 
 export const getExportSource = () =>
-  window.EXCALIDRAW_EXPORT_SOURCE || window.location.origin;
+  globalThis.EXCALIDRAW_EXPORT_SOURCE || globalThis.location.origin;
 
 // time in milliseconds
 export const IMAGE_RENDER_TIMEOUT = 500;
 export const TAP_TWICE_TIMEOUT = 300;
 export const TOUCH_CTX_MENU_TIMEOUT = 500;
-export const TITLE_TIMEOUT = 10000;
-export const VERSION_TIMEOUT = 30000;
+export const TITLE_TIMEOUT = 10_000;
+export const VERSION_TIMEOUT = 30_000;
 export const SCROLL_TIMEOUT = 100;
 export const ZOOM_STEP = 0.1;
 export const MIN_ZOOM = 0.1;
@@ -306,7 +310,7 @@ export const HYPERLINK_TOOLTIP_DELAY = 300;
 // Report a user inactive after IDLE_THRESHOLD milliseconds
 export const IDLE_THRESHOLD = 60_000;
 // Report a user active each ACTIVE_THRESHOLD milliseconds
-export const ACTIVE_THRESHOLD = 3_000;
+export const ACTIVE_THRESHOLD = 3000;
 
 export const URL_QUERY_KEYS = {
   addLibrary: "addLibrary",

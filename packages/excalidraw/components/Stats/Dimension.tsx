@@ -222,20 +222,12 @@ const handleDimensionChange: DragInputCallbackType<
 
       let nextWidth = Math.max(0, origElement.width + changeInWidth);
       if (property === "width") {
-        if (shouldChangeByStepSize) {
-          nextWidth = getStepSizedValue(nextWidth, STEP_SIZE);
-        } else {
-          nextWidth = Math.round(nextWidth);
-        }
+        nextWidth = shouldChangeByStepSize ? getStepSizedValue(nextWidth, STEP_SIZE) : Math.round(nextWidth);
       }
 
       let nextHeight = Math.max(0, origElement.height + changeInHeight);
       if (property === "height") {
-        if (shouldChangeByStepSize) {
-          nextHeight = getStepSizedValue(nextHeight, STEP_SIZE);
-        } else {
-          nextHeight = Math.round(nextHeight);
-        }
+        nextHeight = shouldChangeByStepSize ? getStepSizedValue(nextHeight, STEP_SIZE) : Math.round(nextHeight);
       }
 
       if (keepAspectRatio) {

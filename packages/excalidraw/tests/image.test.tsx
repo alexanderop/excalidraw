@@ -17,7 +17,7 @@ import {
 } from "./fixtures/constants";
 import { INITIALIZED_IMAGE_PROPS } from "./helpers/constants";
 
-const { h } = window;
+const { h } = globalThis;
 
 export const setupImageTest = async (
   sizes: { width: number; height: number }[],

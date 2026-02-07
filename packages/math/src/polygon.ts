@@ -54,16 +54,12 @@ export const polygonIncludesPointNonZero = <Point extends [number, number]>(
     const [xj, yj] = polygon[j];
 
     if (yi <= y) {
-      if (yj > y) {
-        if ((xj - xi) * (y - yi) - (x - xi) * (yj - yi) > 0) {
+      if (yj > y && (xj - xi) * (y - yi) - (x - xi) * (yj - yi) > 0) {
           windingNumber++;
         }
-      }
-    } else if (yj <= y) {
-      if ((xj - xi) * (y - yi) - (x - xi) * (yj - yi) < 0) {
+    } else if (yj <= y && (xj - xi) * (y - yi) - (x - xi) * (yj - yi) < 0) {
         windingNumber--;
       }
-    }
   }
 
   return windingNumber !== 0;
@@ -97,5 +93,5 @@ function polygonClose<Point extends LocalPoint | GlobalPoint>(
 function polygonIsClosed<Point extends LocalPoint | GlobalPoint>(
   polygon: Point[],
 ) {
-  return pointsEqual(polygon[0], polygon[polygon.length - 1]);
+  return pointsEqual(polygon[0], polygon.at(-1));
 }

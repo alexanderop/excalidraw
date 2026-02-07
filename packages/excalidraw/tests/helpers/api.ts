@@ -1,6 +1,6 @@
-import fs from "fs";
-import path from "path";
-import util from "util";
+import fs from "node:fs";
+import path from "node:path";
+import util from "node:util";
 
 import { pointFrom, type LocalPoint, type Radians } from "@excalidraw/math";
 
@@ -57,7 +57,7 @@ const readFile = util.promisify(fs.readFile);
 // so that window.h is available when App.tsx is not imported as well.
 createTestHook();
 
-const { h } = window;
+const { h } = globalThis;
 
 export class API {
   static updateScene: InstanceType<typeof App>["updateScene"] = (...args) => {
@@ -139,7 +139,7 @@ export class API {
   };
 
   static getSnapshot = () => {
-    return Array.from(h.store.snapshot.elements.values());
+    return [...h.store.snapshot.elements.values()];
   };
 
   static clearSelection = () => {
@@ -280,25 +280,28 @@ export class API {
     switch (type) {
       case "rectangle":
       case "diamond":
-      case "ellipse":
+      case "ellipse": {
         element = newElement({
           type: type as "rectangle" | "diamond" | "ellipse",
           ...base,
         });
         break;
-      case "embeddable":
+      }
+      case "embeddable": {
         element = newEmbeddableElement({
           type: "embeddable",
           ...base,
         });
         break;
-      case "iframe":
+      }
+      case "iframe": {
         element = newIframeElement({
           type: "iframe",
           ...base,
         });
         break;
-      case "text":
+      }
+      case "text": {
         const fontSize = rest.fontSize ?? appState.currentItemFontSize;
         const fontFamily = rest.fontFamily ?? appState.currentItemFontFamily;
         element = newTextElement({
@@ -313,7 +316,8 @@ export class API {
         element.width = width;
         element.height = height;
         break;
-      case "freedraw":
+      }
+      case "freedraw": {
         element = newFreeDrawElement({
           type: type as "freedraw",
           simulatePressure: true,
@@ -321,7 +325,8 @@ export class API {
           ...base,
         });
         break;
-      case "arrow":
+      }
+      case "arrow": {
         element = newArrowElement({
           ...base,
           width,
@@ -334,7 +339,8 @@ export class API {
           elbowed: rest.elbowed ?? false,
         });
         break;
-      case "line":
+      }
+      case "line": {
         element = newLinearElement({
           ...base,
           width,
@@ -346,7 +352,8 @@ export class API {
           ],
         });
         break;
-      case "image":
+      }
+      case "image": {
         element = newImageElement({
           ...base,
           width,
@@ -357,18 +364,22 @@ export class API {
           scale: rest.scale || [1, 1],
         });
         break;
-      case "frame":
+      }
+      case "frame": {
         element = newFrameElement({ ...base, width, height });
         break;
-      case "magicframe":
+      }
+      case "magicframe": {
         element = newMagicFrameElement({ ...base, width, height });
         break;
-      default:
+      }
+      default: {
         assertNever(
           type,
           `API.createElement: unimplemented element type ${type}}`,
         );
         break;
+      }
     }
     if (element.type === "arrow") {
       element.startBinding = rest.startBinding ?? null;
@@ -516,7 +527,7 @@ export class API {
           return items.find((item) => item.type === "string" && item.type === type) || "";
         },
         // https://developer.mozilla.org/en-US/docs/Web/API/DataTransfer/types
-        types: Array.from(new Set(items.map((item) => item.kind === "file" ? "Files" : item.type))),
+        types: [...new Set(items.map((item) => item.kind === "file" ? "Files" : item.type))],
       },
     });
     Object.defineProperty(fileDropEvent, "clientX", {

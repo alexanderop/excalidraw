@@ -20,10 +20,10 @@ import {
 } from "./siderbar.test.helpers";
 
 const toggleSidebar = (
-  ...args: Parameters<typeof window.h.app.toggleSidebar>
+  ...args: Parameters<typeof globalThis.h.app.toggleSidebar>
 ): Promise<boolean> => {
   return act(() => {
-    return window.h.app.toggleSidebar(...args);
+    return globalThis.h.app.toggleSidebar(...args);
   });
 };
 

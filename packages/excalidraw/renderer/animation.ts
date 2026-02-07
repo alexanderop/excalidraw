@@ -53,16 +53,16 @@ export class AnimationController {
           state: animation.state,
         });
 
-        if (!state) {
+        if (state) {
+          animation.lastTime = now;
+          animation.state = state;
+        } else {
           AnimationController.animations.delete(key);
 
           if (AnimationController.animations.size === 0) {
             AnimationController.isRunning = false;
             return;
           }
-        } else {
-          animation.lastTime = now;
-          animation.state = state;
         }
       }
 

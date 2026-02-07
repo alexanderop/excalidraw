@@ -48,16 +48,21 @@ const HORIZONTAL_OFFSET = 100;
 
 export const getLinkDirectionFromKey = (key: string): LinkDirection => {
   switch (key) {
-    case KEYS.ARROW_UP:
+    case KEYS.ARROW_UP: {
       return "up";
-    case KEYS.ARROW_DOWN:
+    }
+    case KEYS.ARROW_DOWN: {
       return "down";
-    case KEYS.ARROW_RIGHT:
+    }
+    case KEYS.ARROW_RIGHT: {
       return "right";
-    case KEYS.ARROW_LEFT:
+    }
+    case KEYS.ARROW_LEFT: {
       return "left";
-    default:
+    }
+    default: {
       return "right";
+    }
   }
 };
 
@@ -92,7 +97,7 @@ const getNodeRelatives = (
         );
 
         const edgePoint = (
-          type === "predecessors" ? el.points[el.points.length - 1] : [0, 0]
+          type === "predecessors" ? el.points.at(-1) : [0, 0]
         ) as Readonly<LocalPoint>;
 
         const heading = headingForPointFromElement(
@@ -112,22 +117,26 @@ const getNodeRelatives = (
   );
 
   switch (direction) {
-    case "up":
+    case "up": {
       return items
         .filter((item) => compareHeading(item.heading, HEADING_UP))
         .map((item) => item.relative);
-    case "down":
+    }
+    case "down": {
       return items
         .filter((item) => compareHeading(item.heading, HEADING_DOWN))
         .map((item) => item.relative);
-    case "right":
+    }
+    case "right": {
       return items
         .filter((item) => compareHeading(item.heading, HEADING_RIGHT))
         .map((item) => item.relative);
-    case "left":
+    }
+    case "left": {
       return items
         .filter((item) => compareHeading(item.heading, HEADING_LEFT))
         .map((item) => item.relative);
+    }
   }
 };
 
@@ -361,8 +370,7 @@ export const addNewNodes = (
       scene,
     );
 
-    newNodes.push(nextNode);
-    newNodes.push(bindingArrow);
+    newNodes.push(nextNode, bindingArrow);
   }
 
   return newNodes;
@@ -455,19 +463,13 @@ const createBindingArrow = (
   );
   bindBindingElement(bindingArrow, endBindingElement, "orbit", "end", scene);
 
-  const changedElements = new Map<string, OrderedExcalidrawElement>();
-  changedElements.set(
+  const changedElements = new Map<string, OrderedExcalidrawElement>([[
     startBindingElement.id,
-    startBindingElement as OrderedExcalidrawElement,
-  );
-  changedElements.set(
+    startBindingElement as OrderedExcalidrawElement], [
     endBindingElement.id,
-    endBindingElement as OrderedExcalidrawElement,
-  );
-  changedElements.set(
+    endBindingElement as OrderedExcalidrawElement], [
     bindingArrow.id,
-    bindingArrow as OrderedExcalidrawElement,
-  );
+    bindingArrow as OrderedExcalidrawElement]]);
 
   LinearElementEditor.movePoints(
     bindingArrow,
@@ -611,11 +613,10 @@ export class FlowChartNavigator {
       ].filter((dir): dir is LinkDirection => dir !== direction);
 
       const otherLinkedNodes = otherDirections
-        .map((dir) => [
+        .flatMap((dir) => [
           ...getSuccessors(element, elementsMap, dir),
           ...getPredecessors(element, elementsMap, dir),
         ])
-        .flat()
         .filter((linkedNode) => !this.visitedNodes.has(linkedNode.id));
 
       for (const linkedNode of otherLinkedNodes) {
@@ -645,19 +646,7 @@ export class FlowChartCreator {
     scene: Scene,
   ) {
     const elementsMap = scene.getNonDeletedElementsMap();
-    if (direction !== this.direction) {
-      const { nextNode, bindingArrow } = addNewNode(
-        startNode,
-        appState,
-        direction,
-        scene,
-      );
-
-      this.numberOfNodes = 1;
-      this.isCreatingChart = true;
-      this.direction = direction;
-      this.pendingNodes = [nextNode, bindingArrow];
-    } else {
+    if (direction === this.direction) {
       this.numberOfNodes += 1;
       const newNodes = addNewNodes(
         startNode,
@@ -670,6 +659,18 @@ export class FlowChartCreator {
       this.isCreatingChart = true;
       this.direction = direction;
       this.pendingNodes = newNodes;
+    } else {
+      const { nextNode, bindingArrow } = addNewNode(
+        startNode,
+        appState,
+        direction,
+        scene,
+      );
+
+      this.numberOfNodes = 1;
+      this.isCreatingChart = true;
+      this.direction = direction;
+      this.pendingNodes = [nextNode, bindingArrow];
     }
 
     // add pending nodes to the same frame as the start node

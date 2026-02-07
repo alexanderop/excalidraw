@@ -1,4 +1,7 @@
-import InteractiveCanvas from "./InteractiveCanvas";
-import StaticCanvas from "./StaticCanvas";
 
-export { InteractiveCanvas, StaticCanvas };
+
+
+
+
+export {default as InteractiveCanvas} from "./InteractiveCanvas";
+export {default as StaticCanvas} from "./StaticCanvas";

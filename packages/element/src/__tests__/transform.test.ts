@@ -84,16 +84,16 @@ describe("Test Transform", () => {
       },
     ];
 
-    convertToExcalidrawElements(
+    for (const ele of convertToExcalidrawElements(
       elements as ExcalidrawElementSkeleton[],
       opts,
-    ).forEach((ele) => {
+    )) {
       expect(ele).toMatchSnapshot({
         seed: expect.any(Number),
         versionNonce: expect.any(Number),
         id: expect.any(String),
       });
-    });
+    }
   });
 
   it("should transform text element", () => {
@@ -113,16 +113,16 @@ describe("Test Transform", () => {
         strokeColor: "#5f3dc4",
       },
     ];
-    convertToExcalidrawElements(
+    for (const ele of convertToExcalidrawElements(
       elements as ExcalidrawElementSkeleton[],
       opts,
-    ).forEach((ele) => {
+    )) {
       expect(ele).toMatchSnapshot({
         seed: expect.any(Number),
         versionNonce: expect.any(Number),
         id: expect.any(String),
       });
-    });
+    }
   });
 
   it("should transform linear elements", () => {
@@ -162,13 +162,13 @@ describe("Test Transform", () => {
 
     expect(excalidrawElements.length).toBe(4);
 
-    excalidrawElements.forEach((ele) => {
+    for (const ele of excalidrawElements) {
       expect(ele).toMatchSnapshot({
         seed: expect.any(Number),
         versionNonce: expect.any(Number),
         id: expect.any(String),
       });
-    });
+    }
   });
 
   it("should transform to text containers when label provided", () => {
@@ -245,13 +245,13 @@ describe("Test Transform", () => {
 
     expect(excalidrawElements.length).toBe(12);
 
-    excalidrawElements.forEach((ele) => {
+    for (const ele of excalidrawElements) {
       expect(ele).toMatchSnapshot({
         seed: expect.any(Number),
         versionNonce: expect.any(Number),
         id: expect.any(String),
       });
-    });
+    }
   });
 
   it("should transform to labelled arrows when label provided for arrows", () => {
@@ -303,13 +303,13 @@ describe("Test Transform", () => {
 
     expect(excalidrawElements.length).toBe(8);
 
-    excalidrawElements.forEach((ele) => {
+    for (const ele of excalidrawElements) {
       expect(ele).toMatchSnapshot({
         seed: expect.any(Number),
         versionNonce: expect.any(Number),
         id: expect.any(String),
       });
-    });
+    }
   });
 
   describe("Test Frames", () => {
@@ -351,13 +351,13 @@ describe("Test Transform", () => {
       );
       expect(excalidrawElements.length).toBe(4);
 
-      excalidrawElements.forEach((ele) => {
+      for (const ele of excalidrawElements) {
         expect(ele).toMatchObject({
           seed: expect.any(Number),
           versionNonce: expect.any(Number),
           id: expect.any(String),
         });
-      });
+      }
     });
 
     it("should consider user defined frame dimensions over calculated when provided", () => {
@@ -471,13 +471,13 @@ describe("Test Transform", () => {
         ],
       });
 
-      excalidrawElements.forEach((ele) => {
+      for (const ele of excalidrawElements) {
         expect(ele).toMatchSnapshot({
           seed: expect.any(Number),
           versionNonce: expect.any(Number),
           id: expect.any(String),
         });
-      });
+      }
     });
 
     it("should bind arrows to text when start / end provided without ids", () => {
@@ -553,13 +553,13 @@ describe("Test Transform", () => {
         ],
       });
 
-      excalidrawElements.forEach((ele) => {
+      for (const ele of excalidrawElements) {
         expect(ele).toMatchSnapshot({
           seed: expect.any(Number),
           versionNonce: expect.any(Number),
           id: expect.any(String),
         });
-      });
+      }
     });
 
     it("should bind arrows to existing shapes when start / end provided with ids", () => {
@@ -620,13 +620,13 @@ describe("Test Transform", () => {
 
       expect(excalidrawElements.length).toBe(5);
 
-      excalidrawElements.forEach((ele) => {
+      for (const ele of excalidrawElements) {
         expect(ele).toMatchSnapshot({
           seed: expect.any(Number),
           versionNonce: expect.any(Number),
           id: expect.any(String),
         });
-      });
+      }
     });
 
     it("should bind arrows to existing text elements when start / end provided with ids", () => {
@@ -669,13 +669,13 @@ describe("Test Transform", () => {
 
       expect(excalidrawElements.length).toBe(4);
 
-      excalidrawElements.forEach((ele) => {
+      for (const ele of excalidrawElements) {
         expect(ele).toMatchSnapshot({
           seed: expect.any(Number),
           versionNonce: expect.any(Number),
           id: expect.any(String),
         });
-      });
+      }
     });
 
     it("should bind arrows to existing elements if ids are correct", () => {
@@ -851,7 +851,7 @@ describe("Test Transform", () => {
         groupIds: ["subgraph_group_B"],
         x: 0,
         y: 0,
-        width: 166.03125,
+        width: 166.031_25,
         height: 163,
         label: {
           groupIds: ["subgraph_group_B"],
@@ -864,9 +864,9 @@ describe("Test Transform", () => {
         id: "A",
         type: "rectangle",
         groupIds: ["subgraph_group_A"],
-        x: 364.546875,
+        x: 364.546_875,
         y: 0,
-        width: 120.265625,
+        width: 120.265_625,
         height: 114,
         label: {
           groupIds: ["subgraph_group_A"],
@@ -879,9 +879,9 @@ describe("Test Transform", () => {
         id: "Alice",
         type: "rectangle",
         groupIds: ["subgraph_group_A"],
-        x: 389.546875,
+        x: 389.546_875,
         y: 35,
-        width: 70.265625,
+        width: 70.265_625,
         height: 44,
         strokeWidth: 2,
         label: {
@@ -895,9 +895,9 @@ describe("Test Transform", () => {
         id: "Bob",
         type: "rectangle",
         groupIds: ["subgraph_group_B"],
-        x: 54.76953125,
+        x: 54.769_531_25,
         y: 35,
-        width: 56.4921875,
+        width: 56.492_187_5,
         height: 44,
         strokeWidth: 2,
         label: {
@@ -957,12 +957,12 @@ describe("Test Transform", () => {
 
     const excalidrawElements = convertToExcalidrawElements(elements, opts);
     expect(excalidrawElements.length).toBe(12);
-    excalidrawElements.forEach((ele) => {
+    for (const ele of excalidrawElements) {
       expect(ele).toMatchSnapshot({
         seed: expect.any(Number),
         versionNonce: expect.any(Number),
         id: expect.any(String),
       });
-    });
+    }
   });
 });

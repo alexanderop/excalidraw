@@ -21,7 +21,7 @@ mockMermaidToExcalidraw({
               groupIds: [],
               x: 0,
               y: 0,
-              width: 69.703125,
+              width: 69.703_125,
               height: 44,
               strokeWidth: 2,
               label: {
@@ -35,9 +35,9 @@ mockMermaidToExcalidraw({
               id: "Stop",
               type: "rectangle",
               groupIds: [],
-              x: 2.7109375,
+              x: 2.710_937_5,
               y: 94,
-              width: 64.28125,
+              width: 64.281_25,
               height: 44,
               strokeWidth: 2,
               label: {

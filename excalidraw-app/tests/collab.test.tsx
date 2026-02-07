@@ -14,12 +14,12 @@ import type { DurableIncrement, EphemeralIncrement } from "@excalidraw/element";
 
 import ExcalidrawApp from "../App";
 
-const { h } = window;
+const { h } = globalThis;
 
-Object.defineProperty(window, "crypto", {
+Object.defineProperty(globalThis, "crypto", {
   value: {
     getRandomValues: (arr: number[]) =>
-      arr.forEach((v, i) => (arr[i] = Math.floor(Math.random() * 256))),
+      { for (const [i, v] of arr.entries()) (arr[i] = Math.floor(Math.random() * 256)) },
     subtle: {
       generateKey: () => {},
       exportKey: () => ({ k: "sTdLvMC_M3V8_vGa3UVRDg" }),
@@ -83,7 +83,7 @@ describe("collaboration", () => {
       }
     });
 
-    // eslint-disable-next-line dot-notation
+     
     expect(h.store["scheduledMicroActions"].length).toBe(0);
     expect(durableIncrements.length).toBe(0);
     expect(ephemeralIncrements.length).toBe(0);
@@ -122,7 +122,7 @@ describe("collaboration", () => {
 
       // we scheduled two micro actions,
       // which confirms they are going to be executed as part of one batched component update
-      // eslint-disable-next-line dot-notation
+       
       expect(h.store["scheduledMicroActions"].length).toBe(2);
     });
 
@@ -137,7 +137,7 @@ describe("collaboration", () => {
       expect(ephemeralIncrements[1].change.elements.A).toEqual(
         expect.objectContaining({ x: 200 }),
       );
-      // eslint-disable-next-line dot-notation
+       
       expect(h.store["scheduledMicroActions"].length).toBe(0);
     });
   });
@@ -187,7 +187,7 @@ describe("collaboration", () => {
     });
 
     // one form of force deletion happens when starting the collab, not to sync potentially sensitive data into the server
-    window.collab.startCollaboration(null);
+    globalThis.collab.startCollaboration(null);
 
     await waitFor(() => {
       expect(API.getUndoStack().length).toBe(2);

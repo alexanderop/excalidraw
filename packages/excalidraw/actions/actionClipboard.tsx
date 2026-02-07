@@ -162,7 +162,7 @@ export const actionCopyAsSvg = register({
         appState: {
           toast: {
             message: t("toast.copyToClipboardAsSvg", {
-              exportSelection: selectedElements.length
+              exportSelection: selectedElements.length > 0
                 ? t("toast.selection")
                 : t("toast.canvas"),
               exportColorScheme: appState.exportWithDarkMode
@@ -222,7 +222,7 @@ export const actionCopyAsPng = register({
           ...appState,
           toast: {
             message: t("toast.copyToClipboardAsPng", {
-              exportSelection: selectedElements.length
+              exportSelection: selectedElements.length > 0
                 ? t("toast.selection")
                 : t("toast.canvas"),
               exportColorScheme: appState.exportWithDarkMode
@@ -263,7 +263,7 @@ export const copyText = register({
 
     try {
       copyTextToSystemClipboard(getTextFromElements(selectedElements));
-    } catch (e) {
+    } catch {
       throw new Error(t("errors.copyToSystemClipboardFailed"));
     }
     return {

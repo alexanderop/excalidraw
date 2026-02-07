@@ -64,7 +64,7 @@ export const actionChangeViewBackgroundColor = register<Partial<AppState>>({
   perform: (_, appState, value) => {
     return {
       appState: { ...appState, ...value },
-      captureUpdate: !!value?.viewBackgroundColor
+      captureUpdate: value?.viewBackgroundColor
         ? CaptureUpdateAction.IMMEDIATELY
         : CaptureUpdateAction.EVENTUALLY,
     };
@@ -400,7 +400,7 @@ export const actionZoomToFitSelectionInViewport = register({
   perform: (elements, appState, _, app) => {
     const selectedElements = app.scene.getSelectedElements(appState);
     return zoomToFit({
-      targetElements: selectedElements.length ? selectedElements : elements,
+      targetElements: selectedElements.length > 0 ? selectedElements : elements,
       appState: {
         ...appState,
         userToFollow: null,
@@ -426,7 +426,7 @@ export const actionZoomToFitSelection = register({
   perform: (elements, appState, _, app) => {
     const selectedElements = app.scene.getSelectedElements(appState);
     return zoomToFit({
-      targetElements: selectedElements.length ? selectedElements : elements,
+      targetElements: selectedElements.length > 0 ? selectedElements : elements,
       appState: {
         ...appState,
         userToFollow: null,
@@ -501,19 +501,15 @@ export const actionToggleEraserTool = register({
   perform: (elements, appState, _, app) => {
     let activeTool: AppState["activeTool"];
 
-    if (isEraserActive(appState)) {
-      activeTool = updateActiveTool(appState, {
+    activeTool = isEraserActive(appState) ? updateActiveTool(appState, {
         ...(appState.activeTool.lastActiveTool || {
           type: app.state.preferredSelectionTool.type,
         }),
         lastActiveToolBeforeEraser: null,
-      });
-    } else {
-      activeTool = updateActiveTool(appState, {
+      }) : updateActiveTool(appState, {
         type: "eraser",
         lastActiveToolBeforeEraser: appState.activeTool,
       });
-    }
 
     return {
       appState: {
@@ -540,16 +536,16 @@ export const actionToggleLassoTool = register({
   perform: (elements, appState, _, app) => {
     let activeTool: AppState["activeTool"];
 
-    if (appState.activeTool.type !== "lasso") {
+    if (appState.activeTool.type === "lasso") {
+      activeTool = updateActiveTool(appState, {
+        type: "selection",
+      });
+    } else {
       activeTool = updateActiveTool(appState, {
         type: "lasso",
         fromSelection: false,
       });
       setCursor(app.interactiveCanvas, CURSOR_TYPE.CROSSHAIR);
-    } else {
-      activeTool = updateActiveTool(appState, {
-        type: "selection",
-      });
     }
 
     return {

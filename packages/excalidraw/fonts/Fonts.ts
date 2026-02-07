@@ -206,7 +206,7 @@ export class Fonts {
     const fontFaces = await new PromisePool(iterator, concurrency).all();
 
     // dedup just in case (i.e. could be the same font faces with 0 glyphs)
-    return Array.from(new Set(fontFaces));
+    return [...new Set(fontFaces)];
   }
 
   private static async loadFontFaces(
@@ -221,8 +221,8 @@ export class Fonts {
       }
 
       for (const { fontFace } of fontFaces) {
-        if (!window.document.fonts.has(fontFace)) {
-          window.document.fonts.add(fontFace);
+        if (!globalThis.document.fonts.has(fontFace)) {
+          globalThis.document.fonts.add(fontFace);
         }
       }
     }
@@ -248,21 +248,21 @@ export class Fonts {
       // instead, we are always checking chars used in the family, so that no required font faces remain unloaded
       const text = Fonts.getCharacters(charsPerFamily, fontFamily);
 
-      if (!window.document.fonts.check(font, text)) {
+      if (!globalThis.document.fonts.check(font, text)) {
         yield promiseTry(async () => {
           try {
             // WARN: browser prioritizes loading only font faces with unicode ranges for characters which are present in the document (html & canvas), other font faces could stay unloaded
             // we might want to retry here, i.e.  in case CDN is down, but so far I didn't experience any issues - maybe it handles retry-like logic under the hood
-            const fontFaces = await window.document.fonts.load(font, text);
+            const fontFaces = await globalThis.document.fonts.load(font, text);
 
             return [index, fontFaces];
-          } catch (e) {
+          } catch (error) {
             // don't let it all fail if just one font fails to load
             console.error(
               `Failed to load font "${font}" from urls "${Fonts.registered
                 .get(fontFamily)
                 ?.fontFaces.map((x) => x.urls)}"`,
-              e,
+              error,
             );
           }
         });
@@ -408,14 +408,12 @@ export class Fonts {
   private static getUniqueFamilies(
     elements: ReadonlyArray<ExcalidrawElement>,
   ): Array<ExcalidrawTextElement["fontFamily"]> {
-    return Array.from(
-      elements.reduce((families, element) => {
+    return [...elements.reduce((families, element) => {
         if (isTextElement(element)) {
           families.add(element.fontFamily);
         }
         return families;
-      }, new Set<number>()),
-    );
+      }, new Set<number>())];
   }
 
   /**
@@ -452,7 +450,7 @@ export class Fonts {
     family: number,
   ) {
     return charsPerFamily[family]
-      ? Array.from(charsPerFamily[family]).join("")
+      ? [...charsPerFamily[family]].join("")
       : "";
   }
 
@@ -460,7 +458,7 @@ export class Fonts {
    * Get all registered font families.
    */
   private static getAllFamilies() {
-    return Array.from(Fonts.registered.keys());
+    return [...Fonts.registered.keys()];
   }
 }
 

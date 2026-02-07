@@ -492,7 +492,7 @@ class ElementStore {
   };
 
   getElements = () => {
-    return syncInvalidIndices(Array.from(this.excalidrawElements.values()));
+    return syncInvalidIndices([...this.excalidrawElements.values()]);
   };
 
   getElementsMap = () => {
@@ -749,7 +749,7 @@ export const convertToExcalidrawElements = (
     }
     const childrenElements: ExcalidrawElement[] = [];
 
-    element.children.forEach((id) => {
+    for (const id of element.children) {
       const newElementId = oldToNewElementIdMap.get(id);
       if (!newElementId) {
         throw new Error(`Element with ${id} wasn't mapped correctly`);
@@ -761,7 +761,7 @@ export const convertToExcalidrawElements = (
       }
       Object.assign(elementInFrame, { frameId: frame.id });
 
-      elementInFrame?.boundElements?.forEach((boundElement) => {
+      if (elementInFrame?.boundElements) for (const boundElement of elementInFrame?.boundElements) {
         const ele = elementStore.getElement(boundElement.id);
         if (!ele) {
           throw new Error(
@@ -770,10 +770,10 @@ export const convertToExcalidrawElements = (
         }
         Object.assign(ele, { frameId: frame.id });
         childrenElements.push(ele);
-      });
+      }
 
       childrenElements.push(elementInFrame);
-    });
+    }
 
     let [minX, minY, maxX, maxY] = getCommonBounds(childrenElements);
 
@@ -796,7 +796,7 @@ export const convertToExcalidrawElements = (
     });
     if (
       isDevEnv() &&
-      element.children.length &&
+      element.children.length > 0 &&
       (frame?.x || frame?.y || frame?.width || frame?.height)
     ) {
       console.info(

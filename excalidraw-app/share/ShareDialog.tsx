@@ -34,9 +34,9 @@ export const shareDialogStateAtom = atom<
 >({ isOpen: false });
 
 const getShareIcon = () => {
-  const navigator = window.navigator as any;
+  const navigator = globalThis.navigator as any;
   const isAppleBrowser = /Apple/.test(navigator.vendor);
-  const isWindowsBrowser = navigator.appVersion.indexOf("Win") !== -1;
+  const isWindowsBrowser = navigator.appVersion.includes("Win");
 
   if (isAppleBrowser) {
     return shareIOS;
@@ -73,17 +73,17 @@ const ActiveRoomDialog = ({
   const copyRoomLink = async () => {
     try {
       await copyTextToSystemClipboard(activeRoomLink);
-    } catch (e) {
+    } catch {
       collabAPI.setCollabError(t("errors.copyToSystemClipboardFailed"));
     }
 
     setJustCopied(true);
 
     if (timerRef.current) {
-      window.clearTimeout(timerRef.current);
+      globalThis.clearTimeout(timerRef.current);
     }
 
-    timerRef.current = window.setTimeout(() => {
+    timerRef.current = globalThis.setTimeout(() => {
       setJustCopied(false);
     }, 3000);
 
@@ -97,7 +97,7 @@ const ActiveRoomDialog = ({
         text: t("roomDialog.shareTitle"),
         url: activeRoomLink,
       });
-    } catch (error: any) {
+    } catch {
       // Just ignore.
     }
   };
@@ -105,7 +105,7 @@ const ActiveRoomDialog = ({
   return (
     <>
       <h3 className="ShareDialog__active__header">
-        {t("labels.liveCollaboration").replace(/\./g, "")}
+        {t("labels.liveCollaboration").replaceAll('.', "")}
       </h3>
       <TextField
         defaultValue={collabAPI.getUsername()}
@@ -186,7 +186,7 @@ const ShareDialogPicker = (props: ShareDialogProps) => {
   const startCollabJSX = collabAPI ? (
     <>
       <div className="ShareDialog__picker__header">
-        {t("labels.liveCollaboration").replace(/\./g, "")}
+        {t("labels.liveCollaboration").replaceAll('.', "")}
       </div>
 
       <div className="ShareDialog__picker__description">

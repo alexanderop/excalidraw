@@ -10,7 +10,7 @@ export const getTooltipDiv = () => {
     return existingDiv;
   }
   const div = document.createElement("div");
-  document.body.appendChild(div);
+  document.body.append(div);
   div.classList.add("excalidraw-tooltip");
   return div;
 };

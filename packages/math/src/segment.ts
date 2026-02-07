@@ -148,7 +148,7 @@ export const distanceToLineSegment = <Point extends LocalPoint | GlobalPoint>(
 
   const dx = x - xx;
   const dy = y - yy;
-  return Math.sqrt(dx * dx + dy * dy);
+  return Math.hypot(dx, dy);
 };
 
 /**

@@ -38,15 +38,15 @@ export const isDarwin = /Mac|iPod|iPhone|iPad/.test(navigator.platform);
 export const isWindows = /^Win/.test(navigator.platform);
 export const isAndroid = /\b(android)\b/i.test(navigator.userAgent);
 export const isFirefox =
-  typeof window !== "undefined" &&
-  "netscape" in window &&
+  globalThis.window !== undefined &&
+  "netscape" in globalThis &&
   navigator.userAgent.indexOf("rv:") > 1 &&
   navigator.userAgent.indexOf("Gecko") > 1;
-export const isChrome = navigator.userAgent.indexOf("Chrome") !== -1;
+export const isChrome = navigator.userAgent.includes("Chrome");
 export const isSafari =
-  !isChrome && navigator.userAgent.indexOf("Safari") !== -1;
+  !isChrome && navigator.userAgent.includes("Safari");
 export const isIOS =
-  /iPad|iPhone/i.test(navigator.platform) ||
+  /ipad|iphone/i.test(navigator.platform) ||
   // iPadOS 13+
   (navigator.userAgent.includes("Mac") && "ontouchend" in document);
 // keeping function so it can be mocked in test
@@ -114,7 +114,7 @@ const isMobileOrTablet = (): boolean => {
 
   // --- 3) android legacy ua fallback -------------------------------------
   if (isAndroid) {
-    const isAndroidPhone = /Mobile/i.test(ua);
+    const isAndroidPhone = /mobile/i.test(ua);
     const isAndroidTablet = !isAndroidPhone;
     if (isAndroidPhone || isAndroidTablet) {
       const looksTouchTablet =
@@ -184,16 +184,16 @@ export const createUserAgentDescriptor = (
 };
 
 export const loadDesktopUIModePreference = () => {
-  if (typeof window === "undefined") {
+  if (globalThis.window === undefined) {
     return null;
   }
 
   try {
-    const stored = window.localStorage.getItem(DESKTOP_UI_MODE_STORAGE_KEY);
+    const stored = globalThis.localStorage.getItem(DESKTOP_UI_MODE_STORAGE_KEY);
     if (stored === "compact" || stored === "full") {
       return stored as EditorInterface["desktopUIMode"];
     }
-  } catch (error) {
+  } catch {
     // ignore storage access issues (e.g., Safari private mode)
   }
 
@@ -201,12 +201,12 @@ export const loadDesktopUIModePreference = () => {
 };
 
 const persistDesktopUIMode = (mode: EditorInterface["desktopUIMode"]) => {
-  if (typeof window === "undefined") {
+  if (globalThis.window === undefined) {
     return;
   }
   try {
-    window.localStorage.setItem(DESKTOP_UI_MODE_STORAGE_KEY, mode);
-  } catch (error) {
+    globalThis.localStorage.setItem(DESKTOP_UI_MODE_STORAGE_KEY, mode);
+  } catch {
     // ignore storage access issues (e.g., Safari private mode)
   }
 };

@@ -23,7 +23,7 @@ import {
 
 import type { NormalizedZoomValue } from "../types";
 
-const { h } = window;
+const { h } = globalThis;
 
 const mouse = new Pointer("mouse");
 
@@ -160,10 +160,10 @@ describe("paste text as single lines", () => {
     mouse.moveTo(100, 100);
     pasteWithCtrlCmdV(text);
     await waitFor(async () => {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+       
       const [fx, firstElY] = getElementBounds(h.elements[0], elementsMap);
       for (let i = 1; i < h.elements.length; i++) {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+         
         const [fx, elY] = getElementBounds(h.elements[i], elementsMap);
         expect(elY).toEqual(firstElY + lineHeightPx * i);
       }
@@ -183,9 +183,9 @@ describe("paste text as single lines", () => {
     pasteWithCtrlCmdV(text);
 
     await waitFor(async () => {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+       
       const [fx, firstElY] = getElementBounds(h.elements[0], elementsMap);
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+       
       const [lx, lastElY] = getElementBounds(h.elements[1], elementsMap);
       expect(lastElY).toEqual(firstElY + lineHeightPx * 2);
     });
@@ -214,18 +214,18 @@ describe("Paste bound text container", () => {
   const container = {
     type: "ellipse",
     id: "container-id",
-    x: 554.984375,
-    y: 196.0234375,
+    x: 554.984_375,
+    y: 196.023_437_5,
     width: 166,
-    height: 187.01953125,
+    height: 187.019_531_25,
     roundness: { type: 2 },
     boundElements: [{ type: "text", id: "text-id" }],
   };
   const textElement = {
     type: "text",
     id: "text-id",
-    x: 560.51171875,
-    y: 202.033203125,
+    x: 560.511_718_75,
+    y: 202.033_203_125,
     width: 154,
     height: 175,
     fontSize: 20,
@@ -486,7 +486,7 @@ describe("clipboard - pasting mermaid definition", () => {
       parseMermaidToExcalidraw: async (definition) => {
         const lines = definition.split("\n");
         return new Promise((resolve, reject) => {
-          if (lines.some((line) => line === "flowchart TD")) {
+          if (lines.includes("flowchart TD")) {
             resolve({
               elements: [
                 {
@@ -495,7 +495,7 @@ describe("clipboard - pasting mermaid definition", () => {
                   groupIds: [],
                   x: 0,
                   y: 0,
-                  width: 69.703125,
+                  width: 69.703_125,
                   height: 44,
                   strokeWidth: 2,
                   label: {

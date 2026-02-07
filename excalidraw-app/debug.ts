@@ -5,7 +5,7 @@ declare global {
 }
 
 const lessPrecise = (num: number, precision = 5) =>
-  parseFloat(num.toPrecision(precision));
+  Number.parseFloat(num.toPrecision(precision));
 
 const getAvgFrameTime = (times: number[]) =>
   lessPrecise(times.reduce((a, b) => a + b) / times.length);
@@ -44,7 +44,7 @@ export class Debug {
   private static setupInterval = () => {
     if (Debug.DEBUG_LOG_INTERVAL_ID === null) {
       console.info("%c(starting perf recording)", "color: lime");
-      Debug.DEBUG_LOG_INTERVAL_ID = window.setInterval(Debug.debugLogger, 1000);
+      Debug.DEBUG_LOG_INTERVAL_ID = globalThis.setInterval(Debug.debugLogger, 1000);
       Debug.scheduleAnimationFrame();
     }
     Debug.LAST_DEBUG_LOG_CALL = Date.now();
@@ -53,7 +53,7 @@ export class Debug {
   private static debugLogger = () => {
     if (Debug.DEBUG_LOG_TIMES) {
       for (const [name, { t, times }] of Object.entries(Debug.TIMES_AGGR)) {
-        if (times.length) {
+        if (times.length > 0) {
           console.info(
             name,
             lessPrecise(times.reduce((a, b) => a + b)),
@@ -63,7 +63,7 @@ export class Debug {
         }
       }
       for (const [name, { t, times, avg }] of Object.entries(Debug.TIMES_AVG)) {
-        if (times.length) {
+        if (times.length > 0) {
           // const avgFrameTime = getAvgFrameTime(times);
           const totalTime = times.reduce((a, b) => a + b);
           const avgFrameTime = lessPrecise(totalTime / Debug.FRAME_COUNT);
@@ -80,7 +80,7 @@ export class Debug {
             t,
             times: [],
             avg:
-              avg != null ? getAvgFrameTime([avg, avgFrameTime]) : avgFrameTime,
+              avg == null ? avgFrameTime : getAvgFrameTime([avg, avgFrameTime]),
           };
         }
       }
@@ -93,8 +93,8 @@ export class Debug {
       Debug.DEBUG_LOG_INTERVAL_ID !== null
     ) {
       console.info("%c(stopping perf recording)", "color: red");
-      window.clearInterval(Debug.DEBUG_LOG_INTERVAL_ID);
-      window.cancelAnimationFrame(Debug.ANIMATION_FRAME_ID!);
+      globalThis.clearInterval(Debug.DEBUG_LOG_INTERVAL_ID);
+      globalThis.cancelAnimationFrame(Debug.ANIMATION_FRAME_ID!);
       Debug.ANIMATION_FRAME_ID = null;
       Debug.FRAME_COUNT = 0;
       Debug.LAST_FRAME_TIMESTAMP = 0;
@@ -113,7 +113,7 @@ export class Debug {
       times: [],
     });
     if (t) {
-      times.push(time != null ? time : now - t);
+      times.push(time == null ? now - t : time);
     }
     Debug.TIMES_AGGR[name].t = now;
   };
@@ -125,7 +125,7 @@ export class Debug {
       times: [],
     });
     if (t) {
-      times.push(time != null ? time : now - t);
+      times.push(time == null ? now - t : time);
     }
     Debug.TIMES_AVG[name].t = now;
   };
@@ -149,14 +149,14 @@ export class Debug {
     name = "default",
   ) => {
     return (...args: T) => {
-      // eslint-disable-next-line no-console
+       
       console.time(name);
       const ret = fn(...args);
-      // eslint-disable-next-line no-console
+       
       console.timeEnd(name);
       return ret;
     };
   };
 }
 //@ts-ignore
-window.debug = Debug;
+globalThis.debug = Debug;

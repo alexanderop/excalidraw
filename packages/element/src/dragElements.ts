@@ -107,7 +107,7 @@ export const dragSelectedElements = (
     Array.from(elementsToUpdate, (el) => el.id),
   );
 
-  elementsToUpdate.forEach((element) => {
+  for (const element of elementsToUpdate) {
     const isArrow = !isArrowElement(element);
     const isStartBoundElementSelected =
       isArrow ||
@@ -137,7 +137,7 @@ export const dragSelectedElements = (
         );
       }
       updateBoundElements(element, scene, {
-        simultaneouslyUpdated: Array.from(elementsToUpdate),
+        simultaneouslyUpdated: [...elementsToUpdate],
       });
     } else if (
       // NOTE: Add a little initial drag to the arrow dragging when the arrow
@@ -167,7 +167,7 @@ export const dragSelectedElements = (
         }
       }
     }
-  });
+  }
 };
 
 const calculateOffset = (

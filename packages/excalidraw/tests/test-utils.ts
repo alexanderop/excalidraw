@@ -5,7 +5,7 @@ import {
   queries,
   waitFor,
   fireEvent,
-  cleanup,
+  
 } from "@testing-library/react";
 import ansi from "ansicolor";
 
@@ -28,7 +28,7 @@ import type { RenderResult, RenderOptions } from "@testing-library/react";
 
 import type { ImportedDataState } from "../data/types";
 
-export { cleanup as unmountComponent };
+
 
 const customQueries = {
   ...queries,
@@ -92,7 +92,7 @@ const renderApp: TestRenderFn = async (ui, options) => {
 
     // hack-awaiting app.initialScene() which solves some test race conditions
     // (later we may switch this with proper event listener)
-    if (window.h.state.isLoading) {
+    if (globalThis.h.state.isLoading) {
       throw new Error("still loading");
     }
   });
@@ -147,7 +147,7 @@ const initLocalStorage = (data: ImportedDataState) => {
 };
 
 const originalGetBoundingClientRect =
-  global.window.HTMLDivElement.prototype.getBoundingClientRect;
+  globalThis.window.HTMLDivElement.prototype.getBoundingClientRect;
 
 export const mockBoundingClientRect = (
   {
@@ -172,7 +172,7 @@ export const mockBoundingClientRect = (
   },
 ) => {
   // override getBoundingClientRect as by default it will always return all values as 0 even if customized in html
-  global.window.HTMLDivElement.prototype.getBoundingClientRect = () => ({
+  globalThis.window.HTMLDivElement.prototype.getBoundingClientRect = () => ({
     top,
     left,
     bottom,
@@ -189,7 +189,7 @@ export const withExcalidrawDimensions = async (
   dimensions: { width: number; height: number },
   cb: () => void,
 ) => {
-  const { h } = window;
+  const { h } = globalThis;
 
   mockBoundingClientRect(dimensions);
   act(() => {
@@ -207,7 +207,7 @@ export const withExcalidrawDimensions = async (
 };
 
 export const restoreOriginalGetBoundingClientRect = () => {
-  global.window.HTMLDivElement.prototype.getBoundingClientRect =
+  globalThis.window.HTMLDivElement.prototype.getBoundingClientRect =
     originalGetBoundingClientRect;
 };
 
@@ -218,7 +218,7 @@ export const assertSelectedElements = (
     | ExcalidrawElement
   )[]
 ) => {
-  const { h } = window;
+  const { h } = globalThis;
   const selectedElementIds = getSelectedElements(
     h.app.getSceneElements(),
     h.state,
@@ -237,7 +237,7 @@ export const toggleMenu = (container: HTMLElement) => {
 
 export const togglePopover = (label: string) => {
   // Needed for radix-ui/react-popover as tests fail due to resize observer not being present
-  (global as any).ResizeObserver = class ResizeObserver {
+  (globalThis as any).ResizeObserver = class ResizeObserver {
     constructor(cb: any) {
       (this as any).cb = cb;
     }
@@ -288,7 +288,7 @@ export const getCloneByOrigId = <T extends boolean = false>(
   origId: ExcalidrawElement["id"],
   returnNullIfNotExists: T = false as T,
 ): T extends true ? ExcalidrawElement | null : ExcalidrawElement => {
-  const clonedElement = window.h.elements?.find(
+  const clonedElement = globalThis.h.elements?.find(
     (el) => (el as any)[ORIG_ID] === origId,
   );
   if (clonedElement) {
@@ -324,7 +324,7 @@ export const assertElements = <T extends AllPossibleKeys<ExcalidrawElement>>(
       | { [ORIG_ID]?: string }
     ))[],
 ) => {
-  const h = window.h;
+  const h = globalThis.h;
 
   const expectedElementsWithIds: (typeof expectedElements[number] & {
     id: ExcalidrawElement["id"];
@@ -384,23 +384,23 @@ export const assertElements = <T extends AllPossibleKeys<ExcalidrawElement>>(
     expect(actualElements.map((x) => x.id)).toEqual(
       expectedElementsWithIds.map((x) => x.id),
     );
-  } catch (err: any) {
+  } catch (error: any) {
     let errStr = "\n\nmismatched element order\n\n";
 
     errStr += `actual:   ${ansi.lightGray(
-      `[${err.actual
+      `[${error.actual
         .map((id: string, index: number) => {
           const act = actualElements[index];
 
           return `${
-            id === err.expected[index] ? ansi.green(id) : ansi.red(id)
+            id === error.expected[index] ? ansi.green(id) : ansi.red(id)
           } (${act.type.slice(0, 4)}${
             ORIG_ID in act ? ` ↳ ${(act as any)[ORIG_ID]}` : ""
           })`;
         })
         .join(", ")}]`,
     )}\n${ansi.lightGray(
-      `expected: [${err.expected
+      `expected: [${error.expected
         .map((exp: string, index: number) => {
           const expEl = actualElements.find((el) => el.id === exp);
           const origEl =
@@ -408,7 +408,7 @@ export const assertElements = <T extends AllPossibleKeys<ExcalidrawElement>>(
             actualElements.find((el) => el.id === (expEl as any)[ORIG_ID]);
           return expEl
             ? `${
-                exp === err.actual[index]
+                exp === error.actual[index]
                   ? ansi.green(expEl.id)
                   : ansi.red(expEl.id)
               } (${expEl.type.slice(0, 4)}${origEl ? ` ↳ ${origEl.id}` : ""})`
@@ -488,6 +488,8 @@ export const trimErrorStack = (error: Error, range = 1) => {
 };
 
 export const stripIgnoredNodesFromErrorMessage = (error: Error) => {
-  error.message = error.message.replace(/\s+Ignored nodes:[\s\S]+/, "");
+  error.message = error.message.replace(/\s+Ignored nodes:[\S\s]+/, "");
   return error;
 };
+
+export {cleanup as unmountComponent} from "@testing-library/react";

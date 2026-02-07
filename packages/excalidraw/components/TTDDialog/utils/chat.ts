@@ -19,7 +19,7 @@ export const updateAssistantContent = (
 
   const lastMessage = messages[lastAssistantIndex];
 
-  const updatedMessages = messages.slice();
+  const updatedMessages = [...messages];
 
   updatedMessages[lastAssistantIndex] = {
     ...lastMessage,

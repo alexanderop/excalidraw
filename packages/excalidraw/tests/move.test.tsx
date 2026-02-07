@@ -31,7 +31,7 @@ beforeEach(() => {
   reseed(7);
 });
 
-const { h } = window;
+const { h } = globalThis;
 
 describe("move element", () => {
   it("rectangle", async () => {
@@ -69,7 +69,7 @@ describe("move element", () => {
     expect(h.elements.length).toEqual(1);
     expect([h.elements[0].x, h.elements[0].y]).toEqual([0, 40]);
 
-    h.elements.forEach((element) => expect(element).toMatchSnapshot());
+    for (const element of h.elements) expect(element).toMatchSnapshot();
   });
 
   it("rectangles with binding arrow", async () => {
@@ -135,7 +135,7 @@ describe("move element", () => {
       2,
     );
 
-    h.elements.forEach((element) => expect(element).toMatchSnapshot());
+    for (const element of h.elements) expect(element).toMatchSnapshot();
   });
 });
 
@@ -183,6 +183,6 @@ describe("duplicate element on move when ALT is clicked", () => {
     expect([h.elements[0].x, h.elements[0].y]).toEqual([30, 20]);
     expect([h.elements[1].x, h.elements[1].y]).toEqual([-10, 60]);
 
-    h.elements.forEach((element) => expect(element).toMatchSnapshot());
+    for (const element of h.elements) expect(element).toMatchSnapshot();
   });
 });

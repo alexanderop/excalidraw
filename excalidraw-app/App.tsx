@@ -149,7 +149,7 @@ import type { CollabAPI } from "./collab/Collab";
 
 polyfill();
 
-window.EXCALIDRAW_THROTTLE_RENDER = true;
+globalThis.EXCALIDRAW_THROTTLE_RENDER = true;
 
 declare global {
   interface BeforeInstallPromptEventChoiceResult {
@@ -173,7 +173,7 @@ let pwaEvent: BeforeInstallPromptEvent | null = null;
 //
 // Also note that it will fire only if certain heuristics are met (user has
 // used the app for some time, etc.)
-window.addEventListener(
+globalThis.addEventListener(
   "beforeinstallprompt",
   (event: BeforeInstallPromptEvent) => {
     // prevent Chrome <= 67 from automatically showing the prompt
@@ -185,14 +185,14 @@ window.addEventListener(
 
 let isSelfEmbedding = false;
 
-if (window.self !== window.top) {
+if (globalThis.self !== window.top) {
   try {
     const parentUrl = new URL(document.referrer);
-    const currentUrl = new URL(window.location.href);
+    const currentUrl = new URL(globalThis.location.href);
     if (parentUrl.origin === currentUrl.origin) {
       isSelfEmbedding = true;
     }
-  } catch (error) {
+  } catch {
     // ignore
   }
 }
@@ -219,12 +219,12 @@ const initializeScene = async (opts: {
     | { isExternalScene: false; id?: null; key?: null }
   )
 > => {
-  const searchParams = new URLSearchParams(window.location.search);
+  const searchParams = new URLSearchParams(globalThis.location.search);
   const id = searchParams.get("id");
-  const jsonBackendMatch = window.location.hash.match(
-    /^#json=([a-zA-Z0-9_-]+),([a-zA-Z0-9_-]+)$/,
+  const jsonBackendMatch = globalThis.location.hash.match(
+    /^#json=([\w-]+),([\w-]+)$/,
   );
-  const externalUrlMatch = window.location.hash.match(/^#url=(.*)$/);
+  const externalUrlMatch = globalThis.location.hash.match(/^#url=(.*)$/);
 
   const localDataState = importFromLocalStorage();
 
@@ -243,12 +243,12 @@ const initializeScene = async (opts: {
     appState: restoreAppState(localDataState?.appState, null),
   };
 
-  let roomLinkData = getCollaborationLinkData(window.location.href);
+  let roomLinkData = getCollaborationLinkData(globalThis.location.href);
   const isExternalScene = !!(id || jsonBackendMatch || roomLinkData);
   if (isExternalScene) {
     if (
       // don't prompt if scene is empty
-      !scene.elements.length ||
+      scene.elements.length === 0 ||
       // don't prompt for collab scenes because we don't override local storage
       roomLinkData ||
       // otherwise, prompt whether user wants to override current scene
@@ -278,7 +278,7 @@ const initializeScene = async (opts: {
       }
       scene.scrollToContent = true;
       if (!roomLinkData) {
-        window.history.replaceState({}, APP_NAME, window.location.origin);
+        globalThis.history.replaceState({}, APP_NAME, globalThis.location.origin);
       }
     } else {
       // https://github.com/excalidraw/excalidraw/issues/1919
@@ -295,22 +295,22 @@ const initializeScene = async (opts: {
       }
 
       roomLinkData = null;
-      window.history.replaceState({}, APP_NAME, window.location.origin);
+      globalThis.history.replaceState({}, APP_NAME, globalThis.location.origin);
     }
   } else if (externalUrlMatch) {
-    window.history.replaceState({}, APP_NAME, window.location.origin);
+    globalThis.history.replaceState({}, APP_NAME, globalThis.location.origin);
 
     const url = externalUrlMatch[1];
     try {
-      const request = await fetch(window.decodeURIComponent(url));
+      const request = await fetch(globalThis.decodeURIComponent(url));
       const data = await loadFromBlob(await request.blob(), null, null);
       if (
-        !scene.elements.length ||
+        scene.elements.length === 0 ||
         (await openConfirmModal(shareableLinkConfirmDialog))
       ) {
         return { scene: data, isExternalScene };
       }
-    } catch (error: any) {
+    } catch {
       return {
         scene: {
           appState: {
@@ -405,7 +405,7 @@ const ExcalidrawWrapper = () => {
   const [, setShareDialogState] = useAtom(shareDialogStateAtom);
   const [collabAPI] = useAtom(collabAPIAtom);
   const [isCollaborating] = useAtomWithInitialValue(isCollaboratingAtom, () => {
-    return isCollaborationLink(window.location.href);
+    return isCollaborationLink(globalThis.location.href);
   });
   const collabError = useAtomValue(collabErrorIndicatorAtom);
 
@@ -422,12 +422,12 @@ const ExcalidrawWrapper = () => {
     if (isDevEnv()) {
       const debugState = loadSavedDebugState();
 
-      if (debugState.enabled && !window.visualDebug) {
-        window.visualDebug = {
+      if (debugState.enabled && !globalThis.visualDebug) {
+        globalThis.visualDebug = {
           data: [],
         };
       } else {
-        delete window.visualDebug;
+        delete globalThis.visualDebug;
       }
       forceRefresh((prev) => !prev);
     }
@@ -484,11 +484,11 @@ const ExcalidrawWrapper = () => {
             });
           });
         } else if (isInitialLoad) {
-          if (fileIds.length) {
+          if (fileIds.length > 0) {
             LocalData.fileStorage
               .getFiles(fileIds)
               .then(({ loadedFiles, erroredFiles }) => {
-                if (loadedFiles.length) {
+                if (loadedFiles.length > 0) {
                   excalidrawAPI.addFiles(loadedFiles);
                 }
                 updateStaleImageStatuses({
@@ -516,7 +516,7 @@ const ExcalidrawWrapper = () => {
       if (!libraryUrlTokens) {
         if (
           collabAPI?.isCollaborating() &&
-          !isCollaborationLink(window.location.href)
+          !isCollaborationLink(globalThis.location.href)
         ) {
           collabAPI.stopCollaboration(false);
         }
@@ -578,11 +578,11 @@ const ExcalidrawWrapper = () => {
               }
               return acc;
             }, [] as FileId[]) || [];
-          if (fileIds.length) {
+          if (fileIds.length > 0) {
             LocalData.fileStorage
               .getFiles(fileIds)
               .then(({ loadedFiles, erroredFiles }) => {
-                if (loadedFiles.length) {
+                if (loadedFiles.length > 0) {
                   excalidrawAPI.addFiles(loadedFiles);
                 }
                 updateStaleImageStatuses({
@@ -612,16 +612,16 @@ const ExcalidrawWrapper = () => {
       }
     };
 
-    window.addEventListener(EVENT.HASHCHANGE, onHashChange, false);
-    window.addEventListener(EVENT.UNLOAD, onUnload, false);
-    window.addEventListener(EVENT.BLUR, visibilityChange, false);
+    globalThis.addEventListener(EVENT.HASHCHANGE, onHashChange, false);
+    globalThis.addEventListener(EVENT.UNLOAD, onUnload, false);
+    globalThis.addEventListener(EVENT.BLUR, visibilityChange, false);
     document.addEventListener(EVENT.VISIBILITY_CHANGE, visibilityChange, false);
-    window.addEventListener(EVENT.FOCUS, visibilityChange, false);
+    globalThis.addEventListener(EVENT.FOCUS, visibilityChange, false);
     return () => {
-      window.removeEventListener(EVENT.HASHCHANGE, onHashChange, false);
-      window.removeEventListener(EVENT.UNLOAD, onUnload, false);
-      window.removeEventListener(EVENT.BLUR, visibilityChange, false);
-      window.removeEventListener(EVENT.FOCUS, visibilityChange, false);
+      globalThis.removeEventListener(EVENT.HASHCHANGE, onHashChange, false);
+      globalThis.removeEventListener(EVENT.UNLOAD, onUnload, false);
+      globalThis.removeEventListener(EVENT.BLUR, visibilityChange, false);
+      globalThis.removeEventListener(EVENT.FOCUS, visibilityChange, false);
       document.removeEventListener(
         EVENT.VISIBILITY_CHANGE,
         visibilityChange,
@@ -640,18 +640,18 @@ const ExcalidrawWrapper = () => {
           excalidrawAPI.getSceneElements(),
         )
       ) {
-        if (import.meta.env.VITE_APP_DISABLE_PREVENT_UNLOAD !== "true") {
-          preventUnload(event);
-        } else {
+        if (import.meta.env.VITE_APP_DISABLE_PREVENT_UNLOAD === "true") {
           console.warn(
             "preventing unload disabled (VITE_APP_DISABLE_PREVENT_UNLOAD)",
           );
+        } else {
+          preventUnload(event);
         }
       }
     };
-    window.addEventListener(EVENT.BEFORE_UNLOAD, unloadHandler);
+    globalThis.addEventListener(EVENT.BEFORE_UNLOAD, unloadHandler);
     return () => {
-      window.removeEventListener(EVENT.BEFORE_UNLOAD, unloadHandler);
+      globalThis.removeEventListener(EVENT.BEFORE_UNLOAD, unloadHandler);
     };
   }, [excalidrawAPI]);
 
@@ -1198,7 +1198,7 @@ const ExcalidrawWrapper = () => {
 
 const ExcalidrawApp = () => {
   const isCloudExportWindow =
-    window.location.pathname === "/excalidraw-plus-export";
+    globalThis.location.pathname === "/excalidraw-plus-export";
   if (isCloudExportWindow) {
     return <ExcalidrawPlusIframeExport />;
   }

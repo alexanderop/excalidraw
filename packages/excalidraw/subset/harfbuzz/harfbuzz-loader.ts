@@ -41,8 +41,8 @@ const load = (): Promise<{
       };
 
       resolve(hbSubset);
-    } catch (e) {
-      reject(e);
+    } catch (error) {
+      reject(error);
     }
   });
 };

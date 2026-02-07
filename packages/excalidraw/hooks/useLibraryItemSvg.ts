@@ -90,7 +90,7 @@ export const useLibraryCache = () => {
   const clearLibraryCache = () => svgCache.clear();
 
   const deleteItemsFromLibraryCache = (items: LibraryItem["id"][]) => {
-    items.forEach((item) => svgCache.delete(item));
+    for (const item of items) svgCache.delete(item);
   };
 
   return {

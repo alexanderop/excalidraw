@@ -55,7 +55,7 @@ const parseSceneData = async ({
       rawElementsString,
     ) as OrderedExcalidrawElement[];
 
-    if (!elements.length) {
+    if (elements.length === 0) {
       throw new ExcalidrawError("Scene is empty, nothing to export.");
     }
 
@@ -113,7 +113,7 @@ const verifyJWT = async ({
       c.charCodeAt(0),
     );
 
-    const keyData = publicKey.replace(/-----\w+ PUBLIC KEY-----/g, "");
+    const keyData = publicKey.replaceAll(/-----\w+ PUBLIC KEY-----/g, "");
     const keyArrayBuffer = Uint8Array.from(atob(keyData), (c) =>
       c.charCodeAt(0),
     );

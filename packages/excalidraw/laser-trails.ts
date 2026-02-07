@@ -85,7 +85,9 @@ export class LaserTrails implements Trail {
     for (const [key, collaborator] of this.app.state.collaborators.entries()) {
       let trail!: AnimatedTrail;
 
-      if (!this.collabTrails.has(key)) {
+      if (this.collabTrails.has(key)) {
+        trail = this.collabTrails.get(key)!;
+      } else {
         trail = new AnimatedTrail(this.animationFrameHandler, this.app, {
           ...this.getTrailOptions(),
           fill: () =>
@@ -95,8 +97,6 @@ export class LaserTrails implements Trail {
         trail.start(this.container);
 
         this.collabTrails.set(key, trail);
-      } else {
-        trail = this.collabTrails.get(key)!;
       }
 
       if (collaborator.pointer && collaborator.pointer.tool === "laser") {

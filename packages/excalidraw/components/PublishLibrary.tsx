@@ -241,11 +241,11 @@ const PublishLibrary = ({
   }, []);
 
   const [clonedLibItems, setClonedLibItems] = useState<LibraryItems>(
-    libraryItems.slice(),
+    [...libraryItems],
   );
 
   useEffect(() => {
-    setClonedLibItems(libraryItems.slice());
+    setClonedLibItems([...libraryItems]);
   }, [libraryItems]);
 
   const onInputChange = (event: any) => {
@@ -260,14 +260,14 @@ const PublishLibrary = ({
     setIsSubmitting(true);
     const erroredLibItems: LibraryItem[] = [];
     let isError = false;
-    clonedLibItems.forEach((libItem) => {
+    for (const libItem of clonedLibItems) {
       let error = "";
       if (!libItem.name) {
         error = t("publishDialog.errors.required");
         isError = true;
       }
       erroredLibItems.push({ ...libItem, error });
-    });
+    }
 
     if (isError) {
       setClonedLibItems(erroredLibItems);
@@ -326,22 +326,22 @@ const PublishLibrary = ({
               );
             });
         },
-        (err) => {
-          console.error(err);
-          onError(err);
+        (error) => {
+          console.error(error);
+          onError(error);
           setIsSubmitting(false);
         },
       )
-      .catch((err) => {
-        console.error(err);
-        onError(err);
+      .catch((error) => {
+        console.error(error);
+        onError(error);
         setIsSubmitting(false);
       });
   };
 
   const renderLibraryItems = () => {
     const items: ReactNode[] = [];
-    clonedLibItems.forEach((libItem, index) => {
+    for (const [index, libItem] of clonedLibItems.entries()) {
       items.push(
         <div className="single-library-item-wrapper" key={index}>
           <SingleLibraryItem
@@ -349,7 +349,7 @@ const PublishLibrary = ({
             appState={appState}
             index={index}
             onChange={(val, index) => {
-              const items = clonedLibItems.slice();
+              const items = [...clonedLibItems];
               items[index].name = val;
               setClonedLibItems(items);
             }}
@@ -357,7 +357,7 @@ const PublishLibrary = ({
           />
         </div>,
       );
-    });
+    }
     return <div className="selected-library-items">{items}</div>;
   };
 
@@ -367,7 +367,7 @@ const PublishLibrary = ({
     onClose();
   }, [clonedLibItems, onClose, updateItemsInStorage, libraryData]);
 
-  const shouldRenderForm = !!libraryItems.length;
+  const shouldRenderForm = libraryItems.length > 0;
 
   const containsPublishedItems = libraryItems.some(
     (item) => item.status === "published",

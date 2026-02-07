@@ -131,8 +131,7 @@ const resizeGroup = (
 
   const scale = nextHeight / initialHeight;
 
-  for (let i = 0; i < originalElements.length; i++) {
-    const origElement = originalElements[i];
+  for (const [i, origElement] of originalElements.entries()) {
     const latestElement = latestElements[i];
 
     resizeElementInGroup(
@@ -213,11 +212,7 @@ const handleDimensionChange: DragInputCallbackType<
           let nextWidth =
             property === "width" ? Math.max(0, nextValue) : latestElement.width;
           if (property === "width") {
-            if (shouldChangeByStepSize) {
-              nextWidth = getStepSizedValue(nextWidth, STEP_SIZE);
-            } else {
-              nextWidth = Math.round(nextWidth);
-            }
+            nextWidth = shouldChangeByStepSize ? getStepSizedValue(nextWidth, STEP_SIZE) : Math.round(nextWidth);
           }
 
           let nextHeight =
@@ -225,11 +220,7 @@ const handleDimensionChange: DragInputCallbackType<
               ? Math.max(0, nextValue)
               : latestElement.height;
           if (property === "height") {
-            if (shouldChangeByStepSize) {
-              nextHeight = getStepSizedValue(nextHeight, STEP_SIZE);
-            } else {
-              nextHeight = Math.round(nextHeight);
-            }
+            nextHeight = shouldChangeByStepSize ? getStepSizedValue(nextHeight, STEP_SIZE) : Math.round(nextHeight);
           }
 
           nextWidth = Math.max(MIN_WIDTH_OR_HEIGHT, nextWidth);
@@ -296,20 +287,12 @@ const handleDimensionChange: DragInputCallbackType<
       const aspectRatio = initialWidth / initialHeight;
       let nextWidth = Math.max(0, initialWidth + changeInWidth);
       if (property === "width") {
-        if (shouldChangeByStepSize) {
-          nextWidth = getStepSizedValue(nextWidth, STEP_SIZE);
-        } else {
-          nextWidth = Math.round(nextWidth);
-        }
+        nextWidth = shouldChangeByStepSize ? getStepSizedValue(nextWidth, STEP_SIZE) : Math.round(nextWidth);
       }
 
       let nextHeight = Math.max(0, initialHeight + changeInHeight);
       if (property === "height") {
-        if (shouldChangeByStepSize) {
-          nextHeight = getStepSizedValue(nextHeight, STEP_SIZE);
-        } else {
-          nextHeight = Math.round(nextHeight);
-        }
+        nextHeight = shouldChangeByStepSize ? getStepSizedValue(nextHeight, STEP_SIZE) : Math.round(nextHeight);
       }
 
       nextWidth = Math.max(MIN_WIDTH_OR_HEIGHT, nextWidth);
@@ -339,20 +322,12 @@ const handleDimensionChange: DragInputCallbackType<
       ) {
         let nextWidth = Math.max(0, origElement.width + changeInWidth);
         if (property === "width") {
-          if (shouldChangeByStepSize) {
-            nextWidth = getStepSizedValue(nextWidth, STEP_SIZE);
-          } else {
-            nextWidth = Math.round(nextWidth);
-          }
+          nextWidth = shouldChangeByStepSize ? getStepSizedValue(nextWidth, STEP_SIZE) : Math.round(nextWidth);
         }
 
         let nextHeight = Math.max(0, origElement.height + changeInHeight);
         if (property === "height") {
-          if (shouldChangeByStepSize) {
-            nextHeight = getStepSizedValue(nextHeight, STEP_SIZE);
-          } else {
-            nextHeight = Math.round(nextHeight);
-          }
+          nextHeight = shouldChangeByStepSize ? getStepSizedValue(nextHeight, STEP_SIZE) : Math.round(nextHeight);
         }
 
         nextWidth = Math.max(MIN_WIDTH_OR_HEIGHT, nextWidth);

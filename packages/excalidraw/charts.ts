@@ -46,11 +46,11 @@ type ParseSpreadsheetResult =
  * @private exported for testing
  */
 export const tryParseNumber = (s: string): number | null => {
-  const match = /^([-+]?)[$€£¥₩]?([-+]?)([\d.,]+)[%]?$/.exec(s);
+  const match = /^([+-]?)[$£¥₩€]?([+-]?)([\d,.]+)%?$/.exec(s);
   if (!match) {
     return null;
   }
-  return parseFloat(`${(match[1] || match[2]) + match[3]}`.replace(/,/g, ""));
+  return Number.parseFloat(`${(match[1] || match[2]) + match[3]}`.replaceAll(',', ""));
 };
 
 const isNumericColumn = (lines: string[][], columnIndex: number) =>
@@ -121,8 +121,8 @@ const transposeCells = (cells: string[][]) => {
   const nextCells: string[][] = [];
   for (let col = 0; col < cells[0].length; col++) {
     const nextCellRow: string[] = [];
-    for (let row = 0; row < cells.length; row++) {
-      nextCellRow.push(cells[row][col]);
+    for (const cell of cells) {
+      nextCellRow.push(cell[col]);
     }
     nextCells.push(nextCellRow);
   }
@@ -140,7 +140,7 @@ export const tryParseSpreadsheet = (text: string): ParseSpreadsheetResult => {
     .map((line) => line.trim().split("\t"));
 
   // Check for comma separated files
-  if (lines.length && lines[0].length !== 2) {
+  if (lines.length > 0 && lines[0].length !== 2) {
     lines = text
       .trim()
       .split("\n")

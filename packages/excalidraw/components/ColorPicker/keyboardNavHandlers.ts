@@ -69,9 +69,8 @@ const hotkeyHandler = ({
   setActiveColorPickerSection,
   activeShade,
 }: HotkeyHandlerProps): boolean => {
-  if (colorObj?.shade != null) {
-    // shift + numpad is extremely messed up on windows apparently
-    if (
+  if (colorObj?.shade != null && // shift + numpad is extremely messed up on windows apparently
+    
       ["Digit1", "Digit2", "Digit3", "Digit4", "Digit5"].includes(e.code) &&
       e.shiftKey
     ) {
@@ -80,7 +79,6 @@ const hotkeyHandler = ({
       setActiveColorPickerSection("shades");
       return true;
     }
-  }
 
   if (["1", "2", "3", "4", "5"].includes(e.key)) {
     const c = customColors[Number(e.key) - 1];
@@ -164,7 +162,7 @@ export const colorPickerKeyNavHandler = ({
       NonNullable<ActiveColorPickerSectionAtomType>,
       boolean
     > = {
-      custom: !!customColors.length,
+      custom: customColors.length > 0,
       baseColors: true,
       shades: colorObj?.shade != null,
       hex: true,
@@ -231,8 +229,7 @@ export const colorPickerKeyNavHandler = ({
     return true;
   }
 
-  if (activeColorPickerSection === "shades") {
-    if (colorObj) {
+  if (activeColorPickerSection === "shades" && colorObj) {
       const { shade } = colorObj;
       const newShade = arrowHandler(event.key, shade, COLORS_PER_ROW);
 
@@ -241,10 +238,8 @@ export const colorPickerKeyNavHandler = ({
         return true;
       }
     }
-  }
 
-  if (activeColorPickerSection === "baseColors") {
-    if (colorObj) {
+  if (activeColorPickerSection === "baseColors" && colorObj) {
       const { colorName } = colorObj;
       const colorNames = Object.keys(palette) as (keyof ColorPalette)[];
       const indexOfColorName = colorNames.indexOf(colorName);
@@ -267,10 +262,9 @@ export const colorPickerKeyNavHandler = ({
         return true;
       }
     }
-  }
 
   if (activeColorPickerSection === "custom") {
-    const indexOfColor = color != null ? customColors.indexOf(color) : 0;
+    const indexOfColor = color == null ? 0 : customColors.indexOf(color);
 
     const newColorIndex = arrowHandler(
       event.key,

@@ -63,7 +63,7 @@ export const calculateScrollCenter = (
 ): { scrollX: number; scrollY: number } => {
   elements = getVisibleElements(elements);
 
-  if (!elements.length) {
+  if (elements.length === 0) {
     return {
       scrollX: 0,
       scrollY: 0,

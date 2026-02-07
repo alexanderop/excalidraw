@@ -115,7 +115,7 @@ const handleSegmentRenormalization = (
   elementsMap: NonDeletedSceneElementsMap,
 ) => {
   const nextFixedSegments: FixedSegment[] | null = arrow.fixedSegments
-    ? arrow.fixedSegments.slice()
+    ? [...arrow.fixedSegments]
     : null;
 
   if (nextFixedSegments) {
@@ -165,11 +165,11 @@ const handleSegmentRenormalization = (
           _nextPoints.splice(-1, 1);
 
           // Update fixed point indices
-          nextFixedSegments.forEach((segment) => {
+          for (const segment of nextFixedSegments) {
             if (segment.index > i - 1) {
               segment.index -= 1;
             }
-          });
+          }
         }
 
         return _nextPoints.push(p);
@@ -209,18 +209,18 @@ const handleSegmentRenormalization = (
         nextPoints.splice(-2, 2);
 
         // Since we have to remove two segments, update any fixed segment
-        nextFixedSegments.forEach((segment) => {
+        for (const segment of nextFixedSegments) {
           if (segment.index > i - 2) {
             segment.index -= 2;
           }
-        });
+        }
 
         // Remove aligned segment points
         const isHorizontal = headingForPointIsHorizontal(p, points[i - 1]);
 
         return nextPoints.push(
           pointFrom<GlobalPoint>(
-            !isHorizontal ? points[i - 2][0] : p[0],
+            isHorizontal ? p[0] : points[i - 2][0],
             isHorizontal ? points[i - 2][1] : p[1],
           ),
         );
@@ -284,11 +284,11 @@ const handleSegmentRelease = (
   fixedSegments: readonly FixedSegment[],
   elementsMap: NonDeletedSceneElementsMap,
 ) => {
-  const newFixedSegmentIndices = fixedSegments.map((segment) => segment.index);
+  const newFixedSegmentIndices = new Set(fixedSegments.map((segment) => segment.index));
   const oldFixedSegmentIndices =
     arrow.fixedSegments?.map((segment) => segment.index) ?? [];
   const deletedSegmentIdx = oldFixedSegmentIndices.findIndex(
-    (idx) => !newFixedSegmentIndices.includes(idx),
+    (idx) => !newFixedSegmentIndices.has(idx),
   );
 
   if (deletedSegmentIdx === -1 || !arrow.fixedSegments?.[deletedSegmentIdx]) {
@@ -331,10 +331,10 @@ const handleSegmentRelease = (
       pointFrom<LocalPoint>(0, 0),
       pointFrom<LocalPoint>(
         arrow.x +
-          (nextSegment?.start[0] ?? arrow.points[arrow.points.length - 1][0]) -
+          (nextSegment?.start[0] ?? arrow.points.at(-1)[0]) -
           x,
         arrow.y +
-          (nextSegment?.start[1] ?? arrow.points[arrow.points.length - 1][1]) -
+          (nextSegment?.start[1] ?? arrow.points.at(-1)[1]) -
           y,
       ),
     ],
@@ -380,14 +380,14 @@ const handleSegmentRelease = (
     }
   }
 
-  restoredPoints.forEach((p) => {
+  for (const p of restoredPoints) {
     nextPoints.push(
       pointFrom<GlobalPoint>(
         arrow.x + (prevSegment ? prevSegment.end[0] : 0) + p[0],
         arrow.y + (prevSegment ? prevSegment.end[1] : 0) + p[1],
       ),
     );
-  });
+  }
 
   // Last part of the arrow are the old points too
   if (nextSegment) {
@@ -429,20 +429,20 @@ const handleSegmentRelease = (
 
       if (compareHeading(prevHeading, nextHeading)) {
         // Update subsequent fixed segment indices
-        nextFixedSegments.forEach((segment) => {
+        for (const segment of nextFixedSegments) {
           if (segment.index > i) {
             segment.index -= 1;
           }
-        });
+        }
 
         return [];
       } else if (compareHeading(prevHeading, flipHeading(nextHeading))) {
         // Update subsequent fixed segment indices
-        nextFixedSegments.forEach((segment) => {
+        for (const segment of nextFixedSegments) {
           if (segment.index > i) {
             segment.index += 1;
           }
-        });
+        }
 
         return [p, p];
       }
@@ -481,14 +481,13 @@ const handleSegmentMove = (
       }
 
       return (segment.start[0] !== arrow.fixedSegments![i].start[0] &&
-        segment.end[0] !== arrow.fixedSegments![i].end[0]) !==
+        segment.end[0] !== arrow.fixedSegments![i].end[0]) ===
         (segment.start[1] !== arrow.fixedSegments![i].start[1] &&
           segment.end[1] !== arrow.fixedSegments![i].end[1])
-        ? i
-        : null;
+        ? null
+        : i;
     })
-    .filter((idx) => idx !== null)
-    .shift();
+    .find((idx) => idx !== null);
 
   if (activelyModifiedSegmentIdx == null) {
     return { points: arrow.points };
@@ -527,7 +526,7 @@ const handleSegmentMove = (
       fixedSegments[activelyModifiedSegmentIdx].start[0] +
         (startIsHorizontal ? padding : 0),
       fixedSegments[activelyModifiedSegmentIdx].start[1] +
-        (!startIsHorizontal ? padding : 0),
+        (startIsHorizontal ? 0 : padding),
     );
   }
 
@@ -553,7 +552,7 @@ const handleSegmentMove = (
       fixedSegments[activelyModifiedSegmentIdx].end[0] +
         (endIsHorizontal ? padding : 0),
       fixedSegments[activelyModifiedSegmentIdx].end[1] +
-        (!endIsHorizontal ? padding : 0),
+        (endIsHorizontal ? 0 : padding),
     );
   }
 
@@ -644,7 +643,7 @@ const handleSegmentMove = (
     newPoints.unshift(
       pointFrom<GlobalPoint>(
         startIsHorizontal ? start[0] : arrow.x + arrow.points[0][0],
-        !startIsHorizontal ? start[1] : arrow.y + arrow.points[0][1],
+        startIsHorizontal ? arrow.y + arrow.points[0][1] : start[1],
       ),
     );
 
@@ -669,17 +668,17 @@ const handleSegmentMove = (
       pointFrom<GlobalPoint>(
         endIsHorizontal
           ? end[0]
-          : arrow.x + arrow.points[arrow.points.length - 1][0],
-        !endIsHorizontal
-          ? end[1]
-          : arrow.y + arrow.points[arrow.points.length - 1][1],
+          : arrow.x + arrow.points.at(-1)[0],
+        endIsHorizontal
+          ? arrow.y + arrow.points.at(-1)[1]
+          : end[1],
       ),
     );
     if (hoveredEndElement) {
       newPoints.push(
         pointFrom<GlobalPoint>(
-          arrow.x + arrow.points[arrow.points.length - 1][0],
-          arrow.y + arrow.points[arrow.points.length - 1][1],
+          arrow.x + arrow.points.at(-1)[0],
+          arrow.y + arrow.points.at(-1)[1],
         ),
       );
     }
@@ -768,9 +767,9 @@ const handleEndpointDrag = (
         : compareHeading(startHeading, HEADING_DOWN);
       newPoints.unshift(
         pointFrom<GlobalPoint>(
-          !secondIsHorizontal
-            ? thirdPoint[0]
-            : startGlobalPoint[0] + (positive ? BASE_PADDING : -BASE_PADDING),
+          secondIsHorizontal
+            ? startGlobalPoint[0] + (positive ? BASE_PADDING : -BASE_PADDING)
+            : thirdPoint[0],
           secondIsHorizontal
             ? thirdPoint[1]
             : startGlobalPoint[1] + (positive ? BASE_PADDING : -BASE_PADDING),
@@ -781,9 +780,9 @@ const handleEndpointDrag = (
           startIsHorizontal
             ? startGlobalPoint[0] + (positive ? BASE_PADDING : -BASE_PADDING)
             : startGlobalPoint[0],
-          !startIsHorizontal
-            ? startGlobalPoint[1] + (positive ? BASE_PADDING : -BASE_PADDING)
-            : startGlobalPoint[1],
+          startIsHorizontal
+            ? startGlobalPoint[1]
+            : startGlobalPoint[1] + (positive ? BASE_PADDING : -BASE_PADDING),
         ),
       );
       if (!startIsSpecial) {
@@ -797,7 +796,7 @@ const handleEndpointDrag = (
     } else {
       newPoints.unshift(
         pointFrom<GlobalPoint>(
-          !secondIsHorizontal ? secondPoint[0] : startGlobalPoint[0],
+          secondIsHorizontal ? startGlobalPoint[0] : secondPoint[0],
           secondIsHorizontal ? secondPoint[1] : startGlobalPoint[1],
         ),
       );
@@ -839,9 +838,9 @@ const handleEndpointDrag = (
         : compareHeading(endHeading, HEADING_DOWN);
       newPoints.push(
         pointFrom<GlobalPoint>(
-          !secondIsHorizontal
-            ? thirdToLastPoint[0]
-            : endGlobalPoint[0] + (positive ? BASE_PADDING : -BASE_PADDING),
+          secondIsHorizontal
+            ? endGlobalPoint[0] + (positive ? BASE_PADDING : -BASE_PADDING)
+            : thirdToLastPoint[0],
           secondIsHorizontal
             ? thirdToLastPoint[1]
             : endGlobalPoint[1] + (positive ? BASE_PADDING : -BASE_PADDING),
@@ -852,9 +851,9 @@ const handleEndpointDrag = (
           endIsHorizontal
             ? endGlobalPoint[0] + (positive ? BASE_PADDING : -BASE_PADDING)
             : endGlobalPoint[0],
-          !endIsHorizontal
-            ? endGlobalPoint[1] + (positive ? BASE_PADDING : -BASE_PADDING)
-            : endGlobalPoint[1],
+          endIsHorizontal
+            ? endGlobalPoint[1]
+            : endGlobalPoint[1] + (positive ? BASE_PADDING : -BASE_PADDING),
         ),
       );
       if (!endIsSpecial) {
@@ -863,7 +862,7 @@ const handleEndpointDrag = (
     } else {
       newPoints.push(
         pointFrom<GlobalPoint>(
-          !secondIsHorizontal ? secondToLastPoint[0] : endGlobalPoint[0],
+          secondIsHorizontal ? endGlobalPoint[0] : secondToLastPoint[0],
           secondIsHorizontal ? secondToLastPoint[1] : endGlobalPoint[1],
         ),
       );
@@ -985,8 +984,8 @@ export const updateElbowArrowPoints = (
             ? updates.points![1]
             : p,
         )
-      : updates.points.slice()
-    : arrow.points.slice();
+      : [...updates.points]
+    : [...arrow.points];
 
   // During all element replacement in the scene, we just need to renormalize
   // the arrow
@@ -997,13 +996,13 @@ export const updateElbowArrowPoints = (
     ...restOfTheUpdates
   } = updates;
   const startBinding =
-    typeof updatedStartBinding !== "undefined"
-      ? updatedStartBinding
-      : arrow.startBinding;
+    updatedStartBinding === undefined
+      ? arrow.startBinding
+      : updatedStartBinding;
   const endBinding =
-    typeof updatedEndBinding !== "undefined"
-      ? updatedEndBinding
-      : arrow.endBinding;
+    updatedEndBinding === undefined
+      ? arrow.endBinding
+      : updatedEndBinding;
   const startElement =
     startBinding &&
     getBindableElementForId(startBinding.elementId, elementsMap);
@@ -1211,12 +1210,12 @@ const getElbowArrowData = (
   const origEndGlobalPoint: GlobalPoint = pointTranslate<
     LocalPoint,
     GlobalPoint
-  >(nextPoints[nextPoints.length - 1], vector(arrow.x, arrow.y));
+  >(nextPoints.at(-1), vector(arrow.x, arrow.y));
 
   let hoveredStartElement = null;
   let hoveredEndElement = null;
   if (options?.isDragging) {
-    const elements = Array.from(elementsMap.values());
+    const elements = [...elementsMap.values()];
     hoveredStartElement =
       getHoveredElement(
         origStartGlobalPoint,
@@ -1504,12 +1503,15 @@ const offsetFromHeading = (
   side: number,
 ): [number, number, number, number] => {
   switch (heading) {
-    case HEADING_UP:
+    case HEADING_UP: {
       return [head, side, side, side];
-    case HEADING_RIGHT:
+    }
+    case HEADING_RIGHT: {
       return [side, head, side, side];
-    case HEADING_DOWN:
+    }
+    case HEADING_DOWN: {
       return [side, side, head, side];
+    }
   }
 
   return [side, side, side, head];
@@ -1623,12 +1625,12 @@ const astar = (
           estBendCount * Math.pow(bendMultiplier, 2);
         neighbor.g = gScore;
         neighbor.f = neighbor.g + neighbor.h;
-        if (!beenVisited) {
-          // Pushing to heap will put it in proper place based on the 'f' value.
-          open.push(neighbor);
-        } else {
+        if (beenVisited) {
           // Already seen the node, but since it has been rescored we need to reorder it in the heap
           open.rescoreElement(neighbor);
+        } else {
+          // Pushing to heap will put it in proper place based on the 'f' value.
+          open.push(neighbor);
         }
       }
     }
@@ -1738,8 +1740,8 @@ const generateDynamicAABBs = (
   const c = commonAABB([first, second]);
   if (
     !disableSideHack &&
-    first[2] - first[0] + second[2] - second[0] > c[2] - c[0] + 0.00000000001 &&
-    first[3] - first[1] + second[3] - second[1] > c[3] - c[1] + 0.00000000001
+    first[2] - first[0] + second[2] - second[0] > c[2] - c[0] + 0.000_000_000_01 &&
+    first[3] - first[1] + second[3] - second[1] > c[3] - c[1] + 0.000_000_000_01
   ) {
     const [endCenterX, endCenterY] = [
       (second[0] + second[2]) / 2,
@@ -1864,20 +1866,20 @@ const calculateGrid = (
     horizontal.add(end[0]);
   }
 
-  aabbs.forEach((aabb) => {
+  for (const aabb of aabbs) {
     horizontal.add(aabb[0]);
     horizontal.add(aabb[2]);
     vertical.add(aabb[1]);
     vertical.add(aabb[3]);
-  });
+  }
 
   horizontal.add(common[0]);
   horizontal.add(common[2]);
   vertical.add(common[1]);
   vertical.add(common[3]);
 
-  const _vertical = Array.from(vertical).sort((a, b) => a - b);
-  const _horizontal = Array.from(horizontal).sort((a, b) => a - b);
+  const _vertical = [...vertical].sort((a, b) => a - b);
+  const _horizontal = [...horizontal].sort((a, b) => a - b);
 
   return {
     row: _vertical.length,
@@ -1905,12 +1907,15 @@ const getDonglePosition = (
   p: GlobalPoint,
 ): GlobalPoint => {
   switch (heading) {
-    case HEADING_UP:
+    case HEADING_UP: {
       return pointFrom(p[0], bounds[1]);
-    case HEADING_RIGHT:
+    }
+    case HEADING_RIGHT: {
       return pointFrom(bounds[2], p[1]);
-    case HEADING_DOWN:
+    }
+    case HEADING_DOWN: {
       return pointFrom(p[0], bounds[3]);
+    }
   }
   return pointFrom(bounds[0], p[1]);
 };
@@ -1921,7 +1926,8 @@ const estimateSegmentCount = (
   startHeading: Heading,
   endHeading: Heading,
 ) => {
-  if (endHeading === HEADING_RIGHT) {
+  switch (endHeading) {
+  case HEADING_RIGHT: {
     switch (startHeading) {
       case HEADING_RIGHT: {
         if (start.pos[0] >= end.pos[0]) {
@@ -1932,40 +1938,49 @@ const estimateSegmentCount = (
         }
         return 2;
       }
-      case HEADING_UP:
+      case HEADING_UP: {
         if (start.pos[1] > end.pos[1] && start.pos[0] < end.pos[0]) {
           return 1;
         }
         return 3;
-      case HEADING_DOWN:
+      }
+      case HEADING_DOWN: {
         if (start.pos[1] < end.pos[1] && start.pos[0] < end.pos[0]) {
           return 1;
         }
         return 3;
-      case HEADING_LEFT:
+      }
+      case HEADING_LEFT: {
         if (start.pos[1] === end.pos[1]) {
           return 4;
         }
         return 2;
+      }
     }
-  } else if (endHeading === HEADING_LEFT) {
+  
+  break;
+  }
+  case HEADING_LEFT: {
     switch (startHeading) {
-      case HEADING_RIGHT:
+      case HEADING_RIGHT: {
         if (start.pos[1] === end.pos[1]) {
           return 4;
         }
         return 2;
-      case HEADING_UP:
+      }
+      case HEADING_UP: {
         if (start.pos[1] > end.pos[1] && start.pos[0] > end.pos[0]) {
           return 1;
         }
         return 3;
-      case HEADING_DOWN:
+      }
+      case HEADING_DOWN: {
         if (start.pos[1] < end.pos[1] && start.pos[0] > end.pos[0]) {
           return 1;
         }
         return 3;
-      case HEADING_LEFT:
+      }
+      case HEADING_LEFT: {
         if (start.pos[0] <= end.pos[0]) {
           return 4;
         }
@@ -1973,15 +1988,20 @@ const estimateSegmentCount = (
           return 0;
         }
         return 2;
+      }
     }
-  } else if (endHeading === HEADING_UP) {
+  
+  break;
+  }
+  case HEADING_UP: {
     switch (startHeading) {
-      case HEADING_RIGHT:
+      case HEADING_RIGHT: {
         if (start.pos[1] > end.pos[1] && start.pos[0] < end.pos[0]) {
           return 1;
         }
         return 3;
-      case HEADING_UP:
+      }
+      case HEADING_UP: {
         if (start.pos[1] >= end.pos[1]) {
           return 4;
         }
@@ -1989,30 +2009,38 @@ const estimateSegmentCount = (
           return 0;
         }
         return 2;
-      case HEADING_DOWN:
+      }
+      case HEADING_DOWN: {
         if (start.pos[0] === end.pos[0]) {
           return 4;
         }
         return 2;
-      case HEADING_LEFT:
+      }
+      case HEADING_LEFT: {
         if (start.pos[1] > end.pos[1] && start.pos[0] > end.pos[0]) {
           return 1;
         }
         return 3;
+      }
     }
-  } else if (endHeading === HEADING_DOWN) {
+  
+  break;
+  }
+  case HEADING_DOWN: {
     switch (startHeading) {
-      case HEADING_RIGHT:
+      case HEADING_RIGHT: {
         if (start.pos[1] < end.pos[1] && start.pos[0] < end.pos[0]) {
           return 1;
         }
         return 3;
-      case HEADING_UP:
+      }
+      case HEADING_UP: {
         if (start.pos[0] === end.pos[0]) {
           return 4;
         }
         return 2;
-      case HEADING_DOWN:
+      }
+      case HEADING_DOWN: {
         if (start.pos[1] <= end.pos[1]) {
           return 4;
         }
@@ -2020,12 +2048,18 @@ const estimateSegmentCount = (
           return 0;
         }
         return 2;
-      case HEADING_LEFT:
+      }
+      case HEADING_LEFT: {
         if (start.pos[1] < end.pos[1] && start.pos[0] > end.pos[0]) {
           return 1;
         }
         return 3;
+      }
     }
+  
+  break;
+  }
+  // No default
   }
   return 0;
 };
@@ -2115,10 +2149,10 @@ const normalizeArrowElementUpdate = (
     offsetX > MAX_POS ||
     offsetY < -MAX_POS ||
     offsetY > MAX_POS ||
-    offsetX + points[points.length - 1][0] < -MAX_POS ||
-    offsetY + points[points.length - 1][0] > MAX_POS ||
-    offsetX + points[points.length - 1][1] < -MAX_POS ||
-    offsetY + points[points.length - 1][1] > MAX_POS
+    offsetX + points.at(-1)[0] < -MAX_POS ||
+    offsetY + points.at(-1)[0] > MAX_POS ||
+    offsetX + points.at(-1)[1] < -MAX_POS ||
+    offsetY + points.at(-1)[1] > MAX_POS
   ) {
     console.error(
       "Elbow arrow normalization is outside reasonable bounds (> 1e6)",
@@ -2195,12 +2229,15 @@ const removeElbowArrowShortSegments = (
 
 const neighborIndexToHeading = (idx: number): Heading => {
   switch (idx) {
-    case 0:
+    case 0: {
       return HEADING_UP;
-    case 1:
+    }
+    case 1: {
       return HEADING_RIGHT;
-    case 2:
+    }
+    case 2: {
       return HEADING_DOWN;
+    }
   }
   return HEADING_LEFT;
 };
@@ -2254,7 +2291,7 @@ const getBindPointHeading = (
       aabbForElement(
         hoveredElement,
         elementsMap,
-        Array(4).fill(distanceToElement(hoveredElement, elementsMap, p)) as [
+        new Array(4).fill(distanceToElement(hoveredElement, elementsMap, p)) as [
           number,
           number,
           number,

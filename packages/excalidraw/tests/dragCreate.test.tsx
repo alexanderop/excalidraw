@@ -32,7 +32,7 @@ beforeEach(() => {
   reseed(7);
 });
 
-const { h } = window;
+const { h } = globalThis;
 
 describe("Test dragCreate", () => {
   describe("add element to the scene when pointer dragging long enough", () => {
@@ -67,7 +67,7 @@ describe("Test dragCreate", () => {
       expect(h.elements[0].height).toEqual(50); // 70 - 20
 
       expect(h.elements.length).toMatchSnapshot();
-      h.elements.forEach((element) => expect(element).toMatchSnapshot());
+      for (const element of h.elements) expect(element).toMatchSnapshot();
     });
 
     it("ellipse", async () => {
@@ -102,7 +102,7 @@ describe("Test dragCreate", () => {
       expect(h.elements[0].height).toEqual(50); // 70 - 20
 
       expect(h.elements.length).toMatchSnapshot();
-      h.elements.forEach((element) => expect(element).toMatchSnapshot());
+      for (const element of h.elements) expect(element).toMatchSnapshot();
     });
 
     it("diamond", async () => {
@@ -136,7 +136,7 @@ describe("Test dragCreate", () => {
       expect(h.elements[0].height).toEqual(50); // 70 - 20
 
       expect(h.elements.length).toMatchSnapshot();
-      h.elements.forEach((element) => expect(element).toMatchSnapshot());
+      for (const element of h.elements) expect(element).toMatchSnapshot();
     });
 
     it("arrow", async () => {
@@ -174,7 +174,7 @@ describe("Test dragCreate", () => {
       expect(element.points[1]).toEqual([30, 50]); // (60 - 30, 70 - 20)
 
       expect(h.elements.length).toMatchSnapshot();
-      h.elements.forEach((element) => expect(element).toMatchSnapshot());
+      for (const element of h.elements) expect(element).toMatchSnapshot();
     });
 
     it("line", async () => {
@@ -211,7 +211,7 @@ describe("Test dragCreate", () => {
       expect(element.points[0]).toEqual([0, 0]);
       expect(element.points[1]).toEqual([30, 50]); // (60 - 30, 70 - 20)
 
-      h.elements.forEach((element) => expect(element).toMatchSnapshot());
+      for (const element of h.elements) expect(element).toMatchSnapshot();
     });
   });
 

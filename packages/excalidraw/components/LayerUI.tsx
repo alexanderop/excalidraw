@@ -511,7 +511,7 @@ const LayerUI = ({
               return;
             }
 
-            if (selectedElements.length) {
+            if (selectedElements.length > 0) {
               for (const element of selectedElements) {
                 mutateElement(element, arrayToMap(elements), {
                   [altKey && eyeDropperState.swapPreviewOnAlt

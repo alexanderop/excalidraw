@@ -3,7 +3,7 @@ import { diffStringsUnified } from "jest-diff";
 expect.extend({
   toCloselyEqualPoints(received, expected, precision) {
     if (!Array.isArray(received) || !Array.isArray(expected)) {
-      throw new Error("expected and received are not point arrays");
+      throw new TypeError("expected and received are not point arrays");
     }
 
     const COMPARE = 1 / precision === 0 ? 1 : Math.pow(10, precision ?? 2);

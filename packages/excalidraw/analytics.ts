@@ -13,7 +13,7 @@ export const trackEvent = (
 ) => {
   try {
     if (
-      typeof window === "undefined" ||
+      globalThis.window === undefined ||
       import.meta.env.VITE_WORKER_ID ||
       import.meta.env.VITE_APP_ENABLE_TRACKING !== "true"
     ) {
@@ -33,8 +33,8 @@ export const trackEvent = (
       console.info("trackEvent", { category, action, label, value });
     }
 
-    if (window.sa_event) {
-      window.sa_event(action, {
+    if (globalThis.sa_event) {
+      globalThis.sa_event(action, {
         category,
         label,
         value,

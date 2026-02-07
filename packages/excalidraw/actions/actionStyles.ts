@@ -85,10 +85,10 @@ export const actionPasteStyles = register({
     const selectedElements = getSelectedElements(elements, appState, {
       includeBoundTextElement: true,
     });
-    const selectedElementIds = selectedElements.map((element) => element.id);
+    const selectedElementIds = new Set(selectedElements.map((element) => element.id));
     return {
       elements: elements.map((element) => {
-        if (selectedElementIds.includes(element.id)) {
+        if (selectedElementIds.has(element.id)) {
           let elementStylesToCopyFrom = pastedElement;
           if (isTextElement(element) && element.containerId) {
             elementStylesToCopyFrom = boundTextElement;

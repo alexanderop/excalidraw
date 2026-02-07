@@ -185,12 +185,12 @@ const StatsDragInput = <
       // generally not needed, but in case `pointerup` doesn't fire and
       // we don't remove the listeners that way, we should at least remove
       // on unmount
-      window.removeEventListener(
+      globalThis.removeEventListener(
         EVENT.POINTER_MOVE,
         callbacks.onPointerMove!,
         false,
       );
-      window.removeEventListener(
+      globalThis.removeEventListener(
         EVENT.POINTER_UP,
         callbacks.onPointerUp!,
         false,
@@ -293,7 +293,7 @@ const StatsDragInput = <
             };
 
             const onPointerUp = () => {
-              window.removeEventListener(
+              globalThis.removeEventListener(
                 EVENT.POINTER_MOVE,
                 onPointerMove,
                 false,
@@ -319,14 +319,14 @@ const StatsDragInput = <
 
               document.body.classList.remove("excalidraw-cursor-resize");
 
-              window.removeEventListener(EVENT.POINTER_UP, onPointerUp, false);
+              globalThis.removeEventListener(EVENT.POINTER_UP, onPointerUp, false);
             };
 
             callbacksRef.current.onPointerMove = onPointerMove;
             callbacksRef.current.onPointerUp = onPointerUp;
 
-            window.addEventListener(EVENT.POINTER_MOVE, onPointerMove, false);
-            window.addEventListener(EVENT.POINTER_UP, onPointerUp, false);
+            globalThis.addEventListener(EVENT.POINTER_MOVE, onPointerMove, false);
+            globalThis.addEventListener(EVENT.POINTER_UP, onPointerUp, false);
           }
         }}
         onPointerEnter={() => {

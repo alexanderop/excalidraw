@@ -123,12 +123,12 @@ describe("exportToSvg", () => {
     const textElements = svgElement.querySelectorAll("text");
     expect(textElements.length).toBeGreaterThan(0);
 
-    textElements.forEach((textEl) => {
+    for (const textEl of textElements) {
       // fill color should be inverted in dark mode
       expect(textEl.getAttribute("fill")).toBe(
         applyDarkModeFilter(textFixture.strokeColor),
       );
-    });
+    }
   });
 
   it("with exportPadding", async () => {

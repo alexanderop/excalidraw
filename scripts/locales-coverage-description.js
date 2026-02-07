@@ -1,4 +1,4 @@
-const fs = require("fs");
+const fs = require("node:fs");
 
 const THRESSHOLD = 85;
 
@@ -169,9 +169,9 @@ const percentages = fs.readFileSync(
 );
 const rowData = JSON.parse(percentages);
 
-const coverages = Object.entries(rowData)
+const coverages = Object.fromEntries(Object.entries(rowData)
   .sort(([, a], [, b]) => b - a)
-  .reduce((r, [k, v]) => ({ ...r, [k]: v }), {});
+  .map(( [k, v]) => [k, v]));
 
 const boldIf = (text, condition) => (condition ? `**${text}**` : text);
 
@@ -186,14 +186,10 @@ const printRow = (id, locale, coverage) => {
   let result = `| ${isOver ? id : "..."} | `;
   result += `${locale in flags ? flags[locale] : ""} | `;
   const language = locale in languages ? languages[locale] : locale;
-  if (locale in crowdinMap && crowdinMap[locale]) {
-    result += `[${boldIf(
+  result += locale in crowdinMap && crowdinMap[locale] ? `[${boldIf(
       language,
       isOver,
-    )}](https://crowdin.com/translate/excalidraw/10/${crowdinMap[locale]}) | `;
-  } else {
-    result += `${boldIf(language, isOver)} | `;
-  }
+    )}](https://crowdin.com/translate/excalidraw/10/${crowdinMap[locale]}) | ` : `${boldIf(language, isOver)} | `;
   result += `${coverage === 100 ? "💯" : boldIf(coverage, isOver)} |`;
   return result;
 };
@@ -212,4 +208,4 @@ for (const coverage in coverages) {
   index++;
 }
 console.info("\n\r");
-console.info("\\* Languages in **bold** are going to appear on production.");
+console.info(String.raw`\* Languages in **bold** are going to appear on production.`);

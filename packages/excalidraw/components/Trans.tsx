@@ -30,10 +30,9 @@ const getTransChildren = (
     },
   ];
 
-  format
+  for (const match of format
     .split(SPLIT_REGEX)
-    .filter(Boolean)
-    .forEach((match) => {
+    .filter(Boolean)) {
       const tagStartMatch = match.match(TAG_START_REGEXP);
       const tagEndMatch = match.match(TAG_END_REGEXP);
       const keyMatch = match.match(KEY_REGEXP);
@@ -63,7 +62,7 @@ const getTransChildren = (
         // pushed to "link"'s children so on DOM when rendering it's rendered as
         // <a href="https://example.com">click the button</a>
         const name = tagEndMatch[1];
-        if (name === stack[stack.length - 1].name) {
+        if (name === stack.at(-1).name) {
           const item = stack.pop()!;
           const itemChildren = React.createElement(
             React.Fragment,
@@ -72,14 +71,18 @@ const getTransChildren = (
           );
           const fn = props[item.name];
           if (typeof fn === "function") {
-            stack[stack.length - 1].children.push(fn(itemChildren));
+            stack.at(-1).children.push(fn(itemChildren));
           }
         } else {
           console.warn(
             `Trans: unexpected end tag ${match} for interpolating ${format}`,
           );
         }
-      } else if (keyMatch !== null) {
+      } else if (keyMatch === null) {
+        // If none of cases match means we just need to push the string
+        // to stack eg - "Hello {{name}} Whats up?" "Hello", "Whats up" will be pushed
+        stack.at(-1).children.push(match);
+      } else {
         // The match is for {{key}}. Check if the key is present in props and set
         // the prop value as children of last stack item e.g. format = "Hello
         // {{name}}", key = "name" and props.name = "Excalidraw" then its prop
@@ -87,18 +90,14 @@ const getTransChildren = (
         // "Hello Excalidraw"
         const name = keyMatch[1];
         if (props.hasOwnProperty(name)) {
-          stack[stack.length - 1].children.push(props[name] as React.ReactNode);
+          stack.at(-1).children.push(props[name] as React.ReactNode);
         } else {
           console.warn(
             `Trans: key ${name} not in props for interpolating ${format}`,
           );
         }
-      } else {
-        // If none of cases match means we just need to push the string
-        // to stack eg - "Hello {{name}} Whats up?" "Hello", "Whats up" will be pushed
-        stack[stack.length - 1].children.push(match);
       }
-    });
+    }
 
   if (stack.length !== 1) {
     console.warn(`Trans: stack not empty for interpolating ${format}`);

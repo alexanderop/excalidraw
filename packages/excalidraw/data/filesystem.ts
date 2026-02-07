@@ -1,7 +1,7 @@
 import {
   fileOpen as _fileOpen,
   fileSave as _fileSave,
-  supported as nativeFileSystemSupported,
+  
 } from "browser-fs-access";
 
 import { EVENT, MIME_TYPES, debounce } from "@excalidraw/common";
@@ -32,7 +32,7 @@ export const fileOpen = async <M extends boolean | undefined = false>(opts: {
 
   const extensions = opts.extensions?.reduce((acc, ext) => {
     if (ext === "jpg") {
-      return acc.concat(".jpg", ".jpeg");
+      return [...acc, ".jpg", ".jpeg"];
     }
     return acc.concat(`.${ext}`);
   }, [] as string[]);
@@ -58,15 +58,15 @@ export const fileOpen = async <M extends boolean | undefined = false>(opts: {
         }
       };
       requestAnimationFrame(() => {
-        window.addEventListener(EVENT.FOCUS, focusHandler);
+        globalThis.addEventListener(EVENT.FOCUS, focusHandler);
       });
-      const interval = window.setInterval(() => {
+      const interval = globalThis.setInterval(() => {
         checkForFile();
       }, INPUT_CHANGE_INTERVAL_MS);
       return (rejectPromise) => {
         clearInterval(interval);
         scheduleRejection.cancel();
-        window.removeEventListener(EVENT.FOCUS, focusHandler);
+        globalThis.removeEventListener(EVENT.FOCUS, focusHandler);
         document.removeEventListener(EVENT.KEYUP, scheduleRejection);
         document.removeEventListener(EVENT.POINTER_UP, scheduleRejection);
         if (rejectPromise) {
@@ -111,5 +111,7 @@ export const fileSave = (
   );
 };
 
-export { nativeFileSystemSupported };
-export type { FileSystemHandle };
+
+
+
+export {supported as nativeFileSystemSupported, type FileSystemHandle} from "browser-fs-access";

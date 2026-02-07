@@ -15,14 +15,14 @@ describe("Test <DropdownMenu/>", () => {
   it("should", async () => {
     const { container } = await render(<Excalidraw />);
 
-    expect(window.h.state.openMenu).toBe(null);
+    expect(globalThis.h.state.openMenu).toBe(null);
 
     fireEvent.click(getByTestId(container, "main-menu-trigger"));
-    expect(window.h.state.openMenu).toBe("canvas");
+    expect(globalThis.h.state.openMenu).toBe("canvas");
 
     await waitFor(() => {
       Keyboard.keyDown(KEYS.ESCAPE);
-      expect(window.h.state.openMenu).toBe(null);
+      expect(globalThis.h.state.openMenu).toBe(null);
     });
   });
 });

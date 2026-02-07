@@ -438,7 +438,7 @@ describe("restoreElements", () => {
 
     const elements: ExcalidrawElement[] = [];
     let idCount = 0;
-    types.forEach((elType) => {
+    for (const elType of types) {
       idCount += 1;
       const element = API.createElement({
         type: elType as "rectangle" | "ellipse" | "diamond" | "embeddable",
@@ -459,7 +459,7 @@ describe("restoreElements", () => {
       });
 
       elements.push(element);
-    });
+    }
 
     const restoredElements = restore.restoreElements(elements, null);
 

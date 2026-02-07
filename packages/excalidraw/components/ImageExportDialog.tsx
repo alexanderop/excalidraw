@@ -145,11 +145,11 @@ const ImageExportModal = ({
           .then(() => {
             previewNode.replaceChildren(canvas);
           })
-          .catch((e) => {
-            if (e.name === "CANVAS_POSSIBLY_TOO_BIG") {
+          .catch((error) => {
+            if (error.name === "CANVAS_POSSIBLY_TOO_BIG") {
               throw new Error(t("canvasError.canvasTooBig"));
             }
-            throw e;
+            throw error;
           });
       })
       .catch((error) => {
@@ -275,7 +275,7 @@ const ImageExportModal = ({
             }}
             choices={EXPORT_SCALES.map((scale) => ({
               value: scale,
-              label: `${scale}\u00d7`,
+              label: `${scale}\u00D7`,
             }))}
           />
         </ExportSetting>

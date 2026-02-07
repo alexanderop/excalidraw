@@ -190,11 +190,11 @@ export const moveElement = (
       originalElementsMap,
       originalElement.id,
     );
-    originalChildren.forEach((child) => {
+    for (const child of originalChildren) {
       const latestChildElement = elementsMap.get(child.id);
 
       if (!latestChildElement) {
-        return;
+        continue;
       }
 
       const [childCX, childCY] = [
@@ -227,7 +227,7 @@ export const moveElement = (
       updateBindings(latestChildElement, scene, appState, {
         simultaneouslyUpdated: originalChildren,
       });
-    });
+    }
   }
 };
 
@@ -242,12 +242,11 @@ export const getAtomicUnits = (
       return acc;
     }, {} as AtomicUnit);
   });
-  targetElements
-    .filter((el) => !isInGroup(el))
-    .forEach((el) => {
+  for (const el of targetElements
+    .filter((el) => !isInGroup(el))) {
       _atomicUnits.push({
         [el.id]: true,
       });
-    });
+    }
   return _atomicUnits;
 };

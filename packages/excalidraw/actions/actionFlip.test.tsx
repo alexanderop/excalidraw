@@ -6,7 +6,7 @@ import { render } from "../tests/test-utils";
 
 import { actionFlipHorizontal, actionFlipVertical } from "./actionFlip";
 
-const { h } = window;
+const { h } = globalThis;
 
 describe("flipping re-centers selection", () => {
   it("elbow arrow touches group selection side yet it remains in place after multiple moves", async () => {

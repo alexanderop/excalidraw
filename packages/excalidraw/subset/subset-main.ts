@@ -46,7 +46,7 @@ export const subsetWoff2GlyphsByCodepoints = async (
 
       // encode on the main thread to avoid copying large binary strings (as dataurl) between threads
       return toBase64(result);
-    } catch (e) {
+    } catch (error) {
       // don't use workers if they are failing
       shouldUseWorkers = false;
 
@@ -54,14 +54,14 @@ export const subsetWoff2GlyphsByCodepoints = async (
         // don't log the expected errors server-side
         !(
           isServerEnv() &&
-          (e instanceof WorkerUrlNotDefinedError ||
-            e instanceof WorkerInTheMainChunkError)
+          (error instanceof WorkerUrlNotDefinedError ||
+            error instanceof WorkerInTheMainChunkError)
         )
       ) {
-        // eslint-disable-next-line no-console
+         
         console.error(
           "Failed to use workers for subsetting, falling back to the main thread.",
-          e,
+          error,
         );
       }
 

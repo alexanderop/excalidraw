@@ -96,8 +96,8 @@ export class EraserTrail extends AnimatedTrail {
     // for efficiency and avoid unnecessary calculations,
     // take only POINTS_ON_TRAIL points to form some number of segments
     const pathSegment = lineSegment<GlobalPoint>(
-      eraserPath[eraserPath.length - 1],
-      eraserPath[eraserPath.length - 2],
+      eraserPath.at(-1),
+      eraserPath.at(-2),
     );
 
     const candidateElements = this.app.visibleElements.filter(
@@ -184,7 +184,7 @@ export class EraserTrail extends AnimatedTrail {
       }
     }
 
-    return Array.from(this.elementsToErase);
+    return [...this.elementsToErase];
   }
 
   endPath(): void {

@@ -21,7 +21,7 @@ import {
 import type { LLMMessage, TTTDDialog } from "../types";
 
 const MIN_PROMPT_LENGTH = 3;
-const MAX_PROMPT_LENGTH = 10000;
+const MAX_PROMPT_LENGTH = 10_000;
 
 export const useTextGeneration = ({
   onTextSubmit,
@@ -80,10 +80,7 @@ export const useTextGeneration = ({
     const abortController = new AbortController();
     streamingAbortControllerRef.current = abortController;
 
-    if (!isRepairFlow) {
-      addUserMessage(prompt);
-      addAssistantMessage();
-    } else {
+    if (isRepairFlow) {
       setChatHistory((prev) =>
         updateAssistantContent(prev, {
           isGenerating: true,
@@ -93,6 +90,9 @@ export const useTextGeneration = ({
           errorDetails: undefined,
         }),
       );
+    } else {
+      addUserMessage(prompt);
+      addAssistantMessage();
     }
 
     try {

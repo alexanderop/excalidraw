@@ -39,16 +39,20 @@ export const distanceToElement = (
     case "iframe":
     case "embeddable":
     case "frame":
-    case "magicframe":
+    case "magicframe": {
       return distanceToRectanguloidElement(element, elementsMap, p);
-    case "diamond":
+    }
+    case "diamond": {
       return distanceToDiamondElement(element, elementsMap, p);
-    case "ellipse":
+    }
+    case "ellipse": {
       return distanceToEllipseElement(element, elementsMap, p);
+    }
     case "line":
     case "arrow":
-    case "freedraw":
+    case "freedraw": {
       return distanceToLinearOrFreeDraElement(element, p);
+    }
   }
 };
 

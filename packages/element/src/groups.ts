@@ -95,12 +95,12 @@ export const selectGroupsForSelectedElements = (function () {
       if (appState.editingGroupId) {
         // handle the case where a group is nested within a group
         const indexOfEditingGroup = groupIds.indexOf(appState.editingGroupId);
-        if (indexOfEditingGroup > -1) {
+        if (indexOfEditingGroup !== -1) {
           groupIds = groupIds.slice(0, indexOfEditingGroup);
         }
       }
       if (groupIds.length > 0) {
-        const lastSelectedGroup = groupIds[groupIds.length - 1];
+        const lastSelectedGroup = groupIds.at(-1);
         selectedGroupIds[lastSelectedGroup] = true;
       }
     }
@@ -119,10 +119,10 @@ export const selectGroupsForSelectedElements = (function () {
           acc[element.id] = true;
 
           // Populate the index
-          if (!Array.isArray(groupElementsIndex[groupId])) {
-            groupElementsIndex[groupId] = [element.id];
-          } else {
+          if (Array.isArray(groupElementsIndex[groupId])) {
             groupElementsIndex[groupId].push(element.id);
+          } else {
+            groupElementsIndex[groupId] = [element.id];
           }
         }
         return acc;
@@ -132,11 +132,9 @@ export const selectGroupsForSelectedElements = (function () {
 
     for (const groupId of Object.keys(groupElementsIndex)) {
       // If there is one element in the group, and the group is selected or it's being edited, it's not a group
-      if (groupElementsIndex[groupId].length < 2) {
-        if (selectedGroupIds[groupId]) {
+      if (groupElementsIndex[groupId].length < 2 && selectedGroupIds[groupId]) {
           selectedGroupIds[groupId] = false;
         }
-      }
     }
 
     lastElements = elements;
@@ -184,7 +182,7 @@ export const selectGroupsForSelectedElements = (function () {
         })
       : getSelectedElements(elements, appState);
 
-    if (!selectedElements.length) {
+    if (selectedElements.length === 0) {
       return {
         selectedGroupIds: {},
         editingGroupId: null,
@@ -249,12 +247,12 @@ export const selectGroupsFromGivenElements = (
     let groupIds = element.groupIds;
     if (appState.editingGroupId) {
       const indexOfEditingGroup = groupIds.indexOf(appState.editingGroupId);
-      if (indexOfEditingGroup > -1) {
+      if (indexOfEditingGroup !== -1) {
         groupIds = groupIds.slice(0, indexOfEditingGroup);
       }
     }
     if (groupIds.length > 0) {
-      const groupId = groupIds[groupIds.length - 1];
+      const groupId = groupIds.at(-1);
       nextAppState = {
         ...nextAppState,
         ...selectGroup(groupId, nextAppState, elements),
@@ -271,7 +269,7 @@ export const editGroupForSelectedElement = (
 ): AppState => {
   return {
     ...appState,
-    editingGroupId: element.groupIds.length ? element.groupIds[0] : null,
+    editingGroupId: element.groupIds.length > 0 ? element.groupIds[0] : null,
     selectedGroupIds: {},
     selectedElementIds: {
       [element.id]: true,
@@ -333,7 +331,7 @@ export const getMaximumGroups = (
     const groupId =
       element.groupIds.length === 0
         ? element.id
-        : element.groupIds[element.groupIds.length - 1];
+        : element.groupIds.at(-1);
 
     const currentGroupMembers = groups.get(groupId) || [];
 
@@ -345,7 +343,7 @@ export const getMaximumGroups = (
     groups.set(groupId, [...currentGroupMembers, element]);
   });
 
-  return Array.from(groups.values());
+  return [...groups.values()];
 };
 
 export const getNonDeletedGroupIds = (elements: ElementsMap) => {
@@ -464,7 +462,7 @@ export const getSelectedElementsByGroup = (
     isSelectedViaGroup(appState, element),
   );
 
-  unboundElements.forEach((element) => {
+  for (const element of unboundElements) {
     const selectedGroupId = getSelectedGroupIdForElement(
       element,
       appState.selectedGroupIds,
@@ -476,6 +474,6 @@ export const getSelectedElementsByGroup = (
     } else {
       addToGroupsMap(element, selectedGroupId);
     }
-  });
-  return Array.from(groups.values()).concat(Array.from(elements.values()));
+  }
+  return [...groups.values(), ...elements.values()];
 };

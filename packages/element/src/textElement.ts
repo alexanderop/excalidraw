@@ -70,9 +70,8 @@ export const redrawTextBoundingBox = (
         ? 0
         : container.angle
       : textElement.angle) as Radians,
-  };
+   text: textElement.text,};
 
-  boundTextUpdates.text = textElement.text;
 
   if (container || !textElement.autoResize) {
     maxWidth = container

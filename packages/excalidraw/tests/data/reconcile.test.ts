@@ -31,7 +31,7 @@ const createElement = (opts: { uid: string } | ElementLike) => {
   if ("uid" in opts) {
     const match = opts.uid.match(/^(\w+)(?::(\d+))?$/)!;
     id = match[1];
-    version = match[2] ? parseInt(match[2]) : null;
+    version = match[2] ? Number.parseInt(match[2]) : null;
     uid = version ? `${id}:${version}` : id;
   } else {
     ({ id, version, versionNonce } = opts);
@@ -365,9 +365,9 @@ describe("elements reconciliation", () => {
     ];
 
     testIdentical(elements1, elements1, ["A", "B"]);
-    testIdentical(elements1, elements1.slice(), ["A", "B"]);
-    testIdentical(elements1.slice(), elements1, ["A", "B"]);
-    testIdentical(elements1.slice(), elements1.slice(), ["A", "B"]);
+    testIdentical(elements1, [...elements1], ["A", "B"]);
+    testIdentical([...elements1], elements1, ["A", "B"]);
+    testIdentical([...elements1], [...elements1], ["A", "B"]);
 
     const el1 = {
       id: "A",

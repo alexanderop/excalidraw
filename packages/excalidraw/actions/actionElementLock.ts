@@ -52,7 +52,7 @@ export const actionToggleElementLock = register({
       includeElementsInFrames: true,
     });
 
-    if (!selectedElements.length) {
+    if (selectedElements.length === 0) {
       return false;
     }
 
@@ -99,9 +99,9 @@ export const actionToggleElementLock = register({
         locked: nextLockState,
         // do not recreate the array unncessarily
         groupIds:
-          nextGroupIds.length !== element.groupIds.length
-            ? nextGroupIds
-            : element.groupIds,
+          nextGroupIds.length === element.groupIds.length
+            ? element.groupIds
+            : nextGroupIds,
       });
     });
 
@@ -179,9 +179,9 @@ export const actionUnlockAllElements = register({
           locked: false,
           groupIds:
             // do not recreate the array unncessarily
-            element.groupIds.length !== nextGroupIds.length
-              ? nextGroupIds
-              : element.groupIds,
+            element.groupIds.length === nextGroupIds.length
+              ? element.groupIds
+              : nextGroupIds,
         });
       }
       return element;

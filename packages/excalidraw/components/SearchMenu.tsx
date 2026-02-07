@@ -115,7 +115,7 @@ export const SearchMenu = () => {
         searchedQueryRef.current = searchQuery;
         lastSceneNonceRef.current = app.scene.getSceneNonce();
         setAppState({
-          searchMatches: matchItems.length
+          searchMatches: matchItems.length > 0
             ? {
                 focusedId: null,
                 matches: matchItems.map((searchMatch) => ({
@@ -171,9 +171,9 @@ export const SearchMenu = () => {
       }
 
       const focusedId =
-        focusIndex !== null
-          ? state.searchMatches?.matches[focusIndex]?.id || null
-          : null;
+        focusIndex === null
+          ? null
+          : state.searchMatches?.matches[focusIndex]?.id || null;
 
       return {
         searchMatches: {
@@ -315,8 +315,7 @@ export const SearchMenu = () => {
       if (
         event.target instanceof HTMLElement &&
         event.target.closest(".layer-ui__search")
-      ) {
-        if (stableState.searchMatches.items.length) {
+       && stableState.searchMatches.items.length > 0) {
           if (event.key === KEYS.ENTER) {
             event.stopPropagation();
             stableState.goToNextItem();
@@ -330,12 +329,11 @@ export const SearchMenu = () => {
             stableState.goToNextItem();
           }
         }
-      }
     };
 
     // `capture` needed to prevent firing on initial open from App.tsx,
     // as well as to handle events before App ones
-    return addEventListener(window, EVENT.KEYDOWN, eventHandler, {
+    return addEventListener(globalThis, EVENT.KEYDOWN, eventHandler, {
       capture: true,
       passive: false,
     });
@@ -369,7 +367,7 @@ export const SearchMenu = () => {
               searchedQueryRef.current = searchQuery;
               lastSceneNonceRef.current = app.scene.getSceneNonce();
               setAppState({
-                searchMatches: matchItems.length
+                searchMatches: matchItems.length > 0
                   ? {
                       focusedId: null,
                       matches: matchItems.map((searchMatch) => ({
@@ -567,7 +565,7 @@ const getMatchPreview = (
     1 -
     (isQueryCompleteBefore ? 0 : 1);
   let wordsBeforeAsString =
-    wordsBeforeQuery.slice(startWordIndex <= 0 ? 0 : startWordIndex).join(" ") +
+    wordsBeforeQuery.slice(Math.max(startWordIndex, 0)).join(" ") +
     (isQueryCompleteBefore ? " " : "");
 
   const MAX_ALLOWED_CHARS = 20;
@@ -781,7 +779,7 @@ const getMatchInFrame = (
 };
 
 const escapeSpecialCharacters = (string: string) => {
-  return string.replace(/[.*+?^${}()|[\]\\-]/g, "\\$&");
+  return string.replaceAll(/[$()*+.?[\\\]^{|}-]/g, String.raw`\$&`);
 };
 
 const handleSearch = debounce(

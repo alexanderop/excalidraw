@@ -118,18 +118,16 @@ export const UserList = React.memo(
       MarkRequired<Collaborator, "socketId">
     >();
 
-    collaborators.forEach((collaborator, socketId) => {
+    for (const [socketId, collaborator] of collaborators.entries()) {
       const userId = (collaborator.id || socketId) as ClientId;
       uniqueCollaboratorsMap.set(
         // filter on user id, else fall back on unique socketId
         userId,
         { ...collaborator, socketId },
       );
-    });
+    }
 
-    const uniqueCollaboratorsArray = Array.from(
-      uniqueCollaboratorsMap.values(),
-    ).filter((collaborator) => collaborator.username?.trim());
+    const uniqueCollaboratorsArray = [...uniqueCollaboratorsMap.values()].filter((collaborator) => collaborator.username?.trim());
 
     const [searchTerm, setSearchTerm] = React.useState("");
     const filteredCollaborators = uniqueCollaboratorsArray.filter(

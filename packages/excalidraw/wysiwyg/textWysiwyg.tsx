@@ -127,7 +127,7 @@ export const textWysiwyg = ({
     if (!editable.style.fontFamily || !editable.style.fontSize) {
       return false;
     }
-    const currentFont = editable.style.fontFamily.replace(/"/g, "");
+    const currentFont = editable.style.fontFamily.replaceAll('"', "");
     if (
       getFontFamilyString({ fontFamily: updatedTextElement.fontFamily }) !==
       currentFont
@@ -243,11 +243,11 @@ export const textWysiwyg = ({
       }
       const [viewportX, viewportY] = getViewportCoords(coordX, coordY);
 
-      if (!container) {
+      if (container) {
+        width += 0.5;
+      } else {
         maxWidth = (appState.width - 8 - viewportX) / appState.zoom.value;
         width = Math.min(width, maxWidth);
-      } else {
-        width += 0.5;
       }
 
       // add 5% buffer otherwise it causes wysiwyg to jump
@@ -510,7 +510,7 @@ export const textWysiwyg = ({
     const removedTabs: number[] = [];
 
     let value = editable.value;
-    linesStartIndices.forEach((startIndex) => {
+    for (const startIndex of linesStartIndices) {
       const tabMatch = value
         .slice(startIndex, startIndex + TAB_SIZE)
         .match(RE_LEADING_TAB);
@@ -523,15 +523,15 @@ export const textWysiwyg = ({
         value = `${startValue}${endValue}`;
         removedTabs.push(startIndex);
       }
-    });
+    }
 
     editable.value = value;
 
-    if (removedTabs.length) {
-      if (selectionStart > removedTabs[removedTabs.length - 1]) {
+    if (removedTabs.length > 0) {
+      if (selectionStart > removedTabs.at(-1)) {
         editable.selectionStart = Math.max(
           selectionStart - TAB_SIZE,
-          removedTabs[removedTabs.length - 1],
+          removedTabs.at(-1),
         );
       } else {
         // If the cursor is before the first tab removed, ex:
@@ -656,8 +656,8 @@ export const textWysiwyg = ({
 
     window.removeEventListener("resize", updateWysiwygStyle);
     window.removeEventListener("wheel", stopEvent, true);
-    window.removeEventListener("pointerdown", onPointerDown);
-    window.removeEventListener("pointerup", bindBlurEvent);
+    globalThis.removeEventListener("pointerdown", onPointerDown);
+    globalThis.removeEventListener("pointerup", bindBlurEvent);
     window.removeEventListener("blur", handleSubmit);
     window.removeEventListener("beforeunload", handleSubmit);
     unbindUpdate();
@@ -668,7 +668,7 @@ export const textWysiwyg = ({
   };
 
   const bindBlurEvent = (event?: MouseEvent) => {
-    window.removeEventListener("pointerup", bindBlurEvent);
+    globalThis.removeEventListener("pointerup", bindBlurEvent);
     // Deferred so that the pointerdown that initiates the wysiwyg doesn't
     // trigger the blur on ensuing pointerup.
     // Also to handle cases such as picking a color which would trigger a blur
@@ -701,7 +701,7 @@ export const textWysiwyg = ({
 
   const temporarilyDisableSubmit = () => {
     editable.onblur = null;
-    window.addEventListener("pointerup", bindBlurEvent);
+    globalThis.addEventListener("pointerup", bindBlurEvent);
     // handle edge-case where pointerup doesn't fire e.g. due to user
     // alt-tabbing away
     window.addEventListener("blur", handleSubmit);
@@ -796,8 +796,8 @@ export const textWysiwyg = ({
   // reposition wysiwyg in case of canvas is resized. Using ResizeObserver
   // is preferred so we catch changes from host, where window may not resize.
   let observer: ResizeObserver | null = null;
-  if (canvas && "ResizeObserver" in window) {
-    observer = new window.ResizeObserver(() => {
+  if (canvas && "ResizeObserver" in globalThis) {
+    observer = new globalThis.ResizeObserver(() => {
       updateWysiwygStyle();
     });
     observer.observe(canvas);
@@ -810,12 +810,12 @@ export const textWysiwyg = ({
   // rAF (+ capture to by doubly sure) so we don't catch te pointerdown that
   // triggered the wysiwyg
   requestAnimationFrame(() => {
-    window.addEventListener("pointerdown", onPointerDown, { capture: true });
+    globalThis.addEventListener("pointerdown", onPointerDown, { capture: true });
   });
   window.addEventListener("beforeunload", handleSubmit);
   excalidrawContainer
     ?.querySelector(".excalidraw-textEditorContainer")!
-    .appendChild(editable);
+    .append(editable);
 
   return handleSubmit;
 };

@@ -55,13 +55,13 @@ const load = (): Promise<{
             };
 
             resolve(woff2);
-          } catch (e) {
-            reject(e);
+          } catch (error) {
+            reject(error);
           }
         },
       );
-    } catch (e) {
-      reject(e);
+    } catch (error) {
+      reject(error);
     }
   });
 };

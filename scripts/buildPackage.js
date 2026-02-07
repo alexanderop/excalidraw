@@ -1,6 +1,6 @@
-const path = require("path");
-const fs = require("fs");
-const { pathToFileURL } = require("url");
+const path = require("node:path");
+const fs = require("node:fs");
+const { pathToFileURL } = require("node:url");
 
 const { build } = require("esbuild");
 const { sassPlugin } = require("esbuild-sass-plugin");
@@ -45,7 +45,7 @@ const precompile = (source, sourcePath) => {
   // Match @use and @forward statements with relative paths
   const importRegex = /(@use|@forward)\s+["'](\.[^"']+)["']/g;
 
-  return source.replace(importRegex, (match, directive, importPath) => {
+  return source.replaceAll(importRegex, (match, directive, importPath) => {
     const resolvedPath = resolveRelativePath(importPath, sourcePath);
     if (resolvedPath) {
       // Convert to file:// URL format for sass

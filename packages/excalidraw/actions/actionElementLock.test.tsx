@@ -6,7 +6,7 @@ import { API } from "../tests/helpers/api";
 import { Pointer, UI } from "../tests/helpers/ui";
 import { render } from "../tests/test-utils";
 
-const { h } = window;
+const { h } = globalThis;
 const mouse = new Pointer("mouse");
 
 describe("element locking", () => {

@@ -31,7 +31,7 @@ import type {
 
 unmountComponent();
 
-const { h } = window;
+const { h } = globalThis;
 const mouse = new Pointer("mouse");
 
 const getBoundsFromPoints = (
@@ -238,9 +238,9 @@ describe.each(["line", "freedraw"] as const)("%s element", (type) => {
     ],
     freedraw: [
       pointFrom(0, 0),
-      pointFrom(-2.474600807561444, 41.021700699972),
-      pointFrom(3.6627956000014024, 47.84174560617245),
-      pointFrom(40.495224145598115, 47.15909710753482),
+      pointFrom(-2.474_600_807_561_444, 41.021_700_699_972),
+      pointFrom(3.662_795_600_001_402_4, 47.841_745_606_172_45),
+      pointFrom(40.495_224_145_598_115, 47.159_097_107_534_82),
     ],
   };
 
@@ -376,10 +376,10 @@ describe("line element", () => {
     expect(element.width).toBe(prevWidth);
     expect(element.height).toBe(prevHeight);
 
-    element.points.forEach((point, idx) => {
+    for (const [idx, point] of element.points.entries()) {
       expect(point[0]).toBeCloseTo(prevPoints[idx][0] * -1);
       expect(point[1]).toBeCloseTo(prevPoints[idx][1] * -1);
-    });
+    }
   });
 
   it("resizes with locked aspect ratio", async () => {
@@ -400,10 +400,10 @@ describe("line element", () => {
     UI.createElement("line", {
       points: [
         pointFrom(0, 0),
-        pointFrom(338.05644048727373, -180.4761618151104),
-        pointFrom(338.05644048727373, 180.4761618151104),
-        pointFrom(-338.05644048727373, 180.4761618151104),
-        pointFrom(-338.05644048727373, -180.4761618151104),
+        pointFrom(338.056_440_487_273_73, -180.476_161_815_110_4),
+        pointFrom(338.056_440_487_273_73, 180.476_161_815_110_4),
+        pointFrom(-338.056_440_487_273_73, 180.476_161_815_110_4),
+        pointFrom(-338.056_440_487_273_73, -180.476_161_815_110_4),
       ],
     });
     const element = h.elements[0] as ExcalidrawLinearElement;
@@ -912,20 +912,20 @@ describe("multiple selection", () => {
       ],
     });
     const freedraw = UI.createElement("freedraw", {
-      x: 63.56072661326618,
+      x: 63.560_726_613_266_18,
       y: 100,
       points: [
         pointFrom(0, 0),
-        pointFrom(-43.56072661326618, 18.15048126846341),
-        pointFrom(-43.56072661326618, 29.041198460587566),
-        pointFrom(-38.115368017204105, 42.652452795512204),
-        pointFrom(-19.964886748740696, 66.24829266003775),
-        pointFrom(19.056612930986716, 77.1390098521619),
+        pointFrom(-43.560_726_613_266_18, 18.150_481_268_463_41),
+        pointFrom(-43.560_726_613_266_18, 29.041_198_460_587_566),
+        pointFrom(-38.115_368_017_204_105, 42.652_452_795_512_204),
+        pointFrom(-19.964_886_748_740_696, 66.248_292_660_037_75),
+        pointFrom(19.056_612_930_986_716, 77.139_009_852_161_9),
       ],
     });
 
     const selectionWidth = 100;
-    const selectionHeight = 177.1390098521619;
+    const selectionHeight = 177.139_009_852_161_9;
     const move = [-25, -25] as [number, number];
     const scale = Math.max(
       1 + move[0] / selectionWidth,
@@ -942,10 +942,10 @@ describe("multiple selection", () => {
     expect(line.height).toBeCloseTo(80 * scale);
     expect(line.angle).toEqual(0);
 
-    expect(freedraw.x).toBeCloseTo(63.56072661326618 * scale);
+    expect(freedraw.x).toBeCloseTo(63.560_726_613_266_18 * scale);
     expect(freedraw.y).toBeCloseTo(100 * scale);
-    expect(freedraw.width).toBeCloseTo(62.6173395442529 * scale);
-    expect(freedraw.height).toBeCloseTo(77.1390098521619 * scale);
+    expect(freedraw.width).toBeCloseTo(62.617_339_544_252_9 * scale);
+    expect(freedraw.height).toBeCloseTo(77.139_009_852_161_9 * scale);
     expect(freedraw.angle).toEqual(0);
   });
 

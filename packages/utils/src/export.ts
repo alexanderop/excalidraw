@@ -23,7 +23,7 @@ import type {
 } from "@excalidraw/element/types";
 import type { AppState, BinaryFiles } from "@excalidraw/excalidraw/types";
 
-export { MIME_TYPES };
+
 
 type ExportOpts = {
   elements: readonly NonDeleted<ExcalidrawElement>[];
@@ -203,14 +203,27 @@ export const exportToClipboard = async (
     type: "png" | "svg" | "json";
   },
 ) => {
-  if (opts.type === "svg") {
+  switch (opts.type) {
+  case "svg": {
     const svg = await exportToSvg(opts);
     await copyTextToSystemClipboard(svg.outerHTML);
-  } else if (opts.type === "png") {
+  
+  break;
+  }
+  case "png": {
     await copyBlobToClipboardAsPng(exportToBlob(opts));
-  } else if (opts.type === "json") {
+  
+  break;
+  }
+  case "json": {
     await copyToClipboard(opts.elements, opts.files);
-  } else {
+  
+  break;
+  }
+  default: {
     throw new Error("Invalid export type");
   }
+  }
 };
+
+export {MIME_TYPES} from "@excalidraw/common";

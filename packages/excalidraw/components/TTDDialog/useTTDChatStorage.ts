@@ -24,7 +24,7 @@ const generateChatTitle = (firstMessage: string): string => {
   if (trimmed.length <= 50) {
     return trimmed;
   }
-  return `${trimmed.substring(0, 47)}...`;
+  return `${trimmed.slice(0, 47)}...`;
 };
 
 // Shared atom for saved chats - starts empty, populated via onLoadChats

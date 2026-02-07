@@ -63,11 +63,11 @@ export const AppMainMenu: React.FC<{
         <MainMenu.Item
           icon={eyeIcon}
           onClick={() => {
-            if (window.visualDebug) {
-              delete window.visualDebug;
+            if (globalThis.visualDebug) {
+              delete globalThis.visualDebug;
               saveDebugState({ enabled: false });
             } else {
-              window.visualDebug = { data: [] };
+              globalThis.visualDebug = { data: [] };
               saveDebugState({ enabled: true });
             }
             props?.refresh();

@@ -119,16 +119,7 @@ export const Hyperlink = ({
         return;
       }
 
-      if (!embeddableURLValidator(link, appProps.validateEmbeddable)) {
-        if (link) {
-          setToast({ message: t("toast.unableToEmbed"), closable: true });
-        }
-        element.link && embeddableLinkCache.set(element.id, element.link);
-        scene.mutateElement(element, {
-          link,
-        });
-        updateEmbedValidationStatus(element, false);
-      } else {
+      if (embeddableURLValidator(link, appProps.validateEmbeddable)) {
         const { width, height } = element;
         const embedLink = getEmbedLink(link);
         if (embedLink?.error instanceof URIError) {
@@ -165,6 +156,15 @@ export const Hyperlink = ({
         if (embeddableLinkCache.has(element.id)) {
           embeddableLinkCache.delete(element.id);
         }
+      } else {
+        if (link) {
+          setToast({ message: t("toast.unableToEmbed"), closable: true });
+        }
+        element.link && embeddableLinkCache.set(element.id, element.link);
+        scene.mutateElement(element, {
+          link,
+        });
+        updateEmbedValidationStatus(element, false);
       }
     } else {
       scene.mutateElement(element, { link });
@@ -212,14 +212,14 @@ export const Hyperlink = ({
         pointFrom(event.clientX, event.clientY),
       ) as boolean;
       if (shouldHide) {
-        timeoutId = window.setTimeout(() => {
+        timeoutId = globalThis.setTimeout(() => {
           setAppState({ showHyperlinkPopup: false });
         }, AUTO_HIDE_TIMEOUT);
       }
     };
-    window.addEventListener(EVENT.POINTER_MOVE, handlePointerMove, false);
+    globalThis.addEventListener(EVENT.POINTER_MOVE, handlePointerMove, false);
     return () => {
-      window.removeEventListener(EVENT.POINTER_MOVE, handlePointerMove, false);
+      globalThis.removeEventListener(EVENT.POINTER_MOVE, handlePointerMove, false);
       if (timeoutId) {
         clearTimeout(timeoutId);
       }
@@ -390,7 +390,7 @@ export const showHyperlinkTooltip = (
   if (HYPERLINK_TOOLTIP_TIMEOUT_ID) {
     clearTimeout(HYPERLINK_TOOLTIP_TIMEOUT_ID);
   }
-  HYPERLINK_TOOLTIP_TIMEOUT_ID = window.setTimeout(
+  HYPERLINK_TOOLTIP_TIMEOUT_ID = globalThis.setTimeout(
     () => renderTooltip(element, appState, elementsMap),
     HYPERLINK_TOOLTIP_DELAY,
   );

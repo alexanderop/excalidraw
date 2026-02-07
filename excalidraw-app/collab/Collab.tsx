@@ -204,10 +204,10 @@ class Collab extends PureComponent<CollabProps, CollabState> {
   private onUmmount: (() => void) | null = null;
 
   componentDidMount() {
-    window.addEventListener(EVENT.BEFORE_UNLOAD, this.beforeUnload);
-    window.addEventListener("online", this.onOfflineStatusToggle);
-    window.addEventListener("offline", this.onOfflineStatusToggle);
-    window.addEventListener(EVENT.UNLOAD, this.onUnload);
+    globalThis.addEventListener(EVENT.BEFORE_UNLOAD, this.beforeUnload);
+    globalThis.addEventListener("online", this.onOfflineStatusToggle);
+    globalThis.addEventListener("offline", this.onOfflineStatusToggle);
+    globalThis.addEventListener(EVENT.UNLOAD, this.onUnload);
 
     const unsubOnUserFollow = this.excalidrawAPI.onUserFollow((payload) => {
       this.portal.socket && this.portal.broadcastUserFollowed(payload);
@@ -241,8 +241,8 @@ class Collab extends PureComponent<CollabProps, CollabState> {
     appJotaiStore.set(collabAPIAtom, collabAPI);
 
     if (isTestEnv() || isDevEnv()) {
-      window.collab = window.collab || ({} as Window["collab"]);
-      Object.defineProperties(window, {
+      globalThis.collab = globalThis.collab || ({} as Window["collab"]);
+      Object.defineProperties(globalThis, {
         collab: {
           configurable: true,
           value: this,
@@ -252,25 +252,25 @@ class Collab extends PureComponent<CollabProps, CollabState> {
   }
 
   onOfflineStatusToggle = () => {
-    appJotaiStore.set(isOfflineAtom, !window.navigator.onLine);
+    appJotaiStore.set(isOfflineAtom, !globalThis.navigator.onLine);
   };
 
   componentWillUnmount() {
-    window.removeEventListener("online", this.onOfflineStatusToggle);
-    window.removeEventListener("offline", this.onOfflineStatusToggle);
-    window.removeEventListener(EVENT.BEFORE_UNLOAD, this.beforeUnload);
-    window.removeEventListener(EVENT.UNLOAD, this.onUnload);
-    window.removeEventListener(EVENT.POINTER_MOVE, this.onPointerMove);
-    window.removeEventListener(
+    globalThis.removeEventListener("online", this.onOfflineStatusToggle);
+    globalThis.removeEventListener("offline", this.onOfflineStatusToggle);
+    globalThis.removeEventListener(EVENT.BEFORE_UNLOAD, this.beforeUnload);
+    globalThis.removeEventListener(EVENT.UNLOAD, this.onUnload);
+    globalThis.removeEventListener(EVENT.POINTER_MOVE, this.onPointerMove);
+    globalThis.removeEventListener(
       EVENT.VISIBILITY_CHANGE,
       this.onVisibilityChange,
     );
     if (this.activeIntervalId) {
-      window.clearInterval(this.activeIntervalId);
+      globalThis.clearInterval(this.activeIntervalId);
       this.activeIntervalId = null;
     }
     if (this.idleTimeoutId) {
-      window.clearTimeout(this.idleTimeoutId);
+      globalThis.clearTimeout(this.idleTimeoutId);
       this.idleTimeoutId = null;
     }
     this.onUmmount?.();
@@ -300,12 +300,12 @@ class Collab extends PureComponent<CollabProps, CollabState> {
       //  the purpose is to run in immediately after user decides to stay
       this.saveCollabRoomToFirebase(syncableElements);
 
-      if (import.meta.env.VITE_APP_DISABLE_PREVENT_UNLOAD !== "true") {
-        preventUnload(event);
-      } else {
+      if (import.meta.env.VITE_APP_DISABLE_PREVENT_UNLOAD === "true") {
         console.warn(
           "preventing unload disabled (VITE_APP_DISABLE_PREVENT_UNLOAD)",
         );
+      } else {
+        preventUnload(event);
       }
     }
   });
@@ -374,12 +374,12 @@ class Collab extends PureComponent<CollabProps, CollabState> {
     if (!keepRemoteState) {
       LocalData.fileStorage.reset();
       this.destroySocketClient();
-    } else if (window.confirm(t("alerts.collabStopOverridePrompt"))) {
+    } else if (globalThis.confirm(t("alerts.collabStopOverridePrompt"))) {
       // hack to ensure that we prefer we disregard any new browser state
       // that could have been saved in other tabs while we were collaborating
       resetBrowserStateVersions();
 
-      window.history.pushState({}, APP_NAME, window.location.origin);
+      globalThis.history.pushState({}, APP_NAME, globalThis.location.origin);
       this.destroySocketClient();
 
       LocalData.fileStorage.reset();
@@ -434,7 +434,7 @@ class Collab extends PureComponent<CollabProps, CollabState> {
           !element.isDeleted &&
           (opts.forceFetchFiles
             ? element.status !== "pending" ||
-              Date.now() - element.updated > 10000
+              Date.now() - element.updated > 10_000
             : element.status === "saved")
         );
       })
@@ -456,7 +456,7 @@ class Collab extends PureComponent<CollabProps, CollabState> {
       );
       return JSON.parse(decodedData);
     } catch (error) {
-      window.alert(t("alerts.decryptFailed"));
+      globalThis.alert(t("alerts.decryptFailed"));
       console.error(error);
       return {
         type: WS_SUBTYPES.INVALID_RESPONSE,
@@ -487,7 +487,7 @@ class Collab extends PureComponent<CollabProps, CollabState> {
       ({ roomId, roomKey } = existingRoomLinkData);
     } else {
       ({ roomId, roomKey } = await generateCollaborationLinkData());
-      window.history.pushState(
+      globalThis.history.pushState(
         {},
         APP_NAME,
         getCollaborationLink({ roomId, roomKey }),
@@ -557,7 +557,7 @@ class Collab extends PureComponent<CollabProps, CollabState> {
 
     // fallback in case you're not alone in the room but still don't receive
     // initial SCENE_INIT message
-    this.socketInitializationTimer = window.setTimeout(
+    this.socketInitializationTimer = globalThis.setTimeout(
       fallbackInitializationHandler,
       INITIAL_SCENE_UPDATE_TIMEOUT,
     );
@@ -577,8 +577,9 @@ class Collab extends PureComponent<CollabProps, CollabState> {
         );
 
         switch (decryptedData.type) {
-          case WS_SUBTYPES.INVALID_RESPONSE:
+          case WS_SUBTYPES.INVALID_RESPONSE: {
             return;
+          }
           case WS_SUBTYPES.INIT: {
             if (!this.portal.socketInitialized) {
               this.initializeRoom({ fetchScene: false });
@@ -596,7 +597,7 @@ class Collab extends PureComponent<CollabProps, CollabState> {
             }
             break;
           }
-          case WS_SUBTYPES.UPDATE:
+          case WS_SUBTYPES.UPDATE: {
             this.handleRemoteSceneUpdate(
               this._reconcileElements(
                 toBrandedType<readonly RemoteExcalidrawElement[]>(
@@ -605,6 +606,7 @@ class Collab extends PureComponent<CollabProps, CollabState> {
               ),
             );
             break;
+          }
           case WS_SUBTYPES.MOUSE_LOCATION: {
             const { pointer, button, username, selectedElementIds } =
               decryptedData.payload;
@@ -698,7 +700,7 @@ class Collab extends PureComponent<CollabProps, CollabState> {
 
     this.initializeIdleDetector();
 
-    this.setActiveRoomLink(window.location.href);
+    this.setActiveRoomLink(globalThis.location.href);
 
     return scenePromise;
   };
@@ -812,14 +814,14 @@ class Collab extends PureComponent<CollabProps, CollabState> {
 
   private onPointerMove = () => {
     if (this.idleTimeoutId) {
-      window.clearTimeout(this.idleTimeoutId);
+      globalThis.clearTimeout(this.idleTimeoutId);
       this.idleTimeoutId = null;
     }
 
-    this.idleTimeoutId = window.setTimeout(this.reportIdle, IDLE_THRESHOLD);
+    this.idleTimeoutId = globalThis.setTimeout(this.reportIdle, IDLE_THRESHOLD);
 
     if (!this.activeIntervalId) {
-      this.activeIntervalId = window.setInterval(
+      this.activeIntervalId = globalThis.setInterval(
         this.reportActive,
         ACTIVE_THRESHOLD,
       );
@@ -829,17 +831,17 @@ class Collab extends PureComponent<CollabProps, CollabState> {
   private onVisibilityChange = () => {
     if (document.hidden) {
       if (this.idleTimeoutId) {
-        window.clearTimeout(this.idleTimeoutId);
+        globalThis.clearTimeout(this.idleTimeoutId);
         this.idleTimeoutId = null;
       }
       if (this.activeIntervalId) {
-        window.clearInterval(this.activeIntervalId);
+        globalThis.clearInterval(this.activeIntervalId);
         this.activeIntervalId = null;
       }
       this.onIdleStateChange(UserIdleState.AWAY);
     } else {
-      this.idleTimeoutId = window.setTimeout(this.reportIdle, IDLE_THRESHOLD);
-      this.activeIntervalId = window.setInterval(
+      this.idleTimeoutId = globalThis.setTimeout(this.reportIdle, IDLE_THRESHOLD);
+      this.activeIntervalId = globalThis.setInterval(
         this.reportActive,
         ACTIVE_THRESHOLD,
       );
@@ -850,7 +852,7 @@ class Collab extends PureComponent<CollabProps, CollabState> {
   private reportIdle = () => {
     this.onIdleStateChange(UserIdleState.IDLE);
     if (this.activeIntervalId) {
-      window.clearInterval(this.activeIntervalId);
+      globalThis.clearInterval(this.activeIntervalId);
       this.activeIntervalId = null;
     }
   };
@@ -1041,7 +1043,7 @@ declare global {
 }
 
 if (isTestEnv() || isDevEnv()) {
-  window.collab = window.collab || ({} as Window["collab"]);
+  globalThis.collab = globalThis.collab || ({} as Window["collab"]);
 }
 
 export default Collab;

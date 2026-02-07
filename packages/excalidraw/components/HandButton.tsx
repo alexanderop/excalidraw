@@ -24,7 +24,7 @@ export const HandButton = (props: LockIconProps) => {
       name="editor-current-shape"
       checked={props.checked}
       title={`${props.title} — H`}
-      keyBindingLabel={!props.isMobile ? KEYS.H.toLocaleUpperCase() : undefined}
+      keyBindingLabel={props.isMobile ? undefined : KEYS.H.toLocaleUpperCase()}
       aria-label={`${props.title} — H`}
       aria-keyshortcuts={KEYS.H}
       data-testid={`toolbar-hand`}

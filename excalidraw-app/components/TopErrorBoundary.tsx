@@ -28,7 +28,7 @@ export class TopErrorBoundary extends React.Component<
     for (const [key, value] of Object.entries({ ...localStorage })) {
       try {
         _localStorage[key] = JSON.parse(value);
-      } catch (error: any) {
+      } catch {
         _localStorage[key] = value;
       }
     }
@@ -80,7 +80,7 @@ export class TopErrorBoundary extends React.Component<
             <Trans
               i18nKey="errorSplash.headingMain"
               button={(el) => (
-                <button onClick={() => window.location.reload()}>{el}</button>
+                <button onClick={() => globalThis.location.reload()}>{el}</button>
               )}
             />
           </div>
@@ -92,7 +92,7 @@ export class TopErrorBoundary extends React.Component<
                   onClick={() => {
                     try {
                       localStorage.clear();
-                      window.location.reload();
+                      globalThis.location.reload();
                     } catch (error: any) {
                       console.error(error);
                     }

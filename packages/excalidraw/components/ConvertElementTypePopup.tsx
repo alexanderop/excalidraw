@@ -428,10 +428,9 @@ export const convertElementTypes = (
 
   const selectedElements = app.scene.getSelectedElements(app.state);
 
-  const selectedElementIds = selectedElements.reduce(
-    (acc, element) => ({ ...acc, [element.id]: true }),
-    {},
-  );
+  const selectedElementIds = Object.fromEntries(selectedElements.map(
+    ( element) => [element.id, true],
+  ));
 
   const advancement = direction === "right" ? 1 : -1;
 
@@ -693,7 +692,7 @@ const convertLineToElbow = (line: ExcalidrawLinearElement): LocalPoint[] => {
   const src = sanitizePoints(line.points);
 
   for (let i = 1; i < src.length; ++i) {
-    const start = ortho[ortho.length - 1];
+    const start = ortho.at(-1);
     const end = [...src[i]] as LocalPoint; // clone
 
     // snap tiny offsets onto the current axis
@@ -707,8 +706,7 @@ const convertLineToElbow = (line: ExcalidrawLinearElement): LocalPoint[] => {
     if (isVert(start, end) || isHorz(start, end)) {
       ortho.push(end);
     } else {
-      ortho.push(pointFrom<LocalPoint>(start[0], end[1]));
-      ortho.push(end);
+      ortho.push(pointFrom<LocalPoint>(start[0], end[1]), end);
     }
   }
 
@@ -724,12 +722,12 @@ const convertLineToElbow = (line: ExcalidrawLinearElement): LocalPoint[] => {
       trimmed.push(ortho[i]);
     }
   }
-  trimmed.push(ortho[ortho.length - 1]);
+  trimmed.push(ortho.at(-1));
 
   // 3. collapse micro “jogs” (V-H-V / H-V-H whose short leg < SNAP)
   const clean: LocalPoint[] = [trimmed[0]];
   for (let i = 1; i < trimmed.length - 1; ++i) {
-    const a = clean[clean.length - 1];
+    const a = clean.at(-1);
     const b = trimmed[i];
     const c = trimmed[i + 1];
 
@@ -750,7 +748,7 @@ const convertLineToElbow = (line: ExcalidrawLinearElement): LocalPoint[] => {
           }
         } else {
           // … absorb leg 1 – slide the whole first leg onto *b-c* axis
-          // eslint-disable-next-line no-lonely-if
+           
           if (v2) {
             for (
               let k = clean.length - 1;
@@ -775,7 +773,7 @@ const convertLineToElbow = (line: ExcalidrawLinearElement): LocalPoint[] => {
     }
     clean.push(b);
   }
-  clean.push(trimmed[trimmed.length - 1]);
+  clean.push(trimmed.at(-1));
   return clean;
 };
 
@@ -787,7 +785,7 @@ const sanitizePoints = (points: readonly LocalPoint[]): LocalPoint[] => {
   const sanitized: LocalPoint[] = [points[0]];
 
   for (let i = 1; i < points.length; i++) {
-    const [x1, y1] = sanitized[sanitized.length - 1];
+    const [x1, y1] = sanitized.at(-1);
     const [x2, y2] = points[i];
 
     if (x1 !== x2 || y1 !== y2) {
@@ -817,7 +815,7 @@ const convertElementType = <
 ): ExcalidrawElement => {
   if (!isValidConversion(element.type, targetType)) {
     if (!isProdEnv()) {
-      throw Error(`Invalid conversion from ${element.type} to ${targetType}.`);
+      throw new Error(`Invalid conversion from ${element.type} to ${targetType}.`);
     }
     return element;
   }

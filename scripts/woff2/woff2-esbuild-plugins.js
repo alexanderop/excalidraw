@@ -1,6 +1,6 @@
-const { execSync } = require("child_process");
-const fs = require("fs");
-const path = require("path");
+const { execSync } = require("node:child_process");
+const fs = require("node:fs");
+const path = require("node:path");
 
 const { Font } = require("fonteditor-core");
 const wawoff = require("wawoff2");
@@ -147,7 +147,7 @@ module.exports.woff2ServerPlugin = (options = {}) => {
           type: "ttf",
         });
 
-        const sortedFonts = Array.from(fonts.entries()).sort(
+        const sortedFonts = [...fonts.entries()].sort(
           ([family1], [family2]) => (family1 > family2 ? 1 : -1),
         );
 

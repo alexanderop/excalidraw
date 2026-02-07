@@ -78,9 +78,9 @@ const MermaidToExcalidraw = ({
           const err = result.error ?? new Error("Invalid mermaid definition");
           setError(err);
         }
-      } catch (err) {
+      } catch (error_) {
         if (isDevEnv()) {
-          console.error("Failed to parse mermaid definition", err);
+          console.error("Failed to parse mermaid definition", error_);
         }
       }
     };

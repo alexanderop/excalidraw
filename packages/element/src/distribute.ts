@@ -90,9 +90,8 @@ export const distributeElements = (
     const translation = {
       x: 0,
       y: 0,
-    };
+     [distribution.axis]: pos - box[start],};
 
-    translation[distribution.axis] = pos - box[start];
 
     pos += step;
     pos += box[extent];

@@ -51,7 +51,7 @@ describe("Queue", () => {
     const p2 = queue.push(createJobFactory(err));
     const p3 = queue.push(createJobFactory("C"));
 
-    const p2err = p2.catch((err) => err);
+    const p2err = p2.catch((error) => error);
 
     await p3;
 

@@ -21,10 +21,10 @@ export const getTextEditor = async ({
       return query();
     }
     return query();
-  } catch (err: any) {
-    stripIgnoredNodesFromErrorMessage(err);
-    err.stack = error.stack;
-    throw err;
+  } catch (error_: any) {
+    stripIgnoredNodesFromErrorMessage(error_);
+    error_.stack = error.stack;
+    throw error_;
   }
 };
 

@@ -95,7 +95,7 @@ const deleteSelectedElements = (
       }
 
       if (el.boundElements) {
-        el.boundElements.forEach((candidate) => {
+        for (const candidate of el.boundElements) {
           const bound = app.scene.getNonDeletedElementsMap().get(candidate.id);
           if (bound && isElbowArrow(bound)) {
             app.scene.mutateElement(bound, {
@@ -107,7 +107,7 @@ const deleteSelectedElements = (
                 el.id === bound.endBinding?.elementId ? null : bound.endBinding,
             });
           }
-        });
+        }
       }
       return newElementWith(el, { isDeleted: true });
     }
@@ -147,10 +147,8 @@ const deleteSelectedElements = (
 
       const lastElementInGroup = elems[0];
       if (lastElementInGroup) {
-        const editingGroupIdx = lastElementInGroup.groupIds.findIndex(
-          (groupId) => {
-            return groupId === appState.editingGroupId;
-          },
+        const editingGroupIdx = lastElementInGroup.groupIds.indexOf(
+          appState.editingGroupId,
         );
         const superGroupId = lastElementInGroup.groupIds[editingGroupIdx + 1];
         if (superGroupId) {
@@ -160,9 +158,9 @@ const deleteSelectedElements = (
           if (elems.length > 1) {
             nextEditingGroupId = superGroupId;
 
-            elems.forEach((el) => {
+            for (const el of elems) {
               selectedElementIds[el.id] = true;
-            });
+            }
           }
         }
       }
@@ -195,7 +193,7 @@ const handleGroupEditingState = (
       getNonDeletedElements(elements),
       appState.editingGroupId!,
     );
-    if (siblingElements.length) {
+    if (siblingElements.length > 0) {
       return {
         ...appState,
         selectedElementIds: { [siblingElements[0].id]: true },

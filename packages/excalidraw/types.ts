@@ -63,7 +63,7 @@ import type { isOverScrollBars } from "./scene/scrollbars";
 import type React from "react";
 import type { JSX } from "react";
 
-export type { App };
+
 
 export type SocketId = string & { _brand: "SocketId" };
 
@@ -964,3 +964,5 @@ export type Offsets = Partial<{
   bottom: number;
   left: number;
 }>;
+
+export {type default as App} from "./components/App";

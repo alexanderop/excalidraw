@@ -219,7 +219,7 @@ export const getTransformHandleTypeFromCoords = <
 const RESIZE_CURSORS = ["ns", "nesw", "ew", "nwse"];
 const rotateResizeCursor = (cursor: string, angle: number) => {
   const index = RESIZE_CURSORS.indexOf(cursor);
-  if (index >= 0) {
+  if (index !== -1) {
     const a = Math.round(angle / (Math.PI / 4));
     cursor = RESIZE_CURSORS[(index + a) % RESIZE_CURSORS.length];
   }
@@ -240,31 +240,28 @@ export const getCursorForResizingElement = (resizingElement: {
 
   switch (transformHandleType) {
     case "n":
-    case "s":
+    case "s": {
       cursor = "ns";
       break;
+    }
     case "w":
-    case "e":
+    case "e": {
       cursor = "ew";
       break;
+    }
     case "nw":
-    case "se":
-      if (shouldSwapCursors) {
-        cursor = "nesw";
-      } else {
-        cursor = "nwse";
-      }
+    case "se": {
+      cursor = shouldSwapCursors ? "nesw" : "nwse";
       break;
+    }
     case "ne":
-    case "sw":
-      if (shouldSwapCursors) {
-        cursor = "nwse";
-      } else {
-        cursor = "nesw";
-      }
+    case "sw": {
+      cursor = shouldSwapCursors ? "nwse" : "nesw";
       break;
-    case "rotation":
+    }
+    case "rotation": {
       return "grab";
+    }
   }
 
   if (cursor && element) {

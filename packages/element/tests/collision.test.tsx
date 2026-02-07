@@ -21,7 +21,7 @@ describe("check rotated elements can be hit:", () => {
       y: 0,
       width: 124,
       height: 302,
-      angle: 1.8700426423973724,
+      angle: 1.870_042_642_397_372_4,
       points: [
         [0, 0],
         [120, -198],
@@ -30,9 +30,9 @@ describe("check rotated elements can be hit:", () => {
     });
     const hit = hitElementItself({
       point: pointFrom<GlobalPoint>(88, -68),
-      element: window.h.elements[0],
+      element: globalThis.h.elements[0],
       threshold: 10,
-      elementsMap: window.h.scene.getNonDeletedElementsMap(),
+      elementsMap: globalThis.h.scene.getNonDeletedElementsMap(),
     });
     expect(hit).toBe(true);
   });
@@ -52,7 +52,7 @@ describe("hitElementItself cache", () => {
         backgroundColor: "#ffffff",
       }),
       threshold: Infinity,
-      elementsMap: new Map([]),
+      elementsMap: new Map(),
     });
 
     localStorage.clear();

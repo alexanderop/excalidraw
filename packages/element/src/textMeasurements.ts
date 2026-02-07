@@ -20,7 +20,7 @@ export const measureText = (
     // lines would be stripped from computation
     .map((x) => x || " ")
     .join("\n");
-  const fontSize = parseFloat(font);
+  const fontSize = Number.parseFloat(font);
   const height = getTextHeight(_text, fontSize, lineHeight);
   const width = getTextWidth(_text, font);
   return { width, height };
@@ -65,7 +65,7 @@ export const normalizeText = (text: string) => {
   return (
     normalizeEOL(text)
       // replace tabs with spaces so they render and measure correctly
-      .replace(/\t/g, "        ")
+      .replaceAll('\t', "        ")
   );
 };
 
@@ -160,9 +160,9 @@ export const getLineWidth = (text: string, font: FontString) => {
 export const getTextWidth = (text: string, font: FontString) => {
   const lines = splitIntoLines(text);
   let width = 0;
-  lines.forEach((line) => {
+  for (const line of lines) {
     width = Math.max(width, getLineWidth(line, font));
-  });
+  }
 
   return width;
 };

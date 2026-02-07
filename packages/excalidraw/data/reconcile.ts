@@ -49,7 +49,7 @@ const validateIndicesThrottled = throttle(
     localElements: readonly OrderedExcalidrawElement[],
     remoteElements: readonly RemoteExcalidrawElement[],
   ) => {
-    if (isDevEnv() || isTestEnv() || window?.DEBUG_FRACTIONAL_INDICES) {
+    if (isDevEnv() || isTestEnv() || globalThis?.DEBUG_FRACTIONAL_INDICES) {
       // create new instances due to the mutation
       const elements = syncInvalidIndices(
         orderedElements.map((x) => ({ ...x })),

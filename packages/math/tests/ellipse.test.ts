@@ -14,14 +14,14 @@ import type { Ellipse, GlobalPoint } from "../src/types";
 describe("point and ellipse", () => {
   it("point on ellipse", () => {
     const target: Ellipse<GlobalPoint> = ellipse(pointFrom(1, 2), 2, 1);
-    [
+    for (const p of [
       pointFrom(1, 3),
       pointFrom(1, 1),
       pointFrom(3, 2),
       pointFrom(-1, 2),
-    ].forEach((p) => {
+    ]) {
       expect(ellipseTouchesPoint(p, target)).toBe(true);
-    });
+    }
     expect(ellipseTouchesPoint(pointFrom(-0.4, 2.7), target, 0.1)).toBe(true);
     expect(ellipseTouchesPoint(pointFrom(-0.4, 2.71), target, 0.01)).toBe(true);
 
@@ -40,14 +40,14 @@ describe("point and ellipse", () => {
 
   it("point in ellipse", () => {
     const target: Ellipse<GlobalPoint> = ellipse(pointFrom(0, 0), 2, 1);
-    [
+    for (const p of [
       pointFrom(0, 1),
       pointFrom(0, -1),
       pointFrom(2, 0),
       pointFrom(-2, 0),
-    ].forEach((p) => {
+    ]) {
       expect(ellipseIncludesPoint(p, target)).toBe(true);
-    });
+    }
 
     expect(ellipseIncludesPoint(pointFrom(-1, 0.8), target)).toBe(true);
     expect(ellipseIncludesPoint(pointFrom(1, -0.8), target)).toBe(true);

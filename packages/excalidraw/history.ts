@@ -229,7 +229,7 @@ export class History {
   }
 
   private static pop(stack: HistoryDelta[]): HistoryDelta | null {
-    if (!stack.length) {
+    if (stack.length === 0) {
       return null;
     }
 

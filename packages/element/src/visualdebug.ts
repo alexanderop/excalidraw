@@ -119,13 +119,12 @@ export const debugDrawLine = (
     isLineSegment(segment) ? [segment] : segment
   ) as LineSegment<GlobalPoint>[];
 
-  segments.forEach((data) =>
-    addToCurrentFrame({
+  for (const data of segments) addToCurrentFrame({
       color: opts?.color ?? "red",
       data,
       permanent: !!opts?.permanent,
-    }),
-  );
+    })
+  ;
 };
 
 export const debugDrawPolygon = (
@@ -233,25 +232,24 @@ export const debugDrawPoints = (
   },
   options?: any,
 ) => {
-  points.forEach((p) =>
-    debugDrawPoint(pointFrom<GlobalPoint>(x + p[0], y + p[1]), options),
-  );
+  for (const p of points) debugDrawPoint(pointFrom<GlobalPoint>(x + p[0], y + p[1]), options)
+  ;
 };
 
 export const debugCloseFrame = () => {
-  window.visualDebug?.data.push([]);
+  globalThis.visualDebug?.data.push([]);
 };
 
 export const debugClear = () => {
-  if (window.visualDebug?.data) {
-    window.visualDebug.data = [];
+  if (globalThis.visualDebug?.data) {
+    globalThis.visualDebug.data = [];
   }
 };
 
 const addToCurrentFrame = (element: DebugElement) => {
-  if (window.visualDebug?.data && window.visualDebug.data.length === 0) {
-    window.visualDebug.data[0] = [];
+  if (globalThis.visualDebug?.data && globalThis.visualDebug.data.length === 0) {
+    globalThis.visualDebug.data[0] = [];
   }
-  window.visualDebug?.data &&
-    window.visualDebug.data[window.visualDebug.data.length - 1].push(element);
+  globalThis.visualDebug?.data &&
+    globalThis.visualDebug.data.at(-1).push(element);
 };

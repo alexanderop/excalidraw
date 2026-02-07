@@ -193,10 +193,10 @@ export const actionSaveToActiveFile = register({
         },
       };
     } catch (error: any) {
-      if (error?.name !== "AbortError") {
-        console.error(error);
-      } else {
+      if (error?.name === "AbortError") {
         console.warn(error);
+      } else {
+        console.error(error);
       }
       return { captureUpdate: CaptureUpdateAction.EVENTUALLY };
     }
@@ -232,10 +232,10 @@ export const actionSaveFileToDisk = register({
         },
       };
     } catch (error: any) {
-      if (error?.name !== "AbortError") {
-        console.error(error);
-      } else {
+      if (error?.name === "AbortError") {
         console.warn(error);
+      } else {
+        console.error(error);
       }
       return { captureUpdate: CaptureUpdateAction.EVENTUALLY };
     }

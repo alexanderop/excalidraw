@@ -80,14 +80,14 @@ describe("point and ellipse", () => {
   };
 
   it("point on ellipse", () => {
-    [
+    for (const p of [
       pointFrom(0, 1),
       pointFrom(0, -1),
       pointFrom(2, 0),
       pointFrom(-2, 0),
-    ].forEach((p) => {
+    ]) {
       expect(pointOnEllipse(p, ellipse)).toBe(true);
-    });
+    }
     expect(pointOnEllipse(pointFrom(-1.4, 0.7), ellipse, 0.1)).toBe(true);
     expect(pointOnEllipse(pointFrom(-1.4, 0.71), ellipse, 0.01)).toBe(true);
 
@@ -105,14 +105,14 @@ describe("point and ellipse", () => {
   });
 
   it("point in ellipse", () => {
-    [
+    for (const p of [
       pointFrom(0, 1),
       pointFrom(0, -1),
       pointFrom(2, 0),
       pointFrom(-2, 0),
-    ].forEach((p) => {
+    ]) {
       expect(pointInEllipse(p, ellipse)).toBe(true);
-    });
+    }
 
     expect(pointInEllipse(pointFrom(-1, 0.8), ellipse)).toBe(true);
     expect(pointInEllipse(pointFrom(1, -0.8), ellipse)).toBe(true);

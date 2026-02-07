@@ -146,7 +146,7 @@ export class Delta<T> {
 
   public static isEmpty<T>(delta: Delta<T>): boolean {
     return (
-      !Object.keys(delta.deleted).length && !Object.keys(delta.inserted).length
+      Object.keys(delta.deleted).length === 0 && Object.keys(delta.inserted).length === 0
     );
   }
 
@@ -240,8 +240,8 @@ export class Delta<T> {
       }, {} as RecordLike);
 
       if (
-        Object.keys(deletedDifferences).length ||
-        Object.keys(insertedDifferences).length
+        Object.keys(deletedDifferences).length > 0 ||
+        Object.keys(insertedDifferences).length > 0
       ) {
         Reflect.set(deleted, property, deletedDifferences);
         Reflect.set(inserted, property, insertedDifferences);
@@ -292,8 +292,8 @@ export class Delta<T> {
       );
 
       if (
-        Object.keys(deletedDifferences).length ||
-        Object.keys(insertedDifferences).length
+        Object.keys(deletedDifferences).length > 0 ||
+        Object.keys(insertedDifferences).length > 0
       ) {
         const deletedValue = deletedArray.filter(
           (x) => deletedDifferences[groupBy ? groupBy(x) : String(x)],
@@ -391,9 +391,7 @@ export class Delta<T> {
     object2: T,
     skipShallowCompare = false,
   ) {
-    return Array.from(
-      this.distinctKeysIterator("left", object1, object2, skipShallowCompare),
-    ).sort();
+    return [...this.distinctKeysIterator("left", object1, object2, skipShallowCompare)].sort();
   }
 
   /**
@@ -404,9 +402,7 @@ export class Delta<T> {
     object2: T,
     skipShallowCompare = false,
   ) {
-    return Array.from(
-      this.distinctKeysIterator("right", object1, object2, skipShallowCompare),
-    ).sort();
+    return [...this.distinctKeysIterator("right", object1, object2, skipShallowCompare)].sort();
   }
 
   /**
@@ -417,9 +413,7 @@ export class Delta<T> {
     object2: T,
     skipShallowCompare = false,
   ) {
-    return Array.from(
-      this.distinctKeysIterator("inner", object1, object2, skipShallowCompare),
-    ).sort();
+    return [...this.distinctKeysIterator("inner", object1, object2, skipShallowCompare)].sort();
   }
 
   /**
@@ -430,9 +424,7 @@ export class Delta<T> {
     object2: T,
     skipShallowCompare = false,
   ) {
-    return Array.from(
-      this.distinctKeysIterator("full", object1, object2, skipShallowCompare),
-    ).sort();
+    return [...this.distinctKeysIterator("full", object1, object2, skipShallowCompare)].sort();
   }
 
   /**
@@ -454,22 +446,34 @@ export class Delta<T> {
 
     let keys: string[] = [];
 
-    if (join === "left") {
+    switch (join) {
+    case "left": {
       keys = Object.keys(object1);
-    } else if (join === "right") {
+    
+    break;
+    }
+    case "right": {
       keys = Object.keys(object2);
-    } else if (join === "inner") {
+    
+    break;
+    }
+    case "inner": {
       keys = Object.keys(object1).filter((key) => key in object2);
-    } else if (join === "full") {
-      keys = Array.from(
-        new Set([...Object.keys(object1), ...Object.keys(object2)]),
-      );
-    } else {
+    
+    break;
+    }
+    case "full": {
+      keys = [...new Set([...Object.keys(object1), ...Object.keys(object2)])];
+    
+    break;
+    }
+    default: {
       assertNever(
         join,
         `Unknown distinctKeysIterator's join param "${join}"`,
         true,
       );
+    }
     }
 
     for (const key of keys) {
@@ -596,24 +600,24 @@ export class AppStateDelta implements DeltaContainer<AppState> {
     const mergedDeleted: Partial<ObservedAppState> = {};
 
     if (
-      Object.keys(mergedDeletedSelectedElementIds).length ||
-      Object.keys(mergedInsertedSelectedElementIds).length
+      Object.keys(mergedDeletedSelectedElementIds).length > 0 ||
+      Object.keys(mergedInsertedSelectedElementIds).length > 0
     ) {
       mergedDeleted.selectedElementIds = mergedDeletedSelectedElementIds;
       mergedInserted.selectedElementIds = mergedInsertedSelectedElementIds;
     }
 
     if (
-      Object.keys(mergedDeletedSelectedGroupIds).length ||
-      Object.keys(mergedInsertedSelectedGroupIds).length
+      Object.keys(mergedDeletedSelectedGroupIds).length > 0 ||
+      Object.keys(mergedInsertedSelectedGroupIds).length > 0
     ) {
       mergedDeleted.selectedGroupIds = mergedDeletedSelectedGroupIds;
       mergedInserted.selectedGroupIds = mergedInsertedSelectedGroupIds;
     }
 
     if (
-      Object.keys(mergedDeletedLockedMultiSelections).length ||
-      Object.keys(mergedInsertedLockedMultiSelections).length
+      Object.keys(mergedDeletedLockedMultiSelections).length > 0 ||
+      Object.keys(mergedInsertedLockedMultiSelections).length > 0
     ) {
       mergedDeleted.lockedMultiSelections = mergedDeletedLockedMultiSelections;
       mergedInserted.lockedMultiSelections =
@@ -685,9 +689,9 @@ export class AppStateDelta implements DeltaContainer<AppState> {
         selectedGroupIds: mergedSelectedGroupIds,
         lockedMultiSelections: mergedLockedMultiSelections,
         selectedLinearElement:
-          typeof insertedSelectedLinearElement !== "undefined"
-            ? selectedLinearElement
-            : appState.selectedLinearElement,
+          insertedSelectedLinearElement === undefined
+            ? appState.selectedLinearElement
+            : selectedLinearElement,
       };
 
       const constainsVisibleChanges = this.filterInvisibleChanges(
@@ -697,12 +701,12 @@ export class AppStateDelta implements DeltaContainer<AppState> {
       );
 
       return [nextAppState, constainsVisibleChanges];
-    } catch (e) {
+    } catch (error) {
       // shouldn't really happen, but just in case
-      console.error(`Couldn't apply appstate change`, e);
+      console.error(`Couldn't apply appstate change`, error);
 
       if (isTestEnv() || isDevEnv()) {
-        throw e;
+        throw error;
       }
 
       return [appState, false];
@@ -767,7 +771,7 @@ export class AppStateDelta implements DeltaContainer<AppState> {
       // check whether delta properties are related to the existing non-deleted elements
       for (const key of changedElementsProps) {
         switch (key) {
-          case "selectedElementIds":
+          case "selectedElementIds": {
             nextAppState[key] = AppStateDelta.filterSelectedElements(
               nextAppState[key],
               nextElements,
@@ -775,7 +779,8 @@ export class AppStateDelta implements DeltaContainer<AppState> {
             );
 
             break;
-          case "selectedGroupIds":
+          }
+          case "selectedGroupIds": {
             nextAppState[key] = AppStateDelta.filterSelectedGroups(
               nextAppState[key],
               nonDeletedGroupIds,
@@ -783,13 +788,11 @@ export class AppStateDelta implements DeltaContainer<AppState> {
             );
 
             break;
+          }
           case "croppingElementId": {
             const croppingElementId = nextAppState[key];
 
-            if (!croppingElementId) {
-              // previously there was a croppingElementId (assuming visible), now there is none
-              visibleDifferenceFlag.value = true;
-            } else {
+            if (croppingElementId) {
               const element = nextElements.get(croppingElementId);
 
               if (element && !element.isDeleted) {
@@ -797,11 +800,14 @@ export class AppStateDelta implements DeltaContainer<AppState> {
               } else {
                 nextAppState[key] = null;
               }
+            } else {
+              // previously there was a croppingElementId (assuming visible), now there is none
+              visibleDifferenceFlag.value = true;
             }
 
             break;
           }
-          case "editingGroupId":
+          case "editingGroupId": {
             const editingGroupId = nextAppState[key];
 
             if (!editingGroupId) {
@@ -816,13 +822,11 @@ export class AppStateDelta implements DeltaContainer<AppState> {
             }
 
             break;
-          case "selectedLinearElement":
+          }
+          case "selectedLinearElement": {
             const nextLinearElement = nextAppState[key];
 
-            if (!nextLinearElement) {
-              // previously there was a linear element (assuming visible), now there is none
-              visibleDifferenceFlag.value = true;
-            } else {
+            if (nextLinearElement) {
               const element = nextElements.get(nextLinearElement.elementId);
 
               if (element && !element.isDeleted) {
@@ -832,10 +836,14 @@ export class AppStateDelta implements DeltaContainer<AppState> {
                 // there was assigned a linear element now, but it's deleted
                 nextAppState[key] = null;
               }
+            } else {
+              // previously there was a linear element (assuming visible), now there is none
+              visibleDifferenceFlag.value = true;
             }
 
             break;
-          case "lockedMultiSelections":
+          }
+          case "lockedMultiSelections": {
             const prevLockedUnits = prevAppState[key] || {};
             const nextLockedUnits = nextAppState[key] || {};
 
@@ -846,7 +854,8 @@ export class AppStateDelta implements DeltaContainer<AppState> {
               visibleDifferenceFlag.value = true;
             }
             break;
-          case "activeLockedId":
+          }
+          case "activeLockedId": {
             const prevHitLockedId = prevAppState[key] || null;
             const nextHitLockedId = nextAppState[key] || null;
 
@@ -857,12 +866,14 @@ export class AppStateDelta implements DeltaContainer<AppState> {
               visibleDifferenceFlag.value = true;
             }
             break;
-          default:
+          }
+          default: {
             assertNever(
               key,
               `Unknown ObservedElementsAppState's key "${key}"`,
               true,
             );
+          }
         }
       }
     }
@@ -877,7 +888,7 @@ export class AppStateDelta implements DeltaContainer<AppState> {
   ) {
     const ids = Object.keys(selectedElementIds);
 
-    if (!ids.length) {
+    if (ids.length === 0) {
       // previously there were ids (assuming related to visible elements), now there are none
       visibleDifferenceFlag.value = true;
       return selectedElementIds;
@@ -906,7 +917,7 @@ export class AppStateDelta implements DeltaContainer<AppState> {
   ) {
     const ids = Object.keys(selectedGroupIds);
 
-    if (!ids.length) {
+    if (ids.length === 0) {
       // previously there were ids (assuming related to visible groups), now there are none
       visibleDifferenceFlag.value = true;
       return selectedGroupIds;
@@ -988,12 +999,12 @@ export class AppStateDelta implements DeltaContainer<AppState> {
         "lockedMultiSelections",
         (prevValue) => (prevValue ?? {}) as ValueOf<T["lockedMultiSelections"]>,
       );
-    } catch (e) {
+    } catch (error) {
       // if postprocessing fails it does not make sense to bubble up, but let's make sure we know about it
       console.error(`Couldn't postprocess appstate change deltas.`);
 
       if (isTestEnv() || isDevEnv()) {
-        throw e;
+        throw error;
       }
     } finally {
       return [deleted, inserted];
@@ -1191,10 +1202,10 @@ export class ElementsDelta implements DeltaContainer<SceneElementsMap> {
           ElementsDelta.stripIrrelevantProps,
         );
 
-        if (!prevElement.isDeleted) {
-          removed[prevElement.id] = delta;
-        } else {
+        if (prevElement.isDeleted) {
           updated[prevElement.id] = delta;
+        } else {
+          removed[prevElement.id] = delta;
         }
       }
     }
@@ -1220,10 +1231,10 @@ export class ElementsDelta implements DeltaContainer<SceneElementsMap> {
         );
 
         // ignore updates which would "delete" already deleted element
-        if (!nextElement.isDeleted) {
-          added[nextElement.id] = delta;
-        } else {
+        if (nextElement.isDeleted) {
           updated[nextElement.id] = delta;
+        } else {
+          added[nextElement.id] = delta;
         }
 
         continue;
@@ -1312,12 +1323,14 @@ export class ElementsDelta implements DeltaContainer<SceneElementsMap> {
         let element: OrderedExcalidrawElement | undefined;
 
         switch (partialType) {
-          case "deleted":
+          case "deleted": {
             element = prevElement;
             break;
-          case "inserted":
+          }
+          case "inserted": {
             element = nextElement;
             break;
+          }
         }
 
         // the element wasn't found -> don't update the partial
@@ -1334,11 +1347,13 @@ export class ElementsDelta implements DeltaContainer<SceneElementsMap> {
           // do not update following props:
           // - `boundElements`, as it is a reference value which is postprocessed to contain only deleted/inserted keys
           switch (key) {
-            case "boundElements":
+            case "boundElements": {
               latestPartial[key] = partial[key];
               break;
-            default:
+            }
+            default: {
               latestPartial[key] = element[key];
+            }
           }
         }
 
@@ -1356,16 +1371,12 @@ export class ElementsDelta implements DeltaContainer<SceneElementsMap> {
 
         let latestDelta: Delta<ElementPartial> | null = null;
 
-        if (prevElement || nextElement) {
-          latestDelta = Delta.create(
+        latestDelta = prevElement || nextElement ? Delta.create(
             delta.deleted,
             delta.inserted,
             modifier(prevElement, nextElement),
             modifierOptions,
-          );
-        } else {
-          latestDelta = delta;
-        }
+          ) : delta;
 
         // it might happen that after applying latest changes the delta itself does not contain any changes
         if (Delta.isInnerDifferent(latestDelta.deleted, latestDelta.inserted)) {
@@ -1426,11 +1437,11 @@ export class ElementsDelta implements DeltaContainer<SceneElementsMap> {
         ...updatedElements,
         ...affectedElements,
       ]);
-    } catch (e) {
-      console.error(`Couldn't apply elements delta`, e);
+    } catch (error) {
+      console.error(`Couldn't apply elements delta`, error);
 
       if (isTestEnv() || isDevEnv()) {
-        throw e;
+        throw error;
       }
 
       // should not really happen, but just in case we cannot apply deltas, let's return the previous elements with visible change set to `true`
@@ -1450,14 +1461,14 @@ export class ElementsDelta implements DeltaContainer<SceneElementsMap> {
       );
 
       ElementsDelta.redrawElements(nextElements, changedElements);
-    } catch (e) {
+    } catch (error) {
       console.error(
         `Couldn't mutate elements after applying elements change`,
-        e,
+        error,
       );
 
       if (isTestEnv() || isDevEnv()) {
-        throw e;
+        throw error;
       }
     } finally {
       return [nextElements, flags.containsVisibleDifference];
@@ -1492,8 +1503,8 @@ export class ElementsDelta implements DeltaContainer<SceneElementsMap> {
         ) ?? [];
 
       if (
-        !mergedDeletedBoundElements.length &&
-        !mergedInsertedBoundElements.length
+        mergedDeletedBoundElements.length === 0 &&
+        mergedInsertedBoundElements.length === 0
       ) {
         return;
       }
@@ -1511,37 +1522,35 @@ export class ElementsDelta implements DeltaContainer<SceneElementsMap> {
     for (const [id, nextDelta] of Object.entries(added)) {
       const prevDelta = this.added[id] ?? this.removed[id] ?? this.updated[id];
 
-      if (!prevDelta) {
-        this.added[id] = nextDelta;
-      } else {
+      if (prevDelta) {
         const mergedDelta = mergeBoundElements(prevDelta, nextDelta);
         delete this.removed[id];
         delete this.updated[id];
 
         this.added[id] = Delta.merge(prevDelta, nextDelta, mergedDelta);
+      } else {
+        this.added[id] = nextDelta;
       }
     }
 
     for (const [id, nextDelta] of Object.entries(removed)) {
       const prevDelta = this.added[id] ?? this.removed[id] ?? this.updated[id];
 
-      if (!prevDelta) {
-        this.removed[id] = nextDelta;
-      } else {
+      if (prevDelta) {
         const mergedDelta = mergeBoundElements(prevDelta, nextDelta);
         delete this.added[id];
         delete this.updated[id];
 
         this.removed[id] = Delta.merge(prevDelta, nextDelta, mergedDelta);
+      } else {
+        this.removed[id] = nextDelta;
       }
     }
 
     for (const [id, nextDelta] of Object.entries(updated)) {
       const prevDelta = this.added[id] ?? this.removed[id] ?? this.updated[id];
 
-      if (!prevDelta) {
-        this.updated[id] = nextDelta;
-      } else {
+      if (prevDelta) {
         const mergedDelta = mergeBoundElements(prevDelta, nextDelta);
         const updatedDelta = Delta.merge(prevDelta, nextDelta, mergedDelta);
 
@@ -1552,6 +1561,8 @@ export class ElementsDelta implements DeltaContainer<SceneElementsMap> {
         } else {
           this.updated[id] = updatedDelta;
         }
+      } else {
+        this.updated[id] = nextDelta;
       }
     }
 
@@ -1780,9 +1791,9 @@ export class ElementsDelta implements DeltaContainer<SceneElementsMap> {
           ...elementUpdates,
           // don't modify the version further, if it's already different
           version:
-            prevElement?.version !== nextElement.version
-              ? nextElement.version
-              : nextVersion,
+            prevElement?.version === nextElement.version
+              ? nextVersion
+              : nextElement.version,
         });
       }
 
@@ -1801,7 +1812,7 @@ export class ElementsDelta implements DeltaContainer<SceneElementsMap> {
     }
 
     // updated delta is affecting the binding only in case it contains changed binding or bindable property
-    for (const [id] of Array.from(Object.entries(this.updated)).filter(
+    for (const [id] of [...Object.entries(this.updated)].filter(
       ([_, delta]) =>
         Object.keys({ ...delta.deleted, ...delta.inserted }).find((prop) =>
           bindingProperties.has(prop as BindingProp | BindableProp),
@@ -1818,7 +1829,7 @@ export class ElementsDelta implements DeltaContainer<SceneElementsMap> {
 
     // filter only previous elements, which were now affected
     const prevAffectedElements = new Map(
-      Array.from(prevElements).filter(([id]) => nextAffectedElements.has(id)),
+      [...prevElements].filter(([id]) => nextAffectedElements.has(id)),
     );
 
     // calculate complete deltas for affected elements, and squash them back to the current deltas
@@ -1902,11 +1913,11 @@ export class ElementsDelta implements DeltaContainer<SceneElementsMap> {
 
       // needs ordered nextElements to avoid z-index binding issues
       ElementsDelta.redrawBoundArrows(tempScene, changedElements);
-    } catch (e) {
-      console.error(`Couldn't redraw elements`, e);
+    } catch (error) {
+      console.error(`Couldn't redraw elements`, error);
 
       if (isTestEnv() || isDevEnv()) {
-        throw e;
+        throw error;
       }
     } finally {
       return nextElements;
@@ -1987,7 +1998,7 @@ export class ElementsDelta implements DeltaContainer<SceneElementsMap> {
       return elements;
     }
 
-    const unordered = Array.from(elements.values());
+    const unordered = [...elements.values()];
     const ordered = orderByFractionalIndex([...unordered]);
     const moved = Delta.getRightDifferences(unordered, ordered, true).reduce(
       (acc, arrayIndex) => {
@@ -2001,7 +2012,7 @@ export class ElementsDelta implements DeltaContainer<SceneElementsMap> {
       new Map(),
     );
 
-    if (!flags.containsVisibleDifference && moved.size) {
+    if (!flags.containsVisibleDifference && moved.size > 0) {
       // we found a difference in order!
       flags.containsVisibleDifference = true;
     }
@@ -2044,12 +2055,12 @@ export class ElementsDelta implements DeltaContainer<SceneElementsMap> {
         Reflect.deleteProperty(deleted, "points");
         Reflect.deleteProperty(inserted, "points");
       }
-    } catch (e) {
+    } catch (error) {
       // if postprocessing fails, it does not make sense to bubble up, but let's make sure we know about it
       console.error(`Couldn't postprocess elements delta.`);
 
       if (isTestEnv() || isDevEnv()) {
-        throw e;
+        throw error;
       }
     } finally {
       return [deleted, inserted];

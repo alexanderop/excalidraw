@@ -24,8 +24,8 @@ describe("Test measureText", () => {
         ...params,
       });
       expect(getContainerCoords(element)).toEqual({
-        x: 44.2893218813452455,
-        y: 39.64466094067262,
+        x: 44.289_321_881_345_245_5,
+        y: 39.644_660_940_672_62,
       });
     });
 
@@ -121,8 +121,8 @@ describe("Test measureText", () => {
     const boundTextElement = API.createElement({
       type: "text",
       id: "text-id",
-      x: 560.51171875,
-      y: 202.033203125,
+      x: 560.511_718_75,
+      y: 202.033_203_125,
       width: 154,
       height: 175,
       fontSize: 20,

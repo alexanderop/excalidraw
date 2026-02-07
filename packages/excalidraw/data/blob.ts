@@ -37,20 +37,14 @@ const parseFileContents = async (blob: Blob | File): Promise<string> => {
     try {
       return await (await import("./image")).decodePngMetadata(blob);
     } catch (error: any) {
-      if (error.message === "INVALID") {
-        throw new ImageSceneDataError(
+      const error_ = error.message === "INVALID" ? new ImageSceneDataError(
           "Image doesn't contain scene",
           "IMAGE_NOT_CONTAINS_SCENE_DATA",
-        );
-      } else {
-        throw new ImageSceneDataError("Error: cannot restore image");
-      }
+        ) : new ImageSceneDataError("Error: cannot restore image");
+      throw error_;
     }
   } else {
-    if ("text" in Blob) {
-      contents = await blob.text();
-    } else {
-      contents = await new Promise((resolve) => {
+    contents = await ("text" in Blob ? blob.text() : new Promise((resolve) => {
         const reader = new FileReader();
         reader.readAsText(blob, "utf8");
         reader.onloadend = () => {
@@ -58,22 +52,18 @@ const parseFileContents = async (blob: Blob | File): Promise<string> => {
             resolve(reader.result as string);
           }
         };
-      });
-    }
+      }));
     if (blob.type === MIME_TYPES.svg) {
       try {
         return decodeSvgBase64Payload({
           svg: contents,
         });
       } catch (error: any) {
-        if (error.message === "INVALID") {
-          throw new ImageSceneDataError(
+        const error_ = error.message === "INVALID" ? new ImageSceneDataError(
             "Image doesn't contain scene",
             "IMAGE_NOT_CONTAINS_SCENE_DATA",
-          );
-        } else {
-          throw new ImageSceneDataError("Error: cannot restore image");
-        }
+          ) : new ImageSceneDataError("Error: cannot restore image");
+        throw error_;
       }
     }
   }
@@ -258,7 +248,7 @@ export const canvasToBlob = async (
     to a 40-char base64 random id) */
 export const generateIdFromFile = async (file: File): Promise<FileId> => {
   try {
-    const hashBuffer = await window.crypto.subtle.digest(
+    const hashBuffer = await globalThis.crypto.subtle.digest(
       "SHA-1",
       await blobToArrayBuffer(file),
     );
@@ -372,7 +362,7 @@ export const ImageURLToFile = async (
   let response;
   try {
     response = await fetch(imageUrl);
-  } catch (error: any) {
+  } catch {
     throw new Error("Error: failed to fetch image", { cause: "FETCH_ERROR" });
   }
 

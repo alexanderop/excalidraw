@@ -6,8 +6,8 @@ import "../excalidraw-app/sentry";
 
 import ExcalidrawApp from "./App";
 
-window.__EXCALIDRAW_SHA__ = import.meta.env.VITE_APP_GIT_SHA;
-const rootElement = document.getElementById("root")!;
+globalThis.__EXCALIDRAW_SHA__ = import.meta.env.VITE_APP_GIT_SHA;
+const rootElement = document.querySelector("#root")!;
 const root = createRoot(rootElement);
 registerSW();
 root.render(

@@ -51,7 +51,7 @@ export const positionElementsOnGrid = <TElement extends ExcalidrawElement>(
       };
     });
 
-    unitBounds.forEach((unitBound, index) => {
+    for (const [index, unitBound] of unitBounds.entries()) {
       rowWidth += unitBound.width;
       // Add padding between units in the same row, but not after the last one
       if (index < unitBounds.length - 1) {
@@ -60,7 +60,7 @@ export const positionElementsOnGrid = <TElement extends ExcalidrawElement>(
       if (unitBound.height > maxUnitHeightInRow) {
         maxUnitHeightInRow = unitBound.height;
       }
-    });
+    }
 
     totalGridActualHeight += maxUnitHeightInRow;
     return {
@@ -78,35 +78,35 @@ export const positionElementsOnGrid = <TElement extends ExcalidrawElement>(
   let currentY = centerY - totalGridHeightWithPadding / 2;
 
   // Position atomic units row by row
-  rowProperties.forEach((rowProp) => {
+  for (const rowProp of rowProperties) {
     const { unitBounds, width: rowWidth, maxHeight: rowMaxHeight } = rowProp;
 
     // Calculate the starting X for the current row to center it horizontally around centerX
     let currentX = centerX - rowWidth / 2;
 
-    unitBounds.forEach((unitBound) => {
+    for (const unitBound of unitBounds) {
       // Calculate the offset needed to position this atomic unit
       const [originalMinX, originalMinY] = unitBound.bounds;
       const offsetX = currentX - originalMinX;
       const offsetY = currentY - originalMinY;
 
       // Apply the offset to all elements in this atomic unit
-      unitBound.elements.forEach((element) => {
+      for (const element of unitBound.elements) {
         res.push(
           newElementWith(element, {
             x: element.x + offsetX,
             y: element.y + offsetY,
           } as ElementUpdate<TElement>),
         );
-      });
+      }
 
       // Move X for the next unit in the row
       currentX += unitBound.width + padding;
-    });
+    }
 
     // Move Y to the starting position for the next row
     // This accounts for the tallest unit in the current row and the inter-row padding
     currentY += rowMaxHeight + padding;
-  });
+  }
   return res;
 };

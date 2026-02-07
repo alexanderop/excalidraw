@@ -40,7 +40,7 @@ export class ExcalidrawFontFace {
       return;
     }
 
-    const codepoints = Array.from(characters).map(
+    const codepoints = [...characters].map(
       (char) => char.codePointAt(0)!,
     );
 
@@ -70,8 +70,8 @@ export class ExcalidrawFontFace {
         );
 
         return base64;
-      } catch (e) {
-        errorMessages.push(`"${url.toString()}" returned error "${e}"`);
+      } catch (error) {
+        errorMessages.push(`"${url.toString()}" returned error "${error}"`);
       }
 
       i++;
@@ -84,7 +84,7 @@ export class ExcalidrawFontFace {
 
     // in case of issues, at least return the last url as a content
     // defaults to unpkg for bundled fonts (so that we don't have to host them forever) and http url for others
-    return this.urls.length ? this.urls[this.urls.length - 1].toString() : "";
+    return this.urls.length > 0 ? this.urls.at(-1).toString() : "";
   }
 
   public fetchFont(url: URL | DataURL): Promise<ArrayBuffer> {
@@ -120,10 +120,10 @@ export class ExcalidrawFontFace {
       .map((range) => {
         const [start, end] = range.replace("U+", "").split("-");
         if (end) {
-          return `\\u{${start}}-\\u{${end}}`;
+          return String.raw`\u{${start}}-\u{${end}}`;
         }
 
-        return `\\u{${start}}`;
+        return String.raw`\u{${start}}`;
       })
       .join("");
 
@@ -150,17 +150,17 @@ export class ExcalidrawFontFace {
     const assetUrl: string = uri.replace(/^\/+/, "");
     const urls: URL[] = [];
 
-    if (typeof window.EXCALIDRAW_ASSET_PATH === "string") {
+    if (typeof globalThis.EXCALIDRAW_ASSET_PATH === "string") {
       const normalizedBaseUrl = this.normalizeBaseUrl(
-        window.EXCALIDRAW_ASSET_PATH,
+        globalThis.EXCALIDRAW_ASSET_PATH,
       );
 
       urls.push(new URL(assetUrl, normalizedBaseUrl));
-    } else if (Array.isArray(window.EXCALIDRAW_ASSET_PATH)) {
-      window.EXCALIDRAW_ASSET_PATH.forEach((path) => {
+    } else if (Array.isArray(globalThis.EXCALIDRAW_ASSET_PATH)) {
+      for (const path of globalThis.EXCALIDRAW_ASSET_PATH) {
         const normalizedBaseUrl = this.normalizeBaseUrl(path);
         urls.push(new URL(assetUrl, normalizedBaseUrl));
-      });
+      }
     }
 
     // fallback url for bundled fonts
@@ -183,7 +183,7 @@ export class ExcalidrawFontFace {
       }
 
       return `format('${parts.pop()}')`;
-    } catch (error) {
+    } catch {
       return "";
     }
   }
@@ -197,7 +197,7 @@ export class ExcalidrawFontFace {
     if (/^\.?\//.test(result)) {
       result = new URL(
         result.replace(/^\.?\/+/, ""),
-        window?.location?.origin,
+        globalThis?.location?.origin,
       ).toString();
     }
 

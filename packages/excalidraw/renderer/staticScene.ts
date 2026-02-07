@@ -277,7 +277,7 @@ const _renderStaticScene = ({
 
   const groupsToBeAddedToFrame = new Set<string>();
 
-  visibleElements.forEach((element) => {
+  for (const element of visibleElements) {
     if (
       element.groupIds.length > 0 &&
       appState.frameToHighlight &&
@@ -289,18 +289,16 @@ const _renderStaticScene = ({
       ) ||
         element.groupIds.find((groupId) => groupsToBeAddedToFrame.has(groupId)))
     ) {
-      element.groupIds.forEach((groupId) =>
-        groupsToBeAddedToFrame.add(groupId),
-      );
+      for (const groupId of element.groupIds) groupsToBeAddedToFrame.add(groupId)
+      ;
     }
-  });
+  }
 
   const inFrameGroupsMap = new Map<string, boolean>();
 
   // Paint visible elements
-  visibleElements
-    .filter((el) => !isIframeLikeElement(el))
-    .forEach((element) => {
+  for (const element of visibleElements
+    .filter((el) => !isIframeLikeElement(el))) {
       try {
         const frameId = element.frameId || appState.frameToHighlight?.id;
 
@@ -310,7 +308,7 @@ const _renderStaticScene = ({
           elementsMap.has(element.containerId)
         ) {
           // will be rendered with the container
-          return;
+          continue;
         }
 
         context.save();
@@ -382,12 +380,11 @@ const _renderStaticScene = ({
           element.height,
         );
       }
-    });
+    }
 
   // render embeddables on top
-  visibleElements
-    .filter((el) => isIframeLikeElement(el))
-    .forEach((element) => {
+  for (const element of visibleElements
+    .filter((el) => isIframeLikeElement(el))) {
       try {
         const render = () => {
           renderElement(
@@ -458,10 +455,10 @@ const _renderStaticScene = ({
       } catch (error: any) {
         console.error(error);
       }
-    });
+    }
 
   // render pending nodes for flowcharts
-  renderConfig.pendingFlowchartNodes?.forEach((element) => {
+  if (renderConfig.pendingFlowchartNodes) for (const element of renderConfig.pendingFlowchartNodes) {
     try {
       renderElement(
         element,
@@ -475,7 +472,7 @@ const _renderStaticScene = ({
     } catch (error) {
       console.error(error);
     }
-  });
+  }
 };
 
 /** throttled to animation framerate */

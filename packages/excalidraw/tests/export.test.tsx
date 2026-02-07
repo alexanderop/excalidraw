@@ -18,7 +18,7 @@ import {
 import { API } from "./helpers/api";
 import { render, waitFor } from "./test-utils";
 
-const { h } = window;
+const { h } = globalThis;
 
 const testElements = [
   {
@@ -35,7 +35,7 @@ const testElements = [
 ];
 
 // tiny polyfill for TextDecoder.decode on which we depend
-Object.defineProperty(window, "TextDecoder", {
+Object.defineProperty(globalThis, "TextDecoder", {
   value: class TextDecoder {
     decode(ab: ArrayBuffer) {
       return new Uint8Array(ab).reduce(

@@ -32,9 +32,9 @@ export class Emitter<T extends any[] = []> {
   }
 
   off(...handlers: Subscriber<T>[] | Subscriber<T>[][]) {
-    const _handlers = handlers.flat();
+    const _handlers = new Set(handlers.flat());
     this.subscribers = this.subscribers.filter(
-      (handler) => !_handlers.includes(handler),
+      (handler) => !_handlers.has(handler),
     );
   }
 

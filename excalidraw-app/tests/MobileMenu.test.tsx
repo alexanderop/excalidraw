@@ -8,7 +8,7 @@ import {
 import ExcalidrawApp from "../App";
 
 describe("Test MobileMenu", () => {
-  const { h } = window;
+  const { h } = globalThis;
   const dimensions = { height: 400, width: 800 };
 
   beforeAll(() => {

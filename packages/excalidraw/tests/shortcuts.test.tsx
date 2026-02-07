@@ -17,7 +17,7 @@ describe("shortcuts", () => {
       />,
     );
 
-    expect(window.h.elements.length).toBe(1);
+    expect(globalThis.h.elements.length).toBe(1);
 
     Keyboard.withModifierKeys({ ctrl: true }, () => {
       Keyboard.keyDown(KEYS.DELETE);
@@ -28,7 +28,7 @@ describe("shortcuts", () => {
     fireEvent.click(confirmDialog.querySelector('[aria-label="Confirm"]')!);
 
     await waitFor(() => {
-      expect(window.h.elements[0].isDeleted).toBe(true);
+      expect(globalThis.h.elements[0].isDeleted).toBe(true);
     });
   });
 });

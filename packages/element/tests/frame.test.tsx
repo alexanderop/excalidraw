@@ -12,7 +12,7 @@ import {
 
 import type { ExcalidrawElement } from "../src/types";
 
-const { h } = window;
+const { h } = globalThis;
 const mouse = new Pointer("mouse");
 
 describe("adding elements to frames", () => {

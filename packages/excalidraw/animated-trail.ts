@@ -53,7 +53,7 @@ export class AnimatedTrail implements Trail {
       this.trailAnimation.setAttribute("from", "0");
       this.trailAnimation.setAttribute("to", `-14`);
       this.trailAnimation.setAttribute("dur", "0.3s");
-      this.trailElement.appendChild(this.trailAnimation);
+      this.trailElement.append(this.trailAnimation);
     }
   }
 
@@ -79,7 +79,7 @@ export class AnimatedTrail implements Trail {
     }
 
     if (this.trailElement.parentNode !== this.container && this.container) {
-      this.container.appendChild(this.trailElement);
+      this.container.append(this.trailElement);
     }
 
     this.animationFrameHandler.start(this);
@@ -150,7 +150,7 @@ export class AnimatedTrail implements Trail {
     }
 
     this.pastTrails = this.pastTrails.filter((trail) => {
-      return trail.getStrokeOutline().length !== 0;
+      return trail.getStrokeOutline().length > 0;
     });
 
     if (paths.length === 0) {

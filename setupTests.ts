@@ -1,4 +1,4 @@
-import fs from "fs";
+import fs from "node:fs";
 
 // vitest.setup.ts
 import "vitest-canvas-mock";
@@ -18,7 +18,7 @@ require("fake-indexeddb/auto");
 
 polyfill();
 
-Object.defineProperty(window, "matchMedia", {
+Object.defineProperty(globalThis, "matchMedia", {
   writable: true,
   value: vi.fn().mockImplementation((query) => ({
     matches: false,
@@ -32,7 +32,7 @@ Object.defineProperty(window, "matchMedia", {
   })),
 });
 
-Object.defineProperty(window, "FontFace", {
+Object.defineProperty(globalThis, "FontFace", {
   enumerable: true,
   value: class {
     private family: string;
@@ -64,7 +64,7 @@ Object.defineProperty(document, "fonts", {
   },
 });
 
-Object.defineProperty(window, "EXCALIDRAW_ASSET_PATH", {
+Object.defineProperty(globalThis, "EXCALIDRAW_ASSET_PATH", {
   value: `file://${__dirname}/`,
 });
 
@@ -98,7 +98,7 @@ vi.mock(
 // as a result, we need a place for it to render into
 const element = document.createElement("div");
 element.id = "root";
-document.body.appendChild(element);
+document.body.append(element);
 
 const _consoleError = console.error.bind(console);
 console.error = (...args) => {

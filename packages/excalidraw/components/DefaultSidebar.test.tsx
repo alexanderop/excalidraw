@@ -14,7 +14,7 @@ import {
   assertSidebarDockButton,
 } from "./Sidebar/siderbar.test.helpers";
 
-const { h } = window;
+const { h } = globalThis;
 
 describe("DefaultSidebar", () => {
   it("when `docked={undefined}` & `onDock={undefined}`, should allow docking", async () => {

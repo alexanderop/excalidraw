@@ -22,7 +22,7 @@ export const getColorNameAndShadeFromColor = ({
   for (const [colorName, colorVal] of Object.entries(palette)) {
     if (Array.isArray(colorVal)) {
       const shade = colorVal.indexOf(color);
-      if (shade > -1) {
+      if (shade !== -1) {
         return { colorName: colorName as ColorPickerColor, shade };
       }
     } else if (colorVal === color) {
@@ -71,7 +71,7 @@ export const getMostUsedCustomColors = (
   });
 
   const colorCountMap = new Map<string, number>();
-  colors.forEach((element) => {
+  for (const element of colors) {
     const color =
       element[elementColorTypeMap[type] as "backgroundColor" | "strokeColor"];
     if (colorCountMap.has(color)) {
@@ -79,7 +79,7 @@ export const getMostUsedCustomColors = (
     } else {
       colorCountMap.set(color, 1);
     }
-  });
+  }
 
   return [...colorCountMap.entries()]
     .sort((a, b) => b[1] - a[1])

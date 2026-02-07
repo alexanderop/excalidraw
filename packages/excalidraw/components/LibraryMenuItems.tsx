@@ -93,7 +93,7 @@ export default function LibraryMenuItems({
 
   const [searchInputValue, setSearchInputValue] = useState("");
 
-  const IS_LIBRARY_EMPTY = !libraryItems.length && !pendingElements.length;
+  const IS_LIBRARY_EMPTY = libraryItems.length === 0 && pendingElements.length === 0;
 
   const IS_SEARCHING = !IS_LIBRARY_EMPTY && !!searchInputValue.trim();
 
@@ -175,7 +175,7 @@ export default function LibraryMenuItems({
   useEffect(() => {
     // if selection is removed (e.g. via esc), reset last selected item
     // so that subsequent shift+clicks don't select a large range
-    if (!selectedItems.length) {
+    if (selectedItems.length === 0) {
       setLastSelectedItem(null);
     }
   }, [selectedItems]);
@@ -183,13 +183,9 @@ export default function LibraryMenuItems({
   const getInsertedElements = useCallback(
     (id: string) => {
       let targetElements;
-      if (selectedItems.includes(id)) {
-        targetElements = libraryItems.filter((item) =>
+      targetElements = selectedItems.includes(id) ? libraryItems.filter((item) =>
           selectedItems.includes(item.id),
-        );
-      } else {
-        targetElements = libraryItems.filter((item) => item.id === id);
-      }
+        ) : libraryItems.filter((item) => item.id === id);
       return targetElements.map((item) => {
         return {
           ...item,
@@ -246,7 +242,7 @@ export default function LibraryMenuItems({
 
   const itemsRenderedPerBatch =
     svgCache.size >=
-    (filteredItems.length ? filteredItems : libraryItems).length
+    (filteredItems.length > 0 ? filteredItems : libraryItems).length
       ? CACHED_ITEMS_RENDERED_PER_BATCH
       : ITEMS_RENDERED_PER_BATCH;
 
@@ -265,9 +261,9 @@ export default function LibraryMenuItems({
           {t("labels.personalLib")}
         </div>
       )}
-      {!pendingElements.length && !unpublishedItems.length ? (
+      {pendingElements.length === 0 && unpublishedItems.length === 0 ? (
         <div className="library-menu-items__no-items">
-          {!publishedItems.length && (
+          {publishedItems.length === 0 && (
             <div className="library-menu-items__no-items__label">
               {t("library.noItems")}
             </div>
@@ -379,9 +375,9 @@ export default function LibraryMenuItems({
     <div
       className="library-menu-items-container"
       style={
-        pendingElements.length ||
-        unpublishedItems.length ||
-        publishedItems.length
+        pendingElements.length > 0 ||
+        unpublishedItems.length > 0 ||
+        publishedItems.length > 0
           ? { justifyContent: "flex-start" }
           : { borderBottom: 0 }
       }

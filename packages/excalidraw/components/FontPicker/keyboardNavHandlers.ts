@@ -59,8 +59,8 @@ export const fontPickerKeyHandler = ({
   if (event.key === KEYS.ARROW_UP) {
     if (hoveredFont?.prev) {
       onHover(hoveredFont.prev.value);
-    } else if (filteredFonts[filteredFonts.length - 1]?.value) {
-      onHover(filteredFonts[filteredFonts.length - 1].value);
+    } else if (filteredFonts.at(-1)?.value) {
+      onHover(filteredFonts.at(-1).value);
     }
 
     return true;

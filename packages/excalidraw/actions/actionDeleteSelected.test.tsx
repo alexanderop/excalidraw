@@ -6,7 +6,7 @@ import { act, assertElements, render } from "../tests/test-utils";
 
 import { actionDeleteSelected } from "./actionDeleteSelected";
 
-const { h } = window;
+const { h } = globalThis;
 
 describe("deleting selected elements when frame selected should keep children + select them", () => {
   beforeEach(async () => {

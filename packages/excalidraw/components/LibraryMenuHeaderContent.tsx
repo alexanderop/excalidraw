@@ -60,16 +60,16 @@ export const LibraryDropdownMenuButton: React.FC<{
   );
 
   const renderRemoveLibAlert = () => {
-    const content = selectedItems.length
+    const content = selectedItems.length > 0
       ? t("alerts.removeItemsFromsLibrary", { count: selectedItems.length })
       : t("alerts.resetLibrary");
-    const title = selectedItems.length
+    const title = selectedItems.length > 0
       ? t("confirmDialog.removeItemsFromLib")
       : t("confirmDialog.resetLibrary");
     return (
       <ConfirmDialog
         onConfirm={() => {
-          if (selectedItems.length) {
+          if (selectedItems.length > 0) {
             onRemoveFromLibrary();
           } else {
             resetLibrary();
@@ -88,7 +88,7 @@ export const LibraryDropdownMenuButton: React.FC<{
 
   const [showRemoveLibAlert, setShowRemoveLibAlert] = useState(false);
 
-  const itemsSelected = !!selectedItems.length;
+  const itemsSelected = selectedItems.length > 0;
   const items = itemsSelected
     ? libraryItemsData.libraryItems.filter((item) =>
         selectedItems.includes(item.id),
@@ -146,12 +146,12 @@ export const LibraryDropdownMenuButton: React.FC<{
   ) => {
     setShowPublishLibraryDialog(false);
     setPublishLibSuccess({ url: data.url, authorName: data.authorName });
-    const nextLibItems = libraryItems.slice();
-    nextLibItems.forEach((libItem) => {
+    const nextLibItems = [...libraryItems];
+    for (const libItem of nextLibItems) {
       if (selectedItems.includes(libItem.id)) {
         libItem.status = "published";
       }
-    });
+    }
     library.setLibrary(nextLibItems);
   };
 
@@ -211,7 +211,7 @@ export const LibraryDropdownMenuButton: React.FC<{
               {t("buttons.load")}
             </DropdownMenu.Item>
           )}
-          {!!items.length && (
+          {items.length > 0 && (
             <DropdownMenu.Item
               onSelect={onLibraryExport}
               icon={ExportIcon}
@@ -229,7 +229,7 @@ export const LibraryDropdownMenuButton: React.FC<{
               {t("buttons.publishLibrary")}
             </DropdownMenu.Item>
           )}
-          {!!items.length && (
+          {items.length > 0 && (
             <DropdownMenu.Item
               onSelect={() => setShowRemoveLibAlert(true)}
               icon={TrashIcon}
@@ -260,7 +260,7 @@ export const LibraryDropdownMenuButton: React.FC<{
           onSuccess={(data) =>
             onPublishLibSuccess(data, libraryItemsData.libraryItems)
           }
-          onError={(error) => window.alert(error)}
+          onError={(error) => globalThis.alert(error)}
           updateItemsInStorage={() =>
             library.setLibrary(libraryItemsData.libraryItems)
           }

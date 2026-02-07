@@ -10,7 +10,7 @@ import { act, render } from "./test-utils";
 import type { ExcalidrawImperativeAPI } from "../types";
 
 describe("setActiveTool()", () => {
-  const h = window.h;
+  const h = globalThis.h;
 
   let excalidrawAPI: ExcalidrawImperativeAPI;
 

@@ -40,8 +40,7 @@ const moveElements = (
   scene: Scene,
   appState: AppState,
 ) => {
-  for (let i = 0; i < originalElements.length; i++) {
-    const origElement = originalElements[i];
+  for (const origElement of originalElements) {
 
     const [cx, cy] = [
       origElement.x + origElement.width / 2,
@@ -84,8 +83,7 @@ const moveGroupTo = (
   const offsetX = nextX - x1;
   const offsetY = nextY - y1;
 
-  for (let i = 0; i < originalElements.length; i++) {
-    const origElement = originalElements[i];
+  for (const origElement of originalElements) {
 
     const latestElement = elementsMap.get(origElement.id);
     if (!latestElement) {

@@ -86,11 +86,7 @@ export const useMermaidRenderer = ({
 
       const renderDuration = performance.now() - renderStartTime;
 
-      if (renderDuration < RENDER_SPEED_THRESHOLD) {
-        currentThrottleDelayRef.current = FAST_THROTTLE_DELAY;
-      } else {
-        currentThrottleDelayRef.current = SLOW_THROTTLE_DELAY;
-      }
+      currentThrottleDelayRef.current = renderDuration < RENDER_SPEED_THRESHOLD ? FAST_THROTTLE_DELAY : SLOW_THROTTLE_DELAY;
 
       isRenderingRef.current = false;
       return result.success;

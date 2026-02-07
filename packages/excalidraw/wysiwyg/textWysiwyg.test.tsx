@@ -44,7 +44,7 @@ const mouse = new Pointer("mouse");
 
 describe("textWysiwyg", () => {
   describe("start text editing", () => {
-    const { h } = window;
+    const { h } = globalThis;
     beforeEach(async () => {
       await render(<Excalidraw handleKeyboardGlobally={true} />);
       API.setElements([]);
@@ -248,7 +248,7 @@ describe("textWysiwyg", () => {
   });
 
   describe("Test text wrapping", () => {
-    const { h } = window;
+    const { h } = globalThis;
     const dimensions = { height: 400, width: 800 };
 
     beforeAll(() => {
@@ -352,7 +352,7 @@ describe("textWysiwyg", () => {
   });
 
   describe("Test container-unbound text", () => {
-    const { h } = window;
+    const { h } = globalThis;
     const dimensions = { height: 400, width: 800 };
 
     let textarea: HTMLTextAreaElement;
@@ -572,7 +572,7 @@ describe("textWysiwyg", () => {
 
   describe("Test container-bound text", () => {
     let rectangle: any;
-    const { h } = window;
+    const { h } = globalThis;
 
     beforeEach(async () => {
       await render(<Excalidraw handleKeyboardGlobally={true} />);
@@ -672,7 +672,7 @@ describe("textWysiwyg", () => {
         fireEvent.input(editor, { target: { value } }),
       ).not.toThrow();
 
-      expect(diamond.height).toBe(50020);
+      expect(diamond.height).toBe(50_020);
 
       // Clearing text to simulate height decrease
       expect(() => updateTextEditor(editor, "")).not.toThrow();
@@ -1119,7 +1119,7 @@ describe("textWysiwyg", () => {
         shift: true,
       });
       expect(rectangle.width).toBe(200);
-      expect(rectangle.height).toBe(166.66666666666669);
+      expect(rectangle.height).toBe(166.666_666_666_666_69);
       expect(textElement.fontSize).toBe(47.5);
     });
 
@@ -1291,7 +1291,7 @@ describe("textWysiwyg", () => {
       ).toEqual(FONT_FAMILY["Comic Shanns"]);
       expect(getOriginalContainerHeightFromCache(rectangle.id)).toBe(75);
 
-      fireEvent.click(screen.getByTitle(/Very large/i));
+      fireEvent.click(screen.getByTitle(/very large/i));
       expect(
         (h.elements[1] as ExcalidrawTextElementWithContainer).fontSize,
       ).toEqual(36);
@@ -1668,7 +1668,7 @@ describe("textWysiwyg", () => {
   });
 
   describe("Test theme change", () => {
-    const { h } = window;
+    const { h } = globalThis;
 
     // Helper to compare colors (browser may return rgb format)
     const colorsAreEqual = (color1: string, color2: string) => {

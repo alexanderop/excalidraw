@@ -439,7 +439,7 @@ export const intersectElementWithLineSegment = (
     case "embeddable":
     case "frame":
     case "selection":
-    case "magicframe":
+    case "magicframe": {
       return intersectRectanguloidWithLineSegment(
         element,
         elementsMap,
@@ -447,7 +447,8 @@ export const intersectElementWithLineSegment = (
         offset,
         onlyFirst,
       );
-    case "diamond":
+    }
+    case "diamond": {
       return intersectDiamondWithLineSegment(
         element,
         elementsMap,
@@ -455,17 +456,20 @@ export const intersectElementWithLineSegment = (
         offset,
         onlyFirst,
       );
-    case "ellipse":
+    }
+    case "ellipse": {
       return intersectEllipseWithLineSegment(
         element,
         elementsMap,
         line,
         offset,
       );
+    }
     case "line":
     case "freedraw":
-    case "arrow":
+    case "arrow": {
       return intersectLinearOrFreeDrawWithLineSegment(element, line, onlyFirst);
+    }
   }
 };
 

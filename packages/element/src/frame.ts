@@ -295,7 +295,7 @@ export const getElementsInResizingFrame = (
   // if they are part of some groups, then those groups are still
   // considered to belong to the frame
   const groupsToKeep = new Set<string>(
-    Array.from(elementsCompletelyInFrame).flatMap(
+    [...elementsCompletelyInFrame].flatMap(
       (element) => element.groupIds,
     ),
   );
@@ -330,17 +330,13 @@ export const getElementsInResizingFrame = (
     }
   }
 
-  const individualElementsCompletelyInFrame = Array.from(
-    elementsCompletelyInFrame,
-  ).filter((element) => element.groupIds.length === 0);
+  const individualElementsCompletelyInFrame = [...elementsCompletelyInFrame].filter((element) => element.groupIds.length === 0);
 
   for (const element of individualElementsCompletelyInFrame) {
     nextElementsInFrame.add(element);
   }
 
-  const newGroupElementsCompletelyInFrame = Array.from(
-    elementsCompletelyInFrame,
-  ).filter((element) => element.groupIds.length > 0);
+  const newGroupElementsCompletelyInFrame = [...elementsCompletelyInFrame].filter((element) => element.groupIds.length > 0);
 
   const groupIds = selectGroupsFromGivenElements(
     newGroupElementsCompletelyInFrame,
@@ -402,15 +398,15 @@ export const omitPartialGroups = (
         );
 
         shouldOmit = !elementsAreInFrameBounds(
-          Array.from(allElementsInGroup),
+          [...allElementsInGroup],
           frame,
           allElementsMap,
         );
       }
 
-      element.groupIds.forEach((gid) => {
+      for (const gid of element.groupIds) {
         checkedGroups.set(gid, shouldOmit);
-      });
+      }
     }
 
     if (!shouldOmit) {
@@ -462,7 +458,7 @@ export const filterElementsEligibleAsFrameChildren = (
       continue;
     }
 
-    if (element.groupIds.length) {
+    if (element.groupIds.length > 0) {
       const shallowestGroupId = element.groupIds.at(-1)!;
       if (!processedGroups.has(shallowestGroupId)) {
         processedGroups.add(shallowestGroupId);
@@ -622,12 +618,12 @@ export const replaceAllElementsInFrame = <T extends ExcalidrawElement>(
   frame: ExcalidrawFrameLikeElement,
   app: AppClassProperties,
 ): T[] => {
-  return addElementsToFrame(
+  return [...addElementsToFrame(
     removeAllElementsFromFrame(allElements, frame),
     nextElementsInFrame,
     frame,
     app.state,
-  ).slice();
+  )];
 };
 
 /** does not mutate elements, but returns new ones */
@@ -661,7 +657,7 @@ export const updateFrameMembershipOfSelectedElements = <
 
   const elementsMap = arrayToMap(allElements);
 
-  elementsToFilter.forEach((element) => {
+  for (const element of elementsToFilter) {
     if (
       element.frameId &&
       !isFrameLikeElement(element) &&
@@ -669,7 +665,7 @@ export const updateFrameMembershipOfSelectedElements = <
     ) {
       elementsToRemove.add(element);
     }
-  });
+  }
 
   if (elementsToRemove.size > 0) {
     removeElementsFromFrame(elementsToRemove, elementsMap);
@@ -692,7 +688,7 @@ export const omitGroupsContainingFrameLikes = (
   const elements = selectedElements || allElements;
 
   for (const el of elements.values()) {
-    const topMostGroupId = el.groupIds[el.groupIds.length - 1];
+    const topMostGroupId = el.groupIds.at(-1);
     if (topMostGroupId) {
       uniqueGroupIds.add(topMostGroupId);
     }
@@ -712,7 +708,7 @@ export const omitGroupsContainingFrameLikes = (
   const ret: ExcalidrawElement[] = [];
 
   for (const element of elements.values()) {
-    if (!rejectedGroupIds.has(element.groupIds[element.groupIds.length - 1])) {
+    if (!rejectedGroupIds.has(element.groupIds.at(-1))) {
       ret.push(element);
     }
   }
@@ -773,9 +769,9 @@ export const isElementInFrame = (
 
   const setGroupsInFrame = (isInFrame: boolean) => {
     if (opts?.checkedGroups) {
-      _element.groupIds.forEach((groupId) => {
+      for (const groupId of _element.groupIds) {
         opts.checkedGroups?.set(groupId, isInFrame);
-      });
+      }
     }
   };
 
@@ -823,9 +819,9 @@ export const isElementInFrame = (
       return true;
     }
 
-    selectedElements.forEach((selectedElement) => {
+    for (const selectedElement of selectedElements) {
       allElementsInGroup.delete(selectedElement);
-    });
+    }
   }
 
   for (const elementInGroup of allElementsInGroup) {
@@ -883,16 +879,16 @@ export const shouldApplyFrameClip = (
 
     // if no elements are being dragged, we can skip the geometry check
     // because we know if the element is in the given frame or not
-    if (!appState.selectedElementsAreBeingDragged) {
-      shouldClip = element.frameId === frame.id;
-      for (const groupId of element.groupIds) {
-        checkedGroups?.set(groupId, shouldClip);
-      }
-    } else {
+    if (appState.selectedElementsAreBeingDragged) {
       shouldClip = isElementInFrame(element, elementsMap, appState, {
         targetFrame: frame,
         checkedGroups,
       });
+    } else {
+      shouldClip = element.frameId === frame.id;
+      for (const groupId of element.groupIds) {
+        checkedGroups?.set(groupId, shouldClip);
+      }
     }
 
     for (const groupId of element.groupIds) {

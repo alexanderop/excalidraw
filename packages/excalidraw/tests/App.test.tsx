@@ -18,15 +18,15 @@ describe("Test <App/>", () => {
   });
 
   it("should show error modal when using brave and measureText API is not working", async () => {
-    (global.navigator as any).brave = {
+    (globalThis.navigator as any).brave = {
       isBrave: {
         name: "isBrave",
       },
     };
 
-    const originalContext = global.HTMLCanvasElement.prototype.getContext("2d");
+    const originalContext = globalThis.HTMLCanvasElement.prototype.getContext("2d");
     //@ts-ignore
-    global.HTMLCanvasElement.prototype.getContext = (contextId) => {
+    globalThis.HTMLCanvasElement.prototype.getContext = (contextId) => {
       return {
         ...originalContext,
         measureText: () => ({

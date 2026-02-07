@@ -15,6 +15,11 @@ import type {
 } from "./types";
 
 export class InvalidFractionalIndexError extends Error {
+	constructor() {
+		super();
+		this.name = 'InvalidFractionalIndexError';
+	}
+
   public code = "ELEMENT_HAS_INVALID_INDEX" as const;
 }
 
@@ -91,7 +96,7 @@ export const validateFractionalIndices = (
     }
   }
 
-  if (errorMessages.length) {
+  if (errorMessages.length > 0) {
     const error = new InvalidFractionalIndexError();
     const additionalContext = [];
 
@@ -187,7 +192,7 @@ export const syncMovedIndices = (
     for (const [element, { index }] of elementsUpdates) {
       mutateElement(element, elementsMap, { index });
     }
-  } catch (e) {
+  } catch {
     // fallback to default sync
     syncInvalidIndices(elements);
   }
@@ -342,7 +347,9 @@ const getInvalidIndicesGroups = (elements: readonly ExcalidrawElement[]) => {
     [lowerBound, lowerBoundIndex] = getLowerBound(i);
     [upperBound, upperBoundIndex] = getUpperBound(i);
 
-    if (!isValidFractionalIndex(current, lowerBound, upperBound)) {
+    if (isValidFractionalIndex(current, lowerBound, upperBound)) {
+      i++;
+    } else {
       // push the lower bound index as the first item
       const indicesGroup = [lowerBoundIndex, i];
 
@@ -365,8 +372,6 @@ const getInvalidIndicesGroups = (elements: readonly ExcalidrawElement[]) => {
       // push the upper bound index as the last item
       indicesGroup.push(upperBoundIndex);
       indicesGroups.push(indicesGroup);
-    } else {
-      i++;
     }
   }
 
@@ -419,8 +424,8 @@ const generateIndices = (
       indices.length,
     ) as FractionalIndex[];
 
-    for (let i = 0; i < indices.length; i++) {
-      const element = elements[indices[i]];
+    for (const [i, index] of indices.entries()) {
+      const element = elements[index];
 
       elementsUpdates.set(element, {
         index: fractionalIndices[i],

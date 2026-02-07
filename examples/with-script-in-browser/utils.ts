@@ -44,7 +44,7 @@ export const fileOpen = <M extends boolean | undefined = false>(opts: {
 
   const extensions = opts.extensions?.reduce((acc, ext) => {
     if (ext === "jpg") {
-      return acc.concat(".jpg", ".jpeg");
+      return [...acc, ".jpg", ".jpeg"];
     }
     return acc.concat(`.${ext}`);
   }, [] as string[]);
@@ -72,7 +72,7 @@ export const fileOpen = <M extends boolean | undefined = false>(opts: {
       requestAnimationFrame(() => {
         window.addEventListener("focus", focusHandler);
       });
-      const interval = window.setInterval(() => {
+      const interval = globalThis.setInterval(() => {
         checkForFile();
       }, INPUT_CHANGE_INTERVAL_MS);
       return (rejectPromise) => {
@@ -100,7 +100,7 @@ export const debounce = <T extends any[]>(
   const ret = (...args: T) => {
     lastArgs = args;
     clearTimeout(handle);
-    handle = window.setTimeout(() => {
+    handle = globalThis.setTimeout(() => {
       lastArgs = null;
       fn(...args);
     }, timeout);

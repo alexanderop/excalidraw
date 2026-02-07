@@ -148,8 +148,8 @@ export default function ExampleApp({
             id: "rocket" as BinaryFileData["id"],
             dataURL: reader.result as BinaryFileData["dataURL"],
             mimeType: MIME_TYPES.jpg,
-            created: 1644915140367,
-            lastRetrieved: 1644915140367,
+            created: 1_644_915_140_367,
+            lastRetrieved: 1_644_915_140_367,
           },
         ];
 
@@ -184,7 +184,7 @@ export default function ExampleApp({
           elements: NonDeletedExcalidrawElement[],
           state: AppState,
         ) => {
-          console.info("Elements :", elements, "State : ", state);
+          console.info("Elements :", elements, "State :", state);
         },
         onPointerUpdate: (payload: {
           pointer: { x: number; y: number };
@@ -238,7 +238,7 @@ export default function ExampleApp({
             left: "50%",
             transform: "translateX(-50%)",
             bottom: "20px",
-            zIndex: 9999999999999999,
+            zIndex: 9_999_999_999_999_999,
           }}
         >
           Toggle Custom Sidebar
@@ -269,7 +269,7 @@ export default function ExampleApp({
           <LiveCollaborationTrigger
             isCollaborating={isCollaborating}
             onSelect={() => {
-              window.alert("Collab dialog clicked");
+              globalThis.alert("Collab dialog clicked");
             }}
           />
         )}
@@ -308,12 +308,12 @@ export default function ExampleApp({
             strokeStyle: "solid",
             roughness: 1,
             angle: 0,
-            x: 100.50390625,
-            y: 93.67578125,
+            x: 100.503_906_25,
+            y: 93.675_781_25,
             strokeColor: "#c92a2a",
-            width: 186.47265625,
-            height: 141.9765625,
-            seed: 1968410350,
+            width: 186.472_656_25,
+            height: 141.976_562_5,
+            seed: 1_968_410_350,
             roundness: {
               type: ROUNDNESS.ADAPTIVE_RADIUS,
               value: 32,
@@ -354,7 +354,7 @@ export default function ExampleApp({
       const isNewTab = nativeEvent.ctrlKey || nativeEvent.metaKey;
       const isNewWindow = nativeEvent.shiftKey;
       const isInternalLink =
-        link.startsWith("/") || link.includes(window.location.origin);
+        link.startsWith("/") || link.includes(globalThis.location.origin);
       if (isInternalLink && !isNewTab && !isNewWindow) {
         // signal that we're handling the redirect ourselves
         event.preventDefault();
@@ -375,7 +375,7 @@ export default function ExampleApp({
       files: excalidrawAPI.getFiles(),
       type,
     });
-    window.alert(`Copied to clipboard as ${type} successfully`);
+    globalThis.alert(`Copied to clipboard as ${type} successfully`);
   };
 
   const [pointerData, setPointerData] = useState<{
@@ -401,7 +401,7 @@ export default function ExampleApp({
     const commentIconsElements = appRef.current.querySelectorAll(
       ".comment-icon",
     ) as HTMLElement[];
-    commentIconsElements.forEach((ele) => {
+    for (const ele of commentIconsElements) {
       const id = ele.id;
       const appstate = excalidrawAPI.getAppState();
       const { x, y } = sceneCoordsToViewportCoords(
@@ -414,7 +414,7 @@ export default function ExampleApp({
       ele.style.top = `${
         y - COMMENT_ICON_DIMENSION / 2 - appstate!.offsetTop
       }px`;
-    });
+    }
   };
 
   const onPointerMoveFromPointerDownHandler = (
@@ -445,8 +445,8 @@ export default function ExampleApp({
     pointerDownState: PointerDownState,
   ) => {
     return withBatchedUpdates((event) => {
-      window.removeEventListener("pointermove", pointerDownState.onMove);
-      window.removeEventListener("pointerup", pointerDownState.onUp);
+      globalThis.removeEventListener("pointermove", pointerDownState.onMove);
+      globalThis.removeEventListener("pointerup", pointerDownState.onUp);
       excalidrawAPI?.setActiveTool({ type: "selection" });
       const distance = distance2d(
         pointerDownState.x,
@@ -455,15 +455,15 @@ export default function ExampleApp({
         event.clientY,
       );
       if (distance === 0) {
-        if (!comment) {
+        if (comment) {
+          setComment(null);
+        } else {
           setComment({
             x: pointerDownState.hitElement.x + 60,
             y: pointerDownState.hitElement.y,
             value: pointerDownState.hitElement.value,
             id: pointerDownState.hitElement.id,
           });
-        } else {
-          setComment(null);
         }
       }
     });
@@ -510,8 +510,8 @@ export default function ExampleApp({
               onPointerMoveFromPointerDownHandler(pointerDownState);
             const onPointerUp =
               onPointerUpFromPointerDownHandler(pointerDownState);
-            window.addEventListener("pointermove", onPointerMove);
-            window.addEventListener("pointerup", onPointerUp);
+            globalThis.addEventListener("pointermove", onPointerMove);
+            globalThis.addEventListener("pointerup", onPointerUp);
 
             pointerDownState.onMove = onPointerMove;
             pointerDownState.onUp = onPointerUp;
@@ -620,7 +620,7 @@ export default function ExampleApp({
         <MainMenu.Separator />
         <MainMenu.DefaultItems.LiveCollaborationTrigger
           isCollaborating={isCollaborating}
-          onSelect={() => window.alert("You clicked on collab button")}
+          onSelect={() => globalThis.alert("You clicked on collab button")}
         />
         <MainMenu.Group title="Excalidraw links">
           <MainMenu.DefaultItems.Socials />
@@ -629,7 +629,7 @@ export default function ExampleApp({
         <MainMenu.ItemCustom>
           <button
             style={{ height: "2rem" }}
-            onClick={() => window.alert("custom menu item")}
+            onClick={() => globalThis.alert("custom menu item")}
           >
             custom item
           </button>
@@ -745,29 +745,25 @@ export default function ExampleApp({
               type="checkbox"
               checked={isCollaborating}
               onChange={() => {
-                if (!isCollaborating) {
-                  const collaborators = new Map();
-                  collaborators.set("id1", {
-                    username: "Doremon",
-                    avatarUrl: "images/doremon.png",
-                  });
-                  collaborators.set("id2", {
-                    username: "Excalibot",
-                    avatarUrl: "images/excalibot.png",
-                  });
-                  collaborators.set("id3", {
-                    username: "Pika",
-                    avatarUrl: "images/pika.jpeg",
-                  });
-                  collaborators.set("id4", {
-                    username: "fallback",
-                    avatarUrl: "https://example.com",
-                  });
-                  excalidrawAPI?.updateScene({ collaborators });
-                } else {
+                if (isCollaborating) {
                   excalidrawAPI?.updateScene({
                     collaborators: new Map(),
                   });
+                } else {
+                  const collaborators = new Map([["id1", {
+                    username: "Doremon",
+                    avatarUrl: "images/doremon.png",
+                  }], ["id2", {
+                    username: "Excalibot",
+                    avatarUrl: "images/excalibot.png",
+                  }], ["id3", {
+                    username: "Pika",
+                    avatarUrl: "images/pika.jpeg",
+                  }], ["id4", {
+                    username: "fallback",
+                    avatarUrl: "https://example.com",
+                  }]]);
+                  excalidrawAPI?.updateScene({ collaborators });
                 }
                 setIsCollaborating(!isCollaborating);
               }}
@@ -859,7 +855,7 @@ export default function ExampleApp({
                 },
                 files: excalidrawAPI?.getFiles(),
               });
-              setBlobUrl(window.URL.createObjectURL(blob));
+              setBlobUrl(globalThis.URL.createObjectURL(blob));
             }}
           >
             Export to Blob

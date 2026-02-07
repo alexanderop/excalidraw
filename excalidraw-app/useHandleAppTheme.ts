@@ -7,7 +7,7 @@ import type { Theme } from "@excalidraw/element/types";
 import { STORAGE_KEYS } from "./app_constants";
 
 const getDarkThemeMediaQuery = (): MediaQueryList | undefined =>
-  window.matchMedia?.("(prefers-color-scheme: dark)");
+  globalThis.matchMedia?.("(prefers-color-scheme: dark)");
 
 export const useHandleAppTheme = () => {
   const [appTheme, setAppTheme] = useState<Theme | "system">(() => {

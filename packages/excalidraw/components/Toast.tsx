@@ -29,7 +29,7 @@ export const Toast = ({
     if (!shouldAutoClose) {
       return;
     }
-    timerRef.current = window.setTimeout(() => onClose(), duration);
+    timerRef.current = globalThis.setTimeout(() => onClose(), duration);
   }, [onClose, duration, shouldAutoClose]);
 
   useEffect(() => {

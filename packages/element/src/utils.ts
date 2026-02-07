@@ -131,9 +131,10 @@ export function deconstructLinearOrFreeDrawElement(
     const prevPoint =
       ops[idx - 1] && pointFromArray<LocalPoint>(ops[idx - 1].data.slice(-2));
     switch (op.op) {
-      case "move":
+      case "move": {
         continue;
-      case "lineTo":
+      }
+      case "lineTo": {
         if (!prevPoint) {
           throw new Error("prevPoint is undefined");
         }
@@ -151,7 +152,8 @@ export function deconstructLinearOrFreeDrawElement(
           ),
         );
         continue;
-      case "bcurveTo":
+      }
+      case "bcurveTo": {
         if (!prevPoint) {
           throw new Error("prevPoint is undefined");
         }
@@ -177,6 +179,7 @@ export function deconstructLinearOrFreeDrawElement(
           ),
         );
         continue;
+      }
       default: {
         console.error("Unknown op type", op.op);
       }
@@ -306,19 +309,19 @@ export function deconstructRectanguloidElement(
 
   const sides = [
     lineSegment<GlobalPoint>(
-      corners[0][corners[0].length - 1][3],
+      corners[0].at(-1)[3],
       corners[1][0][0],
     ),
     lineSegment<GlobalPoint>(
-      corners[1][corners[1].length - 1][3],
+      corners[1].at(-1)[3],
       corners[2][0][0],
     ),
     lineSegment<GlobalPoint>(
-      corners[2][corners[2].length - 1][3],
+      corners[2].at(-1)[3],
       corners[3][0][0],
     ),
     lineSegment<GlobalPoint>(
-      corners[3][corners[3].length - 1][3],
+      corners[3].at(-1)[3],
       corners[0][0][0],
     ),
   ];
@@ -421,19 +424,19 @@ export function deconstructDiamondElement(
 
   const sides = [
     lineSegment<GlobalPoint>(
-      corners[0][corners[0].length - 1][3],
+      corners[0].at(-1)[3],
       corners[1][0][0],
     ),
     lineSegment<GlobalPoint>(
-      corners[1][corners[1].length - 1][3],
+      corners[1].at(-1)[3],
       corners[2][0][0],
     ),
     lineSegment<GlobalPoint>(
-      corners[2][corners[2].length - 1][3],
+      corners[2].at(-1)[3],
       corners[3][0][0],
     ),
     lineSegment<GlobalPoint>(
-      corners[3][corners[3].length - 1][3],
+      corners[3].at(-1)[3],
       corners[0][0][0],
     ),
   ];
@@ -453,7 +456,7 @@ export const isPathALoop = (
   zoomValue: Zoom["value"] = 1 as NormalizedZoomValue,
 ): boolean => {
   if (points.length >= 3) {
-    const [first, last] = [points[0], points[points.length - 1]];
+    const [first, last] = [points[0], points.at(-1)];
     const distance = pointDistance(first, last);
 
     // Adjusting LINE_CONFIRM_THRESHOLD to current zoom so that when zoomed in

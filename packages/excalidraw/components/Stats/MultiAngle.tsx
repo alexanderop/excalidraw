@@ -68,8 +68,7 @@ const handleDegreeChange: DragInputCallbackType<
     return;
   }
 
-  for (let i = 0; i < editableLatestIndividualElements.length; i++) {
-    const latestElement = editableLatestIndividualElements[i];
+  for (const [i, latestElement] of editableLatestIndividualElements.entries()) {
     if (!latestElement) {
       continue;
     }

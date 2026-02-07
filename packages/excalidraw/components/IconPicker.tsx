@@ -67,13 +67,15 @@ function Picker<T>({
 
         switch (event.key) {
           // Select the next option
-          case isRTL ? KEYS.ARROW_LEFT : KEYS.ARROW_RIGHT:
+          case isRTL ? KEYS.ARROW_LEFT : KEYS.ARROW_RIGHT: {
             nextIndex = (index + 1) % length;
             break;
+          }
           // Select the previous option
-          case isRTL ? KEYS.ARROW_RIGHT : KEYS.ARROW_LEFT:
+          case isRTL ? KEYS.ARROW_RIGHT : KEYS.ARROW_LEFT: {
             nextIndex = (length + index - 1) % length;
             break;
+          }
           // Go the next row
           case KEYS.ARROW_DOWN: {
             nextIndex = (index + (numberOfOptionsToAlwaysShow ?? 1)) % length;

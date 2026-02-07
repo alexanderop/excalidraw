@@ -94,9 +94,9 @@ export const Picker = React.forwardRef(
             ? null
             : isCustom
             ? "custom"
-            : colorObj?.shade != null
-            ? "shades"
-            : "baseColors",
+            : colorObj?.shade == null
+            ? "baseColors"
+            : "shades",
         );
       }
     }, [
@@ -168,7 +168,7 @@ export const Picker = React.forwardRef(
         >
           {title && <div className="color-picker__title">{title}</div>}
 
-          {!!customColors.length && (
+          {customColors.length > 0 && (
             <div>
               <PickerHeading>
                 {t("colorPicker.mostUsedCustomColors")}

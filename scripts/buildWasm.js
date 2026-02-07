@@ -1,8 +1,8 @@
 /**
  * This script is used to convert the wasm modules into js modules, with the binary converted into base64 encoded strings.
  */
-const fs = require("fs");
-const path = require("path");
+const fs = require("node:fs");
+const path = require("node:path");
 
 const wasmModules = [
   {
@@ -32,7 +32,7 @@ for (const { pkg, src, dest } of wasmModules) {
     licenses,
   } = require(packagePath);
 
-  const licenseContent = fs.readFileSync(licensePath, "utf-8") || "";
+  const licenseContent = fs.readFileSync(licensePath, "utf8") || "";
   const base64 = fs.readFileSync(sourcePath, "base64");
   const content = `// GENERATED CODE -- DO NOT EDIT!
 /* eslint-disable */

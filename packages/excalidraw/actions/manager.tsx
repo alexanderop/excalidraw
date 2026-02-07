@@ -83,7 +83,7 @@ export class ActionManager {
   }
 
   registerAll(actions: readonly Action[]) {
-    actions.forEach((action) => this.registerAction(action));
+    for (const action of actions) this.registerAction(action);
   }
 
   handleKeyDown(event: React.KeyboardEvent | KeyboardEvent) {

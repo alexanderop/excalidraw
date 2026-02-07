@@ -14,7 +14,7 @@ export const defaultGetElementLinkFromSelection: Exclude<
   AppProps["generateLinkForSelection"],
   undefined
 > = (id, type) => {
-  const url = window.location.href;
+  const url = globalThis.location.href;
 
   try {
     const link = new URL(url);
@@ -84,9 +84,9 @@ export const isElementLink = (url: string) => {
     const _url = new URL(url);
     return (
       _url.searchParams.has(ELEMENT_LINK_KEY) &&
-      _url.host === window.location.host
+      _url.host === globalThis.location.host
     );
-  } catch (error) {
+  } catch {
     return false;
   }
 };

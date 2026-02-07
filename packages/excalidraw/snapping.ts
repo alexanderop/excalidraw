@@ -42,7 +42,7 @@ const SNAP_DISTANCE = 8;
 
 // do not comput more gaps per axis than this limit
 // TODO increase or remove once we optimize
-const VISIBLE_GAPS_LIMIT_PER_AXIS = 99999;
+const VISIBLE_GAPS_LIMIT_PER_AXIS = 99_999;
 
 // snap distance with zoom value taken into consideration
 export const getSnapDistance = (zoomValue: number) => {
@@ -500,7 +500,7 @@ const getGapSnaps = (
       }
 
       // side gap, from the right
-      const [, , endMaxX] = gap.endBounds;
+      const endMaxX = gap.endBounds[2];
       const distanceToEndElementX = minX - endMaxX;
       const sideOffsetRight = round(gap.length - distanceToEndElementX);
 
@@ -521,7 +521,7 @@ const getGapSnaps = (
       }
 
       // side gap, from the left
-      const [startMinX, , ,] = gap.startBounds;
+      const startMinX = gap.startBounds[0];
       const distanceToStartElementX = startMinX - maxX;
       const sideOffsetLeft = round(distanceToStartElementX - gap.length);
 
@@ -590,7 +590,7 @@ const getGapSnaps = (
       }
 
       // side gap, from the bottom
-      const [, , , endMaxY] = gap.endBounds;
+      const endMaxY = gap.endBounds[3];
       const distanceToEndElementY = round(minY - endMaxY);
       const sideOffsetBottom = gap.length - distanceToEndElementY;
 
@@ -822,7 +822,7 @@ const dedupePoints = (points: GlobalPoint[]): GlobalPoint[] => {
     }
   }
 
-  return Array.from(map.values());
+  return [...map.values()];
 };
 
 const createPointSnapLines = (
@@ -909,7 +909,7 @@ const dedupeGapSnapLines = (gapSnapLines: GapSnapLine[]) => {
     }
   }
 
-  return Array.from(map.values());
+  return [...map.values()];
 };
 
 const createGapSnapLines = (

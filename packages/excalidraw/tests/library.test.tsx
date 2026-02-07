@@ -19,7 +19,7 @@ import { fireEvent, render, waitFor } from "./test-utils";
 
 import type { LibraryItem, LibraryItems } from "../types";
 
-const { h } = window;
+const { h } = globalThis;
 
 const libraryJSONPromise = API.readFile(
   "./fixtures/fixture_library.excalidrawlib",
@@ -336,7 +336,7 @@ describe("distributeLibraryItemsOnSquareGrid()", () => {
     const distributed = distributeLibraryItemsOnSquareGrid(libraryItems);
     // assert the returned library items are flattened to elements
     expect(distributed.length).toEqual(
-      libraryItems.map((x) => x.elements).flat().length,
+      libraryItems.flatMap((x) => x.elements).length,
     );
     expect(distributed).toEqual(
       expect.arrayContaining([

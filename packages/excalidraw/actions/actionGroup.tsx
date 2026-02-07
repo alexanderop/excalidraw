@@ -116,8 +116,8 @@ export const actionGroup = register({
         selectedElements.map((element) => element.id),
       );
       const combinedSet = new Set([
-        ...Array.from(elementIdsInGroup),
-        ...Array.from(selectedElementIds),
+        ...[...elementIdsInGroup],
+        ...[...selectedElementIds],
       ]);
       if (combinedSet.size === elementIdsInGroup.size) {
         // no incremental ids in the selected ids
@@ -140,12 +140,12 @@ export const actionGroup = register({
     if (groupingElementsFromDifferentFrames) {
       const frameElementsMap = groupByFrameLikes(selectedElements);
 
-      frameElementsMap.forEach((elementsInFrame, frameId) => {
+      for (const [frameId, elementsInFrame] of frameElementsMap.entries()) {
         removeElementsFromFrame(
           elementsInFrame,
           app.scene.getNonDeletedElementsMap(),
         );
-      });
+      }
     }
 
     const newGroupId = randomId();
@@ -166,7 +166,7 @@ export const actionGroup = register({
     // keep the z order within the group the same, but move them
     // to the z order of the highest element in the layer stack
     const elementsInGroup = getElementsInGroup(nextElements, newGroupId);
-    const lastElementInGroup = elementsInGroup[elementsInGroup.length - 1];
+    const lastElementInGroup = elementsInGroup.at(-1);
     const lastGroupElementIndex = nextElements.lastIndexOf(
       lastElementInGroup as OrderedExcalidrawElement,
     );
@@ -266,7 +266,7 @@ export const actionUngroup = register({
       selectedElementFrameIds.has(frame.id),
     );
 
-    targetFrames.forEach((frame) => {
+    for (const frame of targetFrames) {
       if (frame) {
         nextElements = replaceAllElementsInFrame(
           nextElements,
@@ -280,7 +280,7 @@ export const actionUngroup = register({
           app,
         );
       }
-    });
+    }
 
     // remove binded text elements from selection
     updateAppState.selectedElementIds = Object.entries(

@@ -4,10 +4,10 @@ import { DEFAULT_UI_OPTIONS, isShallowEqual } from "@excalidraw/common";
 
 import App from "./components/App";
 import { InitializeApp } from "./components/InitializeApp";
-import Footer from "./components/footer/FooterCenter";
-import LiveCollaborationTrigger from "./components/live-collaboration/LiveCollaborationTrigger";
-import MainMenu from "./components/main-menu/MainMenu";
-import WelcomeScreen from "./components/welcome-screen/WelcomeScreen";
+
+
+
+
 import { defaultLang } from "./i18n";
 import { EditorJotaiProvider, editorJotaiStore } from "./editor-jotai";
 import polyfill from "./polyfill";
@@ -81,7 +81,7 @@ const ExcalidrawBase = (props: ExcalidrawProps) => {
 
   if (
     UIOptions.canvasActions.toggleTheme === null &&
-    typeof theme === "undefined"
+    theme === undefined
   ) {
     UIOptions.canvasActions.toggleTheme = true;
   }
@@ -281,12 +281,12 @@ export { parseLibraryTokensFromUrl, useHandleLibrary } from "./data/library";
 
 export { Sidebar } from "./components/Sidebar/Sidebar";
 export { Button } from "./components/Button";
-export { Footer };
-export { MainMenu };
+
+
 export { Ellipsify } from "./components/Ellipsify";
 export { useEditorInterface, useStylesPanelMode } from "./components/App";
-export { WelcomeScreen };
-export { LiveCollaborationTrigger };
+
+
 export { Stats } from "./components/Stats";
 
 export { DefaultSidebar } from "./components/DefaultSidebar";
@@ -319,3 +319,8 @@ export { isElementLink } from "@excalidraw/element";
 export { setCustomTextMetricsProvider } from "@excalidraw/element";
 
 export { CommandPalette } from "./components/CommandPalette/CommandPalette";
+
+export {default as Footer} from "./components/footer/FooterCenter";
+export {default as LiveCollaborationTrigger} from "./components/live-collaboration/LiveCollaborationTrigger";
+export {default as MainMenu} from "./components/main-menu/MainMenu";
+export {default as WelcomeScreen} from "./components/welcome-screen/WelcomeScreen";

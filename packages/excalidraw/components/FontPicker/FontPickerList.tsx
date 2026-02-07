@@ -69,18 +69,23 @@ interface FontPickerListProps {
 const getFontFamilyIcon = (fontFamily: FontFamilyValues): JSX.Element => {
   switch (fontFamily) {
     case FONT_FAMILY.Excalifont:
-    case FONT_FAMILY.Virgil:
+    case FONT_FAMILY.Virgil: {
       return FreedrawIcon;
+    }
     case FONT_FAMILY.Nunito:
-    case FONT_FAMILY.Helvetica:
+    case FONT_FAMILY.Helvetica: {
       return FontFamilyNormalIcon;
-    case FONT_FAMILY["Lilita One"]:
+    }
+    case FONT_FAMILY["Lilita One"]: {
       return FontFamilyHeadingIcon;
+    }
     case FONT_FAMILY["Comic Shanns"]:
-    case FONT_FAMILY.Cascadia:
+    case FONT_FAMILY.Cascadia: {
       return FontFamilyCodeIcon;
-    default:
+    }
+    default: {
       return FontFamilyNormalIcon;
+    }
   }
 };
 
@@ -104,7 +109,7 @@ export const FontPickerList = React.memo(
     const inputRef = useRef<HTMLInputElement>(null);
     const allFonts = useMemo(
       () =>
-        Array.from(Fonts.registered.entries())
+        [...Fonts.registered.entries()]
           .filter(
             ([_, { metadata }]) => !metadata.private && !metadata.fallback,
           )
@@ -304,7 +309,7 @@ export const FontPickerList = React.memo(
 
     const groups = [];
 
-    if (sceneFilteredFonts.length) {
+    if (sceneFilteredFonts.length > 0) {
       groups.push(
         <DropdownMenuGroup title={t("fontList.sceneFonts")} key="group_1">
           {sceneFilteredFonts.map(renderFont)}
@@ -312,7 +317,7 @@ export const FontPickerList = React.memo(
       );
     }
 
-    if (availableFilteredFonts.length) {
+    if (availableFilteredFonts.length > 0) {
       groups.push(
         <DropdownMenuGroup title={t("fontList.availableFonts")} key="group_2">
           {availableFilteredFonts.map((font, index) =>
@@ -357,7 +362,7 @@ export const FontPickerList = React.memo(
           className="dropdown-menu fonts manual-hover"
           placeholder={t("fontList.empty")}
         >
-          {groups.length ? groups : null}
+          {groups.length > 0 ? groups : null}
         </ScrollableList>
       </PropertiesPopover>
     );

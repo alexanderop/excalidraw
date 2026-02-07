@@ -25,7 +25,7 @@ import type {
   ExcalidrawElbowArrowElement,
 } from "../src/types";
 
-const { h } = window;
+const { h } = globalThis;
 
 const mouse = new Pointer("mouse");
 

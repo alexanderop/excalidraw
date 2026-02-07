@@ -174,7 +174,7 @@ export class LocalData {
 
           const filesToSave: [FileId, BinaryFileData][] = [];
 
-          filesData.forEach((data, index) => {
+          for (const [index, data] of filesData.entries()) {
             const id = ids[index];
             if (data) {
               const _data: BinaryFileData = {
@@ -186,7 +186,7 @@ export class LocalData {
             } else {
               erroredFiles.set(id, true);
             }
-          });
+          }
 
           try {
             // save loaded files back to storage with updated `lastRetrieved`
@@ -255,8 +255,8 @@ export class LibraryIndexedDBAdapter {
 
 /** LS Adapter used only for migrating LS library data
  * to indexedDB */
-export class LibraryLocalStorageMigrationAdapter {
-  static load() {
+export const LibraryLocalStorageMigrationAdapter = {
+  load() {
     const LSData = localStorage.getItem(
       STORAGE_KEYS.__LEGACY_LOCAL_STORAGE_LIBRARY,
     );
@@ -268,8 +268,8 @@ export class LibraryLocalStorageMigrationAdapter {
       }
     }
     return null;
-  }
-  static clear() {
+  },
+  clear() {
     localStorage.removeItem(STORAGE_KEYS.__LEGACY_LOCAL_STORAGE_LIBRARY);
-  }
-}
+  },
+};

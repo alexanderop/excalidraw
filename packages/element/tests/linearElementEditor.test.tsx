@@ -50,7 +50,7 @@ const renderInteractiveScene = vi.spyOn(
 );
 const renderStaticScene = vi.spyOn(StaticScene, "renderStaticScene");
 
-const { h } = window;
+const { h } = globalThis;
 const font = "20px Cascadia, width: Segoe UI Emoji" as FontString;
 
 describe("Test Linear Elements", () => {
@@ -708,12 +708,12 @@ describe("Test Linear Elements", () => {
       // hence hardcoding it so if later some bug is introduced
       // this will fail and we can fix it
       const firstSegmentMidpoint = pointFrom<GlobalPoint>(
-        55.9697848965255,
-        47.442326230998205,
+        55.969_784_896_525_5,
+        47.442_326_230_998_205,
       );
       const lastSegmentMidpoint = pointFrom<GlobalPoint>(
-        76.08587175006699,
-        43.294165939653226,
+        76.085_871_750_066_99,
+        43.294_165_939_653_226,
       );
       let line: ExcalidrawLinearElement;
 
@@ -982,13 +982,13 @@ describe("Test Linear Elements", () => {
       };
 
       const elements: ExcalidrawElement[] = [];
-      h.elements.forEach((element) => {
+      for (const element of h.elements) {
         if (element.id === container.id) {
           elements.push(container);
         } else {
           elements.push(element);
         }
-      });
+      }
       const updatedTextElement = { ...textElement, originalText: text };
       API.setElements([...elements, updatedTextElement]);
       return { textElement: updatedTextElement, container };
@@ -1052,8 +1052,8 @@ describe("Test Linear Elements", () => {
         // hence hardcoding it so if later some bug is introduced
         // this will fail and we can fix it
         const firstSegmentMidpoint = pointFrom<GlobalPoint>(
-          55.9697848965255,
-          47.442326230998205,
+          55.969_784_896_525_5,
+          47.442_326_230_998_205,
         );
         // drag line from first segment midpoint
         drag(
@@ -1471,8 +1471,8 @@ describe("Test Linear Elements", () => {
               line.points.length - 1,
               {
                 point: pointFrom(
-                  line.points[line.points.length - 1][0] - 10,
-                  line.points[line.points.length - 1][1] - 10,
+                  line.points.at(-1)[0] - 10,
+                  line.points.at(-1)[1] - 10,
                 ),
               },
             ],
@@ -1482,8 +1482,8 @@ describe("Test Linear Elements", () => {
       expect(line.x).toBe(origStartX + 10);
       expect(line.y).toBe(origStartY + 10);
 
-      expect(line.points[line.points.length - 1][0]).toBe(20);
-      expect(line.points[line.points.length - 1][1]).toBe(-20);
+      expect(line.points.at(-1)[0]).toBe(20);
+      expect(line.points.at(-1)[1]).toBe(-20);
     });
 
     it("should preserve original angle when dragging endpoint with SHIFT key", () => {

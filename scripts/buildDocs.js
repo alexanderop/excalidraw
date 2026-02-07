@@ -1,4 +1,4 @@
-const { exec } = require("child_process");
+const { exec } = require("node:child_process");
 
 // get files changed between prev and head commit
 exec(`git diff --name-only HEAD^ HEAD`, async (error, stdout, stderr) => {
@@ -9,10 +9,10 @@ exec(`git diff --name-only HEAD^ HEAD`, async (error, stdout, stderr) => {
   const changedFiles = stdout.trim().split("\n");
 
   const docFiles = changedFiles.filter((file) => {
-    return file.indexOf("docs") >= 0;
+    return file.includes("docs");
   });
 
-  if (!docFiles.length) {
+  if (docFiles.length === 0) {
     console.info("Skipping building docs as no valid diff found");
     process.exit(0);
   }

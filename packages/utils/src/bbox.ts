@@ -24,7 +24,7 @@ export function doBBoxesIntersect(a: Bounds, b: Bounds) {
   return a[0] <= b[2] && a[2] >= b[0] && a[1] <= b[3] && a[3] >= b[1];
 }
 
-const EPSILON = 0.000001;
+const EPSILON = 0.000_001;
 
 export function isPointOnLine<P extends GlobalPoint | LocalPoint>(
   l: LineSegment<P>,

@@ -1,4 +1,4 @@
-/* eslint-disable no-lone-blocks */
+ 
 import { generateKeyBetween } from "fractional-indexing";
 
 import { arrayToMap } from "@excalidraw/common";
@@ -798,7 +798,7 @@ function test(
       }),
     ).not.toThrowError(InvalidFractionalIndexError);
 
-    syncedElements.forEach((synced, index) => {
+    for (const [index, synced] of syncedElements.entries()) {
       const element = elements[index];
       // ensure the order hasn't changed
       expect(synced.id).toBe(element.id);
@@ -812,6 +812,6 @@ function test(
         // ensure we mutated just once, even with fallback triggered
         expect(synced.version).toBe(elements[index].version + 1);
       }
-    });
+    }
   });
 }

@@ -28,7 +28,7 @@ export const actionToggleZenMode = register({
   predicate: (elements, appState, appProps, app) => {
     return (
       app.editorInterface.formFactor !== "phone" &&
-      typeof appProps.zenModeEnabled === "undefined"
+      appProps.zenModeEnabled === undefined
     );
   },
   keyTest: (event) =>

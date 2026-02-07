@@ -436,9 +436,16 @@ const wrapLine = (
     }
 
     // current line is empty => just the token (word) is longer than `maxWidth` and needs to be wrapped
-    if (!currentLine) {
+    if (currentLine) {
+      // push & reset, but don't iterate on the next token, as we didn't use it yet!
+      lines.push(currentLine.trimEnd());
+
+      // purposefully not iterating and not setting `currentLine` to `token`, so that we could use a simple !currentLine check above
+      currentLine = "";
+      currentLineWidth = 0;
+    } else {
       const wrappedWord = wrapWord(token, font, maxWidth);
-      const trailingLine = wrappedWord[wrappedWord.length - 1] ?? "";
+      const trailingLine = wrappedWord.at(-1) ?? "";
       const precedingLines = wrappedWord.slice(0, -1);
 
       lines.push(...precedingLines);
@@ -447,13 +454,6 @@ const wrapLine = (
       currentLine = trailingLine;
       currentLineWidth = getLineWidth(trailingLine, font);
       iterator = tokenIterator.next();
-    } else {
-      // push & reset, but don't iterate on the next token, as we didn't use it yet!
-      lines.push(currentLine.trimEnd());
-
-      // purposefully not iterating and not setting `currentLine` to `token`, so that we could use a simple !currentLine check above
-      currentLine = "";
-      currentLineWidth = 0;
     }
   }
 
@@ -482,7 +482,7 @@ const wrapWord = (
   satisfiesWordInvariant(word);
 
   const lines: Array<string> = [];
-  const chars = Array.from(word);
+  const chars = [...word];
 
   let currentLine = "";
   let currentLineWidth = 0;
@@ -531,7 +531,7 @@ const trimLine = (line: string, font: FontString, maxWidth: number) => {
 
   let trimmedLineWidth = getLineWidth(trimmedLine, font);
 
-  for (const whitespace of Array.from(whitespaces)) {
+  for (const whitespace of [...whitespaces]) {
     const _charWidth = charWidth.calculate(whitespace, font);
     const testLineWidth = trimmedLineWidth + _charWidth;
 
@@ -562,9 +562,7 @@ const isSingleCharacter = (maybeSingleCharacter: string) => {
  * Invariant for the word wrapping algorithm.
  */
 const satisfiesWordInvariant = (word: string) => {
-  if (isTestEnv() || isDevEnv()) {
-    if (/\s/.test(word)) {
+  if ((isTestEnv() || isDevEnv()) && /\s/.test(word)) {
       throw new Error("Word should not contain any whitespaces!");
     }
-  }
 };

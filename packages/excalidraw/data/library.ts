@@ -210,7 +210,7 @@ class Library {
   private updateQueue: Promise<LibraryItems>[] = [];
 
   private getLastUpdateTask = (): Promise<LibraryItems> | undefined => {
-    return this.updateQueue[this.updateQueue.length - 1];
+    return this.updateQueue.at(-1);
   };
 
   private notifyListeners = () => {
@@ -275,7 +275,7 @@ class Library {
         } else {
           resolve(cloneLibraryItems(libraryItems));
         }
-      } catch (error) {
+      } catch {
         return resolve(this.currLibraryItems);
       }
     });
@@ -313,14 +313,10 @@ class Library {
 
           let nextItems;
 
-          if (source instanceof Blob) {
-            nextItems = await loadLibraryFromBlob(source, defaultStatus);
-          } else {
-            nextItems = restoreLibraryItems(source, defaultStatus);
-          }
+          nextItems = source instanceof Blob ? (await loadLibraryFromBlob(source, defaultStatus)) : restoreLibraryItems(source, defaultStatus);
           if (
             !prompt ||
-            window.confirm(
+            globalThis.confirm(
               t("alerts.confirmAddLibrary", {
                 numShapes: nextItems.length,
               }),
@@ -465,7 +461,7 @@ export const distributeLibraryItemsOnSquareGrid = (
     const offsetCenterX = (maxWidthCurrCol - width) / 2;
     const offsetCenterY = (maxHeightCurrRow - height) / 2;
     resElements.push(
-      // eslint-disable-next-line no-loop-func
+       
       ...item.elements.map((element) => ({
         ...element,
         x:
@@ -514,7 +510,7 @@ export const validateLibraryUrl = (
           const { hostname, pathname } = new URL(libraryUrl);
 
           return (
-            new RegExp(`(^|\\.)${allowedUrl.hostname}$`).test(hostname) &&
+            new RegExp(String.raw`(^|\.)${allowedUrl.hostname}$`).test(hostname) &&
             new RegExp(
               `^${allowedUrl.pathname.replace(/\/+$/, "")}(/+|$)`,
             ).test(pathname)
@@ -530,13 +526,13 @@ export const validateLibraryUrl = (
 export const parseLibraryTokensFromUrl = () => {
   const libraryUrl =
     // current
-    new URLSearchParams(window.location.hash.slice(1)).get(
+    new URLSearchParams(globalThis.location.hash.slice(1)).get(
       URL_HASH_KEYS.addLibrary,
     ) ||
     // legacy, kept for compat reasons
-    new URLSearchParams(window.location.search).get(URL_QUERY_KEYS.addLibrary);
+    new URLSearchParams(globalThis.location.search).get(URL_QUERY_KEYS.addLibrary);
   const idToken = libraryUrl
-    ? new URLSearchParams(window.location.hash.slice(1)).get("token")
+    ? new URLSearchParams(globalThis.location.hash.slice(1)).get("token")
     : null;
 
   return libraryUrl ? { libraryUrl, idToken } : null;
@@ -600,7 +596,7 @@ export const getLibraryItemsHash = (items: LibraryItems) => {
     items
       .map((item) => getLibraryItemHash(item))
       .sort()
-      .join(),
+      .join(','),
   );
 };
 
@@ -655,9 +651,7 @@ const persistLibraryUpdate = async (
         }
       }
 
-      const nextLibraryItems = addedItems.concat(
-        Array.from(nextLibraryItemsMap.values()),
-      );
+      const nextLibraryItems = [...addedItems, ...nextLibraryItemsMap.values()];
 
       const version = getLibraryItemsHash(nextLibraryItems);
 
@@ -766,14 +760,14 @@ export const useHandleLibrary = (
         });
         throw error;
       } finally {
-        if (window.location.hash.includes(URL_HASH_KEYS.addLibrary)) {
-          const hash = new URLSearchParams(window.location.hash.slice(1));
+        if (globalThis.location.hash.includes(URL_HASH_KEYS.addLibrary)) {
+          const hash = new URLSearchParams(globalThis.location.hash.slice(1));
           hash.delete(URL_HASH_KEYS.addLibrary);
-          window.history.replaceState({}, APP_NAME, `#${hash.toString()}`);
-        } else if (window.location.search.includes(URL_QUERY_KEYS.addLibrary)) {
-          const query = new URLSearchParams(window.location.search);
+          globalThis.history.replaceState({}, APP_NAME, `#${hash.toString()}`);
+        } else if (globalThis.location.search.includes(URL_QUERY_KEYS.addLibrary)) {
+          const query = new URLSearchParams(globalThis.location.search);
           query.delete(URL_QUERY_KEYS.addLibrary);
-          window.history.replaceState({}, APP_NAME, `?${query.toString()}`);
+          globalThis.history.replaceState({}, APP_NAME, `?${query.toString()}`);
         }
       }
     };
@@ -786,7 +780,7 @@ export const useHandleLibrary = (
         // the url to its previous state (important in case of collaboration
         // and similar).
         // Using history API won't trigger another hashchange.
-        window.history.replaceState({}, "", event.oldURL);
+        globalThis.history.replaceState({}, "", event.oldURL);
 
         importLibraryFromURL(libraryUrlTokens);
       }
@@ -919,9 +913,9 @@ export const useHandleLibrary = (
     }
     // ---------------------------------------------- data source datapter -----
 
-    window.addEventListener(EVENT.HASHCHANGE, onHashChange);
+    globalThis.addEventListener(EVENT.HASHCHANGE, onHashChange);
     return () => {
-      window.removeEventListener(EVENT.HASHCHANGE, onHashChange);
+      globalThis.removeEventListener(EVENT.HASHCHANGE, onHashChange);
     };
   }, [
     // important this useEffect only depends on excalidrawAPI so it only reruns
@@ -949,8 +943,7 @@ export const useHandleLibrary = (
           const adapter =
             ("adapter" in optsRef.current && optsRef.current.adapter) || null;
           try {
-            if (adapter) {
-              if (
+            if (adapter && 
                 // if nextLibraryItems hash identical to previously saved hash,
                 // exit early, even if actual upstream state ends up being
                 // different (e.g. has more data than we have locally), as it'd
@@ -960,7 +953,6 @@ export const useHandleLibrary = (
               ) {
                 await persistLibraryUpdate(adapter, update);
               }
-            }
           } catch (error: any) {
             console.error(
               `couldn't persist library update: ${error.message}`,
@@ -985,10 +977,10 @@ export const useHandleLibrary = (
         }
       };
 
-      window.addEventListener(EVENT.BEFORE_UNLOAD, onUnload);
+      globalThis.addEventListener(EVENT.BEFORE_UNLOAD, onUnload);
 
       return () => {
-        window.removeEventListener(EVENT.BEFORE_UNLOAD, onUnload);
+        globalThis.removeEventListener(EVENT.BEFORE_UNLOAD, onUnload);
         unsubOnLibraryUpdate();
         lastSavedLibraryItemsHash = 0;
         librarySaveCounter = 0;

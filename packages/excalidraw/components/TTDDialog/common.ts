@@ -74,13 +74,13 @@ export const convertMermaidToExcalidraw = async ({
     try {
       try {
         ret = await api.parseMermaidToExcalidraw(mermaidDefinition);
-      } catch (err: unknown) {
+      } catch {
         ret = await api.parseMermaidToExcalidraw(
-          mermaidDefinition.replace(/"/g, "'"),
+          mermaidDefinition.replaceAll('"', "'"),
         );
       }
-    } catch (err: unknown) {
-      return { success: false, error: err as Error };
+    } catch (error: unknown) {
+      return { success: false, error: error as Error };
     }
 
     const { elements, files } = ret;
@@ -108,14 +108,14 @@ export const convertMermaidToExcalidraw = async ({
     parent.style.background = "var(--default-bg-color)";
     canvasNode.replaceChildren(canvas);
     return { success: true };
-  } catch (err: any) {
+  } catch (error: any) {
     parent.style.background = "var(--default-bg-color)";
     if (mermaidDefinition) {
-      setError(err);
+      setError(error);
     }
 
     // Return error so caller can display meaningful error message
-    return { success: false, error: err };
+    return { success: false, error: error };
   }
 };
 export const saveMermaidDataToStorage = (mermaidDefinition: string) => {
@@ -141,7 +141,7 @@ export const insertToEditor = ({
 }) => {
   const { elements: newElements, files } = data.current;
 
-  if (!newElements.length) {
+  if (newElements.length === 0) {
     return;
   }
 

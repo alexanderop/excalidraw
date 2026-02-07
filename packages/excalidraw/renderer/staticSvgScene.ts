@@ -52,7 +52,7 @@ const roughSVGDrawWithPrecision = (
   drawable: Drawable,
   precision?: number,
 ) => {
-  if (typeof precision === "undefined") {
+  if (precision === undefined) {
     return rsvg.draw(drawable);
   }
   const pshape: Drawable = {
@@ -77,7 +77,7 @@ const maybeWrapNodesInFrameClipPath = (
   if (frame) {
     const g = root.ownerDocument.createElementNS(SVG_NS, "g");
     g.setAttributeNS(SVG_NS, "clip-path", `url(#${frame.id})`);
-    nodes.forEach((node) => g.appendChild(node));
+    for (const node of nodes) g.append(node);
     return g;
   }
 
@@ -123,21 +123,21 @@ const renderElementToSvg = (
   if (element.link) {
     const anchorTag = svgRoot.ownerDocument.createElementNS(SVG_NS, "a");
     anchorTag.setAttribute("href", normalizeLink(element.link));
-    root.appendChild(anchorTag);
+    root.append(anchorTag);
     root = anchorTag;
   }
 
   const addToRoot = (node: SVGElement, element: ExcalidrawElement) => {
     if (isTestEnv()) {
-      node.setAttribute("data-id", element.id);
+      node.dataset.id = element.id;
     }
-    root.appendChild(node);
+    root.append(node);
   };
 
   const opacity =
     ((getContainingFrame(element, elementsMap)?.opacity ?? 100) *
       element.opacity) /
-    10000;
+    10_000;
 
   switch (element.type) {
     case "selection": {
@@ -227,7 +227,7 @@ const renderElementToSvg = (
         }) rotate(${degree} ${cx} ${cy})`,
       );
       while (embeddableNode.firstChild) {
-        embeddableNode.removeChild(embeddableNode.firstChild);
+        embeddableNode.firstChild.remove();
       }
       const radius = getCornerRadius(
         Math.min(element.width, element.height),
@@ -249,7 +249,7 @@ const renderElementToSvg = (
         anchorTag.setAttribute("rel", "noopener noreferrer");
         anchorTag.style.borderRadius = `${radius}px`;
 
-        embeddableNode.appendChild(anchorTag);
+        embeddableNode.append(anchorTag);
       } else {
         const foreignObject = svgRoot.ownerDocument.createElementNS(
           SVG_NS,
@@ -271,10 +271,10 @@ const renderElementToSvg = (
         iframe.style.top = "0";
         iframe.style.left = "0";
         iframe.allowFullscreen = true;
-        div.appendChild(iframe);
-        foreignObject.appendChild(div);
+        div.append(iframe);
+        foreignObject.append(div);
 
-        embeddableNode.appendChild(foreignObject);
+        embeddableNode.append(foreignObject);
       }
       addToRoot(embeddableNode, element);
       break;
@@ -303,7 +303,7 @@ const renderElementToSvg = (
           `${element.height + 100 + offsetY}`,
         );
 
-        maskPath.appendChild(maskRectVisible);
+        maskPath.append(maskRectVisible);
         const maskRectInvisible = svgRoot.ownerDocument.createElementNS(
           SVG_NS,
           "rect",
@@ -323,7 +323,7 @@ const renderElementToSvg = (
         maskRectInvisible.setAttribute("width", `${boundText.width}`);
         maskRectInvisible.setAttribute("height", `${boundText.height}`);
         maskRectInvisible.setAttribute("opacity", "1");
-        maskPath.appendChild(maskRectInvisible);
+        maskPath.append(maskRectInvisible);
       }
       const group = svgRoot.ownerDocument.createElementNS(SVG_NS, "g");
       if (boundText) {
@@ -332,7 +332,7 @@ const renderElementToSvg = (
       group.setAttribute("stroke-linecap", "round");
 
       const shapes = ShapeCache.generateElementShape(element, renderConfig);
-      shapes.forEach((shape) => {
+      for (const shape of shapes) {
         const node = roughSVGDrawWithPrecision(
           rsvg,
           shape,
@@ -355,8 +355,8 @@ const renderElementToSvg = (
         ) {
           node.setAttribute("fill-rule", "evenodd");
         }
-        group.appendChild(node);
-      });
+        group.append(node);
+      }
 
       const g = maybeWrapNodesInFrameClipPath(
         element,
@@ -367,7 +367,7 @@ const renderElementToSvg = (
       );
       if (g) {
         addToRoot(g, element);
-        root.appendChild(g);
+        root.append(g);
       } else {
         addToRoot(group, element);
         root.append(maskPath);
@@ -391,7 +391,7 @@ const renderElementToSvg = (
               : element.strokeColor,
           );
           path.setAttribute("d", shape);
-          wrapper.appendChild(path);
+          wrapper.append(path);
         } else {
           // background (Drawable)
 
@@ -404,10 +404,10 @@ const renderElementToSvg = (
           // if children wrapped in <g>, unwrap it
           if (bgNode.nodeName === "g") {
             while (bgNode.firstChild) {
-              wrapper.appendChild(bgNode.firstChild);
+              wrapper.append(bgNode.firstChild);
             }
           } else {
-            wrapper.appendChild(bgNode);
+            wrapper.append(bgNode);
           }
         }
       }
@@ -476,7 +476,7 @@ const renderElementToSvg = (
             image.setAttribute("height", "100%");
           }
 
-          symbol.appendChild(image);
+          symbol.append(image);
 
           (root.querySelector("defs") || root).prepend(symbol);
         }
@@ -543,12 +543,12 @@ const renderElementToSvg = (
           maskRect.setAttribute("width", `${width}`);
           maskRect.setAttribute("height", `${height}`);
 
-          mask.appendChild(maskRect);
-          root.appendChild(mask);
+          mask.append(maskRect);
+          root.append(mask);
           g.setAttribute("mask", `url(#${mask.id})`);
         }
 
-        g.appendChild(use);
+        g.append(use);
         g.setAttribute(
           "transform",
           `translate(${offsetX - normalizedCropX} ${
@@ -579,7 +579,7 @@ const renderElementToSvg = (
           clipRect.setAttribute("height", `${element.height}`);
           clipRect.setAttribute("rx", `${radius}`);
           clipRect.setAttribute("ry", `${radius}`);
-          clipPath.appendChild(clipRect);
+          clipPath.append(clipRect);
           addToRoot(clipPath, element);
 
           g.setAttributeNS(SVG_NS, "clip-path", `url(#${clipPath.id})`);
@@ -645,7 +645,7 @@ const renderElementToSvg = (
             offsetY || 0
           }) rotate(${degree} ${cx} ${cy})`,
         );
-        const lines = element.text.replace(/\r\n?/g, "\n").split("\n");
+        const lines = element.text.replaceAll(/\r\n?/g, "\n").split("\n");
         const lineHeightPx = getLineHeightInPx(
           element.fontSize,
           element.lineHeight,
@@ -668,9 +668,9 @@ const renderElementToSvg = (
             : element.textAlign === "right" || direction === "rtl"
             ? "end"
             : "start";
-        for (let i = 0; i < lines.length; i++) {
+        for (const [i, line] of lines.entries()) {
           const text = svgRoot.ownerDocument.createElementNS(SVG_NS, "text");
-          text.textContent = lines[i];
+          text.textContent = line;
           text.setAttribute("x", `${horizontalOffset}`);
           text.setAttribute("y", `${i * lineHeightPx + verticalOffset}`);
           text.setAttribute("font-family", getFontFamilyString(element));
@@ -685,7 +685,7 @@ const renderElementToSvg = (
           text.setAttribute("style", "white-space: pre;");
           text.setAttribute("direction", direction);
           text.setAttribute("dominant-baseline", "alphabetic");
-          node.appendChild(text);
+          node.append(text);
         }
 
         const g = maybeWrapNodesInFrameClipPath(
@@ -718,9 +718,8 @@ export const renderSceneToSvg = (
   }
 
   // render elements
-  elements
-    .filter((el) => !isIframeLikeElement(el))
-    .forEach((element) => {
+  for (const element of elements
+    .filter((el) => !isIframeLikeElement(el))) {
       if (!element.isDeleted) {
         if (
           isTextElement(element) &&
@@ -728,7 +727,7 @@ export const renderSceneToSvg = (
           elementsMap.has(element.containerId)
         ) {
           // will be rendered with the container
-          return;
+          continue;
         }
 
         try {
@@ -760,12 +759,11 @@ export const renderSceneToSvg = (
           console.error(error);
         }
       }
-    });
+    }
 
   // render embeddables on top
-  elements
-    .filter((el) => isIframeLikeElement(el))
-    .forEach((element) => {
+  for (const element of elements
+    .filter((el) => isIframeLikeElement(el))) {
       if (!element.isDeleted) {
         try {
           renderElementToSvg(
@@ -782,5 +780,5 @@ export const renderSceneToSvg = (
           console.error(error);
         }
       }
-    });
+    }
 };

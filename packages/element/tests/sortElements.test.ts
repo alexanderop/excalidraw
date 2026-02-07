@@ -6,7 +6,7 @@ import { normalizeElementOrder } from "../src/sortElements";
 
 import type { ExcalidrawElement } from "../src/types";
 
-const { h } = window;
+const { h } = globalThis;
 const assertOrder = (
   elements: readonly ExcalidrawElement[],
   expectedOrder: string[],
@@ -398,7 +398,7 @@ describe("normalizeElementsOrder", () => {
       return elements;
     };
 
-    const elements = makeElements(10000);
+    const elements = makeElements(10_000);
     const t0 = Date.now();
     normalizeElementOrder(elements);
     console.info(`${Date.now() - t0}ms`);

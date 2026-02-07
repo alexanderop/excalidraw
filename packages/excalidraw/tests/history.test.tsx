@@ -80,7 +80,7 @@ import { setupImageTest as _setupImageTest } from "./image.test";
 
 import type { AppState } from "../types";
 
-const { h } = window;
+const { h } = globalThis;
 
 const mouse = new Pointer("mouse");
 
@@ -99,11 +99,9 @@ const checkpoint = (name: string) => {
   expect(strippedAppState).toMatchSnapshot(`[${name}] appState`);
   expect(h.elements.length).toMatchSnapshot(`[${name}] number of elements`);
 
-  h.elements
-    .map(({ seed, versionNonce, ...strippedElement }) => strippedElement)
-    .forEach((element, i) =>
-      expect(element).toMatchSnapshot(`[${name}] element ${i}`),
-    );
+  for (const [i, element] of h.elements
+    .map(({ seed, versionNonce, ...strippedElement }) => strippedElement).entries()) expect(element).toMatchSnapshot(`[${name}] element ${i}`)
+    ;
 
   checkpointHistory(h.history, name);
 };
@@ -172,8 +170,8 @@ describe("history", () => {
               appState,
             ) as any,
         );
-      } catch (e) {
-        expect(e).toBeInstanceOf(Error);
+      } catch (error) {
+        expect(error).toBeInstanceOf(Error);
       }
       // we popped the entry, even though it is corrupted, so the user could perform subsequent undo/redo and would not be stuck on this entry forever
       expect(API.getUndoStack().length).toBe(0);
@@ -192,8 +190,8 @@ describe("history", () => {
               appState,
             ) as any,
         );
-      } catch (e) {
-        expect(e).toBeInstanceOf(Error);
+      } catch (error) {
+        expect(error).toBeInstanceOf(Error);
       }
       expect(API.getUndoStack().length).toBe(1); // vice versa for redo
       expect(API.getRedoStack().length).toBe(0); // vice versa for undo
@@ -2317,21 +2315,21 @@ describe("history", () => {
             ...arrow,
             x: 1035,
             y: 274.9,
-            width: 178.9000000000001,
-            height: 236.10000000000002,
+            width: 178.900_000_000_000_1,
+            height: 236.100_000_000_000_02,
             points: [
               pointFrom(0, 0),
-              pointFrom(178.9000000000001, 0),
-              pointFrom(178.9000000000001, 236.10000000000002),
+              pointFrom(178.900_000_000_000_1, 0),
+              pointFrom(178.900_000_000_000_1, 236.100_000_000_000_02),
             ],
             startBinding: {
               elementId: "KPrBI4g_v9qUB1XxYLgSz",
-              fixedPoint: [1.0318471337579618, 0.49920634920634904],
+              fixedPoint: [1.031_847_133_757_961_8, 0.499_206_349_206_349_04],
               mode: "orbit",
             } as FixedPointBinding,
             endBinding: {
               elementId: "u2JGnnmoJ0VATV4vCNJE5",
-              fixedPoint: [0.4991935483870975, -0.03875193720914723],
+              fixedPoint: [0.499_193_548_387_097_5, -0.038_751_937_209_147_23],
               mode: "orbit",
             } as FixedPointBinding,
           },
@@ -2356,9 +2354,9 @@ describe("history", () => {
 
       Keyboard.undo();
 
-      const modifiedArrow = h.elements.filter(
+      const modifiedArrow = h.elements.find(
         (el) => el.type === "arrow",
-      )[0] as ExcalidrawElbowArrowElement;
+      ) as ExcalidrawElbowArrowElement;
       expect(modifiedArrow.points).toCloselyEqualPoints([
         [0, 0],
         [178.9, 0],
@@ -4315,8 +4313,8 @@ describe("history", () => {
           expect.objectContaining({
             ...textProps,
             // text element got redrawn!
-            x: 241.295259647664,
-            y: 247.59240920619527,
+            x: 241.295_259_647_664,
+            y: 247.592_409_206_195_27,
             angle: 90,
             id: text.id,
             containerId: container.id,
@@ -4359,8 +4357,8 @@ describe("history", () => {
           }),
           expect.objectContaining({
             ...textProps,
-            x: 241.295259647664,
-            y: 247.59240920619527,
+            x: 241.295_259_647_664,
+            y: 247.592_409_206_195_27,
             angle: 90,
             id: text.id,
             containerId: container.id,
@@ -4623,12 +4621,12 @@ describe("history", () => {
                 id: arrowId,
                 startBinding: expect.objectContaining({
                   elementId: rect1.id,
-                  fixedPoint: [0.6363636363636364, 0.6363636363636364],
+                  fixedPoint: [0.636_363_636_363_636_4, 0.636_363_636_363_636_4],
                   mode: "orbit",
                 }),
                 endBinding: expect.objectContaining({
                   elementId: rect2.id,
-                  fixedPoint: [0.4106696643494564, 0.5893303356505437],
+                  fixedPoint: [0.410_669_664_349_456_4, 0.589_330_335_650_543_7],
                   mode: "orbit",
                 }),
               }),
@@ -4766,13 +4764,13 @@ describe("history", () => {
                 id: arrowId,
                 startBinding: expect.objectContaining({
                   elementId: rect1.id,
-                  fixedPoint: [0.6363636363636364, 0.6363636363636364],
+                  fixedPoint: [0.636_363_636_363_636_4, 0.636_363_636_363_636_4],
                   mode: "orbit",
                 }),
                 // rebound with previous rectangle
                 endBinding: expect.objectContaining({
                   elementId: rect2.id,
-                  fixedPoint: [0.39746300211416496, 0.6025369978858351],
+                  fixedPoint: [0.397_463_002_114_164_96, 0.602_536_997_885_835_1],
                   mode: "orbit",
                 }),
               }),

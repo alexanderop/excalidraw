@@ -215,9 +215,9 @@ const renderBindings = (
 ) => {
   const elementsMap = arrayToMap(elements);
   const dim = 16;
-  elements.forEach((element) => {
+  for (const element of elements) {
     if (element.isDeleted) {
-      return;
+      continue;
     }
 
     if (isArrowElement(element)) {
@@ -227,7 +227,7 @@ const renderBindings = (
             .get(element.startBinding.elementId)
             ?.boundElements?.find((e) => e.id === element.id)
         ) {
-          return;
+          continue;
         }
 
         _renderBinding(
@@ -247,7 +247,7 @@ const renderBindings = (
             .get(element.endBinding.elementId)
             ?.boundElements?.find((e) => e.id === element.id)
         ) {
-          return;
+          continue;
         }
         _renderBinding(
           context,
@@ -262,9 +262,9 @@ const renderBindings = (
     }
 
     if (isBindableElement(element) && element.boundElements?.length) {
-      element.boundElements.forEach((boundElement) => {
+      for (const boundElement of element.boundElements) {
         if (boundElement.type !== "arrow") {
-          return;
+          continue;
         }
 
         const arrow = elementsMap.get(
@@ -293,9 +293,9 @@ const renderBindings = (
             "green",
           );
         }
-      });
+      }
     }
-  });
+  }
 };
 
 const render = (
@@ -305,7 +305,7 @@ const render = (
 ) => {
   frame.forEach((el: DebugElement) => {
     switch (true) {
-      case isLineSegment(el.data):
+      case isLineSegment(el.data): {
         renderLine(
           context,
           appState.zoom.value,
@@ -313,7 +313,8 @@ const render = (
           el.color,
         );
         break;
-      case isCurve(el.data):
+      }
+      case isCurve(el.data): {
         renderCubicBezier(
           context,
           appState.zoom.value,
@@ -321,11 +322,14 @@ const render = (
           el.color,
         );
         break;
-      case isDebugPolygon(el.data):
+      }
+      case isDebugPolygon(el.data): {
         renderPolygon(context, appState.zoom.value, el.data, el.color);
         break;
-      default:
+      }
+      default: {
         throw new Error(`Unknown element type ${JSON.stringify(el)}`);
+      }
     }
   });
 };
@@ -360,35 +364,35 @@ const _debugRenderer = (
   renderBindings(context, elements, appState.zoom.value);
 
   if (
-    window.visualDebug?.currentFrame &&
-    window.visualDebug?.data &&
-    window.visualDebug.data.length > 0
+    globalThis.visualDebug?.currentFrame &&
+    globalThis.visualDebug?.data &&
+    globalThis.visualDebug.data.length > 0
   ) {
     // Render only one frame
     const [idx] = debugFrameData();
 
-    render(window.visualDebug.data[idx], context, appState);
+    render(globalThis.visualDebug.data[idx], context, appState);
   } else {
     // Render all debug frames
-    window.visualDebug?.data.forEach((frame) => {
+    for (const frame of globalThis.visualDebug?.data) {
       render(frame, context, appState);
-    });
+    }
   }
 
-  if (window.visualDebug) {
-    window.visualDebug!.data =
-      window.visualDebug?.data.map((frame) =>
+  if (globalThis.visualDebug) {
+    globalThis.visualDebug!.data =
+      globalThis.visualDebug?.data.map((frame) =>
         frame.filter((el) => el.permanent),
       ) ?? [];
   }
 };
 
 const debugFrameData = (): [number, number] => {
-  const currentFrame = window.visualDebug?.currentFrame ?? 0;
-  const frameCount = window.visualDebug?.data.length ?? 0;
+  const currentFrame = globalThis.visualDebug?.currentFrame ?? 0;
+  const frameCount = globalThis.visualDebug?.data.length ?? 0;
 
   if (frameCount > 0) {
-    return [currentFrame % frameCount, window.visualDebug?.currentFrame ?? 0];
+    return [currentFrame % frameCount, globalThis.visualDebug?.currentFrame ?? 0];
   }
 
   return [0, 0];
@@ -434,38 +438,38 @@ export const loadSavedDebugState = () => {
 };
 
 export const isVisualDebuggerEnabled = () =>
-  Array.isArray(window.visualDebug?.data);
+  Array.isArray(globalThis.visualDebug?.data);
 
 export const DebugFooter = ({ onChange }: { onChange: () => void }) => {
   const moveForward = useCallback(() => {
     if (
-      !window.visualDebug?.currentFrame ||
-      isNaN(window.visualDebug?.currentFrame ?? -1)
+      !globalThis.visualDebug?.currentFrame ||
+      isNaN(globalThis.visualDebug?.currentFrame ?? -1)
     ) {
-      window.visualDebug!.currentFrame = 0;
+      globalThis.visualDebug!.currentFrame = 0;
     }
-    window.visualDebug!.currentFrame += 1;
+    globalThis.visualDebug!.currentFrame += 1;
     onChange();
   }, [onChange]);
   const moveBackward = useCallback(() => {
     if (
-      !window.visualDebug?.currentFrame ||
-      isNaN(window.visualDebug?.currentFrame ?? -1) ||
-      window.visualDebug?.currentFrame < 1
+      !globalThis.visualDebug?.currentFrame ||
+      isNaN(globalThis.visualDebug?.currentFrame ?? -1) ||
+      globalThis.visualDebug?.currentFrame < 1
     ) {
-      window.visualDebug!.currentFrame = 1;
+      globalThis.visualDebug!.currentFrame = 1;
     }
-    window.visualDebug!.currentFrame -= 1;
+    globalThis.visualDebug!.currentFrame -= 1;
     onChange();
   }, [onChange]);
   const reset = useCallback(() => {
-    window.visualDebug!.currentFrame = undefined;
+    globalThis.visualDebug!.currentFrame = undefined;
     onChange();
   }, [onChange]);
   const trashFrames = useCallback(() => {
-    if (window.visualDebug) {
-      window.visualDebug.currentFrame = undefined;
-      window.visualDebug.data = [];
+    if (globalThis.visualDebug) {
+      globalThis.visualDebug.currentFrame = undefined;
+      globalThis.visualDebug.data = [];
     }
     onChange();
   }, [onChange]);

@@ -28,7 +28,7 @@ import { duplicateElement } from "../src/duplicate";
 
 import type { ExcalidrawImageElement, ImageCrop } from "../src/types";
 
-const { h } = window;
+const { h } = globalThis;
 const mouse = new Pointer("mouse");
 
 beforeEach(async () => {
@@ -71,12 +71,12 @@ const generateRandomNaturalWidthAndHeight = (image: ExcalidrawImageElement) => {
 };
 
 const compareCrops = (cropA: ImageCrop, cropB: ImageCrop) => {
-  (Object.keys(cropA) as [keyof ImageCrop]).forEach((key) => {
+  for (const key of (Object.keys(cropA) as [keyof ImageCrop])) {
     const propA = cropA[key];
     const propB = cropB[key];
 
     expect(propA as number).toBeCloseTo(propB as number);
-  });
+  }
 };
 
 describe("Enter and leave the crop editor", () => {

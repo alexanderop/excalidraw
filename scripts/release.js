@@ -1,7 +1,7 @@
-const fs = require("fs");
-const path = require("path");
+const fs = require("node:fs");
+const path = require("node:path");
 
-const { execSync } = require("child_process");
+const { execSync } = require("node:child_process");
 
 const updateChangelog = require("./updateChangelog");
 
@@ -75,11 +75,11 @@ const getArguments = () => {
 
     const hash = getShortCommitHash();
 
-    if (!excalidrawPackageVersion.includes(hash)) {
-      version = `${excalidrawPackageVersion}-${hash}`;
-    } else {
+    if (excalidrawPackageVersion.includes(hash)) {
       // ensuring idempotency
       version = excalidrawPackageVersion;
+    } else {
+      version = `${excalidrawPackageVersion}-${hash}`;
     }
   }
 
@@ -138,7 +138,7 @@ const askToCommit = (tag, nextVersion) => {
   }
 
   return new Promise((resolve) => {
-    const rl = require("readline").createInterface({
+    const rl = require("node:readline").createInterface({
       input: process.stdin,
       output: process.stdout,
     });
@@ -183,7 +183,7 @@ const buildPackages = () => {
 
 const askToPublish = (tag, version) => {
   return new Promise((resolve) => {
-    const rl = require("readline").createInterface({
+    const rl = require("node:readline").createInterface({
       input: process.stdin,
       output: process.stdout,
     });

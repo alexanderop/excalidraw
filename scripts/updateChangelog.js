@@ -1,6 +1,6 @@
-const fs = require("fs");
-const util = require("util");
-const exec = util.promisify(require("child_process").exec);
+const fs = require("node:fs");
+const util = require("node:util");
+const exec = util.promisify(require("node:child_process").exec);
 
 const excalidrawDir = `${__dirname}/../packages/excalidraw`;
 const excalidrawPackage = `${excalidrawDir}/package.json`;
@@ -42,30 +42,30 @@ const getLibraryCommitsSinceLastRelease = async () => {
   );
   const commitsSinceLastRelease = stdout.split("\n");
   const commitList = {};
-  supportedTypes.forEach((type) => {
+  for (const type of supportedTypes) {
     commitList[type] = [];
-  });
+  }
 
-  commitsSinceLastRelease.forEach((commit) => {
+  for (const commit of commitsSinceLastRelease) {
     const indexOfColon = commit.indexOf(":");
     const type = commit.slice(0, indexOfColon);
     if (!supportedTypes.includes(type)) {
-      return;
+      continue;
     }
     const messageWithoutType = commit.slice(indexOfColon + 1).trim();
     const messageWithCapitalizeFirst =
       messageWithoutType.charAt(0).toUpperCase() + messageWithoutType.slice(1);
-    const prMatch = commit.match(/\(#([0-9]*)\)/);
+    const prMatch = commit.match(/\(#(\d*)\)/);
     if (prMatch) {
       const prNumber = prMatch[1];
 
       // return if the changelog already contains the pr number which would happen for package updates
       if (existingChangeLog.includes(prNumber)) {
-        return;
+        continue;
       }
       const prMarkdown = `[#${prNumber}](https://github.com/excalidraw/excalidraw/pull/${prNumber})`;
       const messageWithPRLink = messageWithCapitalizeFirst.replace(
-        /\(#[0-9]*\)/,
+        /\(#\d*\)/,
         prMarkdown,
       );
       commitList[type].push(messageWithPRLink);
@@ -73,7 +73,7 @@ const getLibraryCommitsSinceLastRelease = async () => {
       badCommits.push(commit);
       commitList[type].push(messageWithCapitalizeFirst);
     }
-  });
+  }
   console.info("Bad commits:", badCommits);
   return commitList;
 };
@@ -82,15 +82,15 @@ const updateChangelog = async (nextVersion) => {
   const commitList = await getLibraryCommitsSinceLastRelease();
   let changelogForLibrary =
     "## Excalidraw Library\n\n**_This section lists the updates made to the excalidraw library and will not affect the integration._**\n\n";
-  supportedTypes.forEach((type) => {
-    if (commitList[type].length) {
+  for (const type of supportedTypes) {
+    if (commitList[type].length > 0) {
       changelogForLibrary += `### ${headerForType[type]}\n\n`;
       const commits = commitList[type];
-      commits.forEach((commit) => {
+      for (const commit of commits) {
         changelogForLibrary += `- ${commit}\n\n`;
-      });
+      }
     }
-  });
+  }
   changelogForLibrary += "---\n";
   const lastVersionIndex = existingChangeLog.indexOf(`## ${lastVersion}`);
   let updatedContent =

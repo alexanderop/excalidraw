@@ -169,7 +169,7 @@ export class LinearElementEditor {
       _brand: "excalidrawLinearElementId";
     };
     if (!pointsEqual(element.points[0], pointFrom(0, 0))) {
-      console.error("Linear element is not normalized", Error().stack);
+      console.error("Linear element is not normalized", new Error().stack);
       mutateElement(
         element,
         elementsMap,
@@ -280,7 +280,7 @@ export class LinearElementEditor {
     setState({
       selectedLinearElement: {
         ...selectedLinearElement,
-        selectedPointsIndices: nextSelectedPoints.length
+        selectedPointsIndices: nextSelectedPoints.length > 0
           ? nextSelectedPoints
           : null,
       },
@@ -363,18 +363,16 @@ export class LinearElementEditor {
       moveMidPointsWithElement: updates?.moveMidPointsWithElement,
     });
     // Set the suggested binding from the updates if available
-    if (isBindingElement(element, false)) {
-      if (isBindingEnabled(app.state)) {
+    if (isBindingElement(element, false) && isBindingEnabled(app.state)) {
         suggestedBinding = updates?.suggestedBinding ?? null;
       }
-    }
 
     // Move the arrow over the bindable object in terms of z-index
     if (isBindingElement(element)) {
       moveArrowAboveBindable(
         LinearElementEditor.getPointGlobalCoordinates(
           element,
-          element.points[element.points.length - 1],
+          element.points.at(-1),
           elementsMap,
         ),
         element,
@@ -436,9 +434,7 @@ export class LinearElementEditor {
     const elementsMap = app.scene.getNonDeletedElementsMap();
     const elements = app.scene.getNonDeletedElements();
     const { elbowed, elementId, initialState } = linearElementEditor;
-    const selectedPointsIndices = Array.from(
-      linearElementEditor.selectedPointsIndices ?? [],
-    );
+    const selectedPointsIndices = [...linearElementEditor.selectedPointsIndices ?? []];
     let { lastClickedPoint } = initialState;
     const element = LinearElementEditor.getElement(elementId, elementsMap);
 
@@ -541,11 +537,9 @@ export class LinearElementEditor {
     });
 
     // Set the suggested binding from the updates if available
-    if (isBindingElement(element, false)) {
-      if (isBindingEnabled(app.state) && (startIsSelected || endIsSelected)) {
+    if (isBindingElement(element, false) && isBindingEnabled(app.state) && (startIsSelected || endIsSelected)) {
         suggestedBinding = updates?.suggestedBinding ?? null;
       }
-    }
 
     // Move the arrow over the bindable object in terms of z-index
     if (isBindingElement(element) && startIsSelected !== endIsSelected) {
@@ -554,7 +548,7 @@ export class LinearElementEditor {
           element,
           startIsSelected
             ? element.points[0]
-            : element.points[element.points.length - 1],
+            : element.points.at(-1),
           elementsMap,
         ),
         element,
@@ -667,11 +661,10 @@ export class LinearElementEditor {
 
     if (isDragging && selectedPointsIndices) {
       for (const selectedPoint of selectedPointsIndices) {
-        if (
+        if ((
           selectedPoint === 0 ||
           selectedPoint === element.points.length - 1
-        ) {
-          if (isPathALoop(element.points, appState.zoom.value)) {
+        ) && isPathALoop(element.points, appState.zoom.value)) {
             if (isLineElement(element)) {
               scene.mutateElement(
                 element,
@@ -693,14 +686,13 @@ export class LinearElementEditor {
                   {
                     point:
                       selectedPoint === 0
-                        ? element.points[element.points.length - 1]
+                        ? element.points.at(-1)
                         : element.points[0],
                   },
                 ],
               ]),
             );
           }
-        }
       }
     }
 
@@ -923,12 +915,12 @@ export class LinearElementEditor {
       "Invalid segment index while calculating mid point",
     );
 
-    if (lines.length) {
+    if (lines.length > 0) {
       const segment = lines[index - 1];
       return pointCenter(segment[0], segment[1]);
     }
 
-    if (curves.length) {
+    if (curves.length > 0) {
       const segment = curves[index - 1];
       return curvePointAtLength(segment, 0.5);
     }
@@ -1150,7 +1142,7 @@ export class LinearElementEditor {
     }
 
     const { points } = element;
-    const lastPoint = points[points.length - 1];
+    const lastPoint = points.at(-1);
 
     if (!event.altKey) {
       if (lastPoint === lastUncommittedPoint) {
@@ -1167,7 +1159,7 @@ export class LinearElementEditor {
     let newPoint: LocalPoint;
 
     if (shouldRotateWithDiscreteAngle(event) && points.length >= 2) {
-      const anchor = points[points.length - 2];
+      const anchor = points.at(-2);
       const [width, height] = LinearElementEditor._getShiftLockedDelta(
         element,
         elementsMap,
@@ -1207,7 +1199,7 @@ export class LinearElementEditor {
     }
     return {
       ...appState.selectedLinearElement,
-      lastUncommittedPoint: element.points[element.points.length - 1],
+      lastUncommittedPoint: element.points.at(-1),
     };
   }
 
@@ -1415,7 +1407,7 @@ export class LinearElementEditor {
     // temp hack to ensure the line doesn't move when adding point to the end,
     // potentially expanding the bounding box
     if (pointAddedToEnd) {
-      const lastPoint = element.points[element.points.length - 1];
+      const lastPoint = element.points.at(-1);
       LinearElementEditor.movePoints(
         element,
         scene,
@@ -1445,7 +1437,7 @@ export class LinearElementEditor {
     const isUncommittedPoint =
       app.state.selectedLinearElement?.isEditing &&
       app.state.selectedLinearElement?.lastUncommittedPoint ===
-        element.points[element.points.length - 1];
+        element.points.at(-1);
 
     const nextPoints = element.points.filter((_, idx) => {
       return !pointIndices.includes(idx);
@@ -1461,8 +1453,8 @@ export class LinearElementEditor {
         pointIndices.includes(element.points.length - 1))
     ) {
       nextPoints[0] = pointFrom(
-        nextPoints[nextPoints.length - 1][0],
-        nextPoints[nextPoints.length - 1][1],
+        nextPoints.at(-1)[0],
+        nextPoints.at(-1)[1],
       );
     }
 
@@ -1490,8 +1482,8 @@ export class LinearElementEditor {
 
     if (isLineElement(element) && element.polygon) {
       nextPoints[0] = pointFrom(
-        nextPoints[nextPoints.length - 1][0],
-        nextPoints[nextPoints.length - 1][1],
+        nextPoints.at(-1)[0],
+        nextPoints.at(-1)[1],
       );
     }
 
@@ -1558,7 +1550,7 @@ export class LinearElementEditor {
       ? [
           pointUpdates.get(0)?.point ?? points[0],
           pointUpdates.get(points.length - 1)?.point ??
-            points[points.length - 1],
+            points.at(-1),
         ]
       : points.map((p, idx) => {
           const current = pointUpdates.get(idx)?.point ?? p;
@@ -1586,7 +1578,7 @@ export class LinearElementEditor {
       offsetY,
       otherUpdates,
       {
-        isDragging: Array.from(pointUpdates.values()).some((t) => t.isDragging),
+        isDragging: [...pointUpdates.values()].some((t) => t.isDragging),
       },
     );
   }
@@ -1716,7 +1708,7 @@ export class LinearElementEditor {
         updates.endBinding = otherUpdates.endBinding;
       }
 
-      updates.points = Array.from(nextPoints);
+      updates.points = [...nextPoints];
 
       scene.mutateElement(element, updates, {
         informMutation: true,
@@ -1997,11 +1989,11 @@ export class LinearElementEditor {
       fixedSegments[index] = {
         index,
         start: pointFrom<LocalPoint>(
-          !isHorizontal ? x - element.x : element.points[index - 1][0],
+          isHorizontal ? element.points[index - 1][0] : x - element.x,
           isHorizontal ? y - element.y : element.points[index - 1][1],
         ),
         end: pointFrom<LocalPoint>(
-          !isHorizontal ? x - element.x : element.points[index][0],
+          isHorizontal ? element.points[index][0] : x - element.x,
           isHorizontal ? y - element.y : element.points[index][1],
         ),
       };
@@ -2065,7 +2057,7 @@ const normalizeSelectedPoints = (
     ...new Set(points.filter((p) => p !== null && p !== -1)),
   ] as number[];
   nextPoints = nextPoints.sort((a, b) => a - b);
-  return nextPoints.length ? nextPoints : null;
+  return nextPoints.length > 0 ? nextPoints : null;
 };
 
 const pointDraggingUpdates = (
@@ -2267,10 +2259,10 @@ const pointDraggingUpdates = (
     : element.points[0];
   const offsetEndLocalPoint = endIsDragged
     ? pointFrom<LocalPoint>(
-        element.points[element.points.length - 1][0] + deltaX,
-        element.points[element.points.length - 1][1] + deltaY,
+        element.points.at(-1)[0] + deltaX,
+        element.points.at(-1)[1] + deltaY,
       )
-    : element.points[element.points.length - 1];
+    : element.points.at(-1);
   const nextArrow = {
     ...element,
     points: [
@@ -2328,7 +2320,7 @@ const pointDraggingUpdates = (
     : null;
 
   const endLocalPoint = startIsDraggingOverEndElement
-    ? nextArrow.points[nextArrow.points.length - 1]
+    ? nextArrow.points.at(-1)
     : endIsDraggingOverStartElement &&
       app.state.bindMode !== "inside" &&
       getFeatureFlag("COMPLEX_BINDINGS")
@@ -2343,8 +2335,8 @@ const pointDraggingUpdates = (
         {
           customIntersector: endCustomIntersector,
         },
-      ) || nextArrow.points[nextArrow.points.length - 1]
-    : nextArrow.points[nextArrow.points.length - 1];
+      ) || nextArrow.points.at(-1)
+    : nextArrow.points.at(-1);
 
   // We need to keep the simulated next arrow up-to-date, because
   // updateBoundPoint looks at the opposite point
@@ -2395,7 +2387,7 @@ const pointDraggingUpdates = (
   if (endBindable && endChanged) {
     indicesSet.add(element.points.length - 1);
   }
-  const indices = Array.from(indicesSet);
+  const indices = [...indicesSet];
 
   return {
     updates,

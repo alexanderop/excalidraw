@@ -13,6 +13,6 @@ export class Locker<T extends string> {
 
   /** @returns whether some (or specific) locks are present */
   isLocked(lockType?: T) {
-    return lockType ? this.locks.has(lockType) : !!this.locks.size;
+    return lockType ? this.locks.has(lockType) : this.locks.size > 0;
   }
 }

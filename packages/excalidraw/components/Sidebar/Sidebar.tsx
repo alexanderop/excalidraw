@@ -179,9 +179,9 @@ export const Sidebar = Object.assign(
         appState.openSidebar !== refPrevOpenSidebar.current
       ) {
         onStateChange?.(
-          appState.openSidebar?.name !== props.name
-            ? null
-            : appState.openSidebar,
+          appState.openSidebar?.name === props.name
+            ? appState.openSidebar
+            : null,
         );
       }
       refPrevOpenSidebar.current = appState.openSidebar;

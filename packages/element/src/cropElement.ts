@@ -138,26 +138,18 @@ export const cropElement = (
     crop: ImageCrop,
   ) => {
     updateCropWidthAndHeight(crop);
-    if (handle.includes("n")) {
-      if (!isFlippedByY) {
+    if (handle.includes("n") && !isFlippedByY) {
         crop.y += previousCropHeight - crop.height;
       }
-    }
-    if (handle.includes("s")) {
-      if (isFlippedByY) {
+    if (handle.includes("s") && isFlippedByY) {
         crop.y += previousCropHeight - crop.height;
       }
-    }
-    if (handle.includes("e")) {
-      if (isFlippedByX) {
+    if (handle.includes("e") && isFlippedByX) {
         crop.x += previousCropWidth - crop.width;
       }
-    }
-    if (handle.includes("w")) {
-      if (!isFlippedByX) {
+    if (handle.includes("w") && !isFlippedByX) {
         crop.x += previousCropWidth - crop.width;
       }
-    }
   };
 
   switch (transformHandle) {
@@ -376,8 +368,9 @@ export const cropElement = (
       adjustFlipForHandle(transformHandle, crop);
       break;
     }
-    default:
+    default: {
       break;
+    }
   }
 
   const newOrigin = recomputeOrigin(

@@ -32,7 +32,7 @@ export const getLinkHandleFromCoords = (
   appState: Pick<UIAppState, "zoom">,
 ): Bounds => {
   const size = DEFAULT_LINK_SIZE;
-  const zoom = appState.zoom.value > 1 ? appState.zoom.value : 1;
+  const zoom = Math.max(appState.zoom.value, 1);
   const linkWidth = size / zoom;
   const linkHeight = size / zoom;
   const linkMarginY = size / zoom;

@@ -106,7 +106,7 @@ export const TTDDialogPanel = ({
       {children}
       <div
         className={clsx("ttd-dialog-panel-button-container", {
-          invisible: !panelActions.length,
+          invisible: panelActions.length === 0,
         })}
         style={{
           justifyContent: panelActionJustifyContent,

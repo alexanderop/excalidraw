@@ -150,7 +150,7 @@ export class LassoTrail extends AnimatedTrail {
         selectedGroupIds: nextSelection.selectedGroupIds,
         selectedLinearElement:
           selectedIds.length === 1 &&
-          !selectedGroupIds.length &&
+          selectedGroupIds.length === 0 &&
           isLinearElement(this.app.scene.getNonDeletedElement(selectedIds[0]))
             ? new LinearElementEditor(
                 this.app.scene.getNonDeletedElement(

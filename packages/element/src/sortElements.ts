@@ -3,7 +3,7 @@ import { arrayToMapWithIndex } from "@excalidraw/common";
 import type { ExcalidrawElement } from "./types";
 
 const normalizeGroupElementOrder = (elements: readonly ExcalidrawElement[]) => {
-  const origElements: ExcalidrawElement[] = elements.slice();
+  const origElements: ExcalidrawElement[] = [...elements];
   const sortedElements = new Set<ExcalidrawElement>();
 
   const orderInnerGroups = (
@@ -19,19 +19,19 @@ const normalizeGroupElementOrder = (elements: readonly ExcalidrawElement[]) => {
         bGroup.push(element);
       }
     }
-    return bGroup.length ? [...aGroup, ...orderInnerGroups(bGroup)] : aGroup;
+    return bGroup.length > 0 ? [...aGroup, ...orderInnerGroups(bGroup)] : aGroup;
   };
 
   const groupHandledElements = new Map<string, true>();
 
-  origElements.forEach((element, idx) => {
+  for (const [idx, element] of origElements.entries()) {
     if (groupHandledElements.has(element.id)) {
-      return;
+      continue;
     }
     if (element.groupIds?.length) {
-      const topGroup = element.groupIds[element.groupIds.length - 1];
+      const topGroup = element.groupIds.at(-1);
       const groupElements = origElements.slice(idx).filter((element) => {
-        const ret = element?.groupIds?.some((id) => id === topGroup);
+        const ret = element?.groupIds?.includes(topGroup);
         if (ret) {
           groupHandledElements.set(element!.id, true);
         }
@@ -44,7 +44,7 @@ const normalizeGroupElementOrder = (elements: readonly ExcalidrawElement[]) => {
     } else {
       sortedElements.add(element);
     }
-  });
+  }
 
   // if there's a bug which resulted in losing some of the elements, return
   // original instead as that's better than losing data
@@ -70,23 +70,23 @@ const normalizeBoundElementsOrder = (
 ) => {
   const elementsMap = arrayToMapWithIndex(elements);
 
-  const origElements: (ExcalidrawElement | null)[] = elements.slice();
+  const origElements: (ExcalidrawElement | null)[] = [...elements];
   const sortedElements = new Set<ExcalidrawElement>();
 
-  origElements.forEach((element, idx) => {
+  for (const [idx, element] of origElements.entries()) {
     if (!element) {
-      return;
+      continue;
     }
     if (element.boundElements?.length) {
       sortedElements.add(element);
       origElements[idx] = null;
-      element.boundElements.forEach((boundElement) => {
+      for (const boundElement of element.boundElements) {
         const child = elementsMap.get(boundElement.id);
         if (child && boundElement.type === "text") {
           sortedElements.add(child[0]);
           origElements[child[1]] = null;
         }
-      });
+      }
     } else if (element.type === "text" && element.containerId) {
       const parent = elementsMap.get(element.containerId);
       if (!parent?.[0].boundElements?.find((x) => x.id === element.id)) {
@@ -100,7 +100,7 @@ const normalizeBoundElementsOrder = (
       sortedElements.add(element);
       origElements[idx] = null;
     }
-  });
+  }
 
   // if there's a bug which resulted in losing some of the elements, return
   // original instead as that's better than losing data

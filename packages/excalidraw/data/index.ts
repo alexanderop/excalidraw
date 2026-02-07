@@ -153,7 +153,7 @@ export const exportCanvas = async (
       const svg = await svgPromise.then((svg) => svg.outerHTML);
       try {
         await copyTextToSystemClipboard(svg);
-      } catch (e) {
+      } catch {
         throw new Error(t("errors.copyToSystemClipboardFailed"));
       }
       return;
@@ -199,15 +199,12 @@ export const exportCanvas = async (
       }
       // TypeError *probably* suggests ClipboardItem not defined, which
       // people on Firefox can enable through a flag, so let's tell them.
-      if (isFirefox && error.name === "TypeError") {
-        throw new Error(
+      const error_ = isFirefox && error.name === "TypeError" ? new Error(
           `${t("alerts.couldNotCopyToClipboard")}\n\n${t(
             "hints.firefox_clipboard_write",
           )}`,
-        );
-      } else {
-        throw new Error(t("alerts.couldNotCopyToClipboard"));
-      }
+        ) : new Error(t("alerts.couldNotCopyToClipboard"));
+      throw error_;
     }
   } else {
     // shouldn't happen

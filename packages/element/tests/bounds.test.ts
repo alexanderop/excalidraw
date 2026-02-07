@@ -48,7 +48,7 @@ describe("getElementAbsoluteCoords", () => {
 
   it("test x2 coordinate", () => {
     const element = _ce({ x: 10, y: 20, w: 10, h: 0 });
-    const [, , x2] = getElementAbsoluteCoords(element, arrayToMap([element]));
+    const x2 = getElementAbsoluteCoords(element, arrayToMap([element]))[2];
     expect(x2).toEqual(20);
   });
 
@@ -60,7 +60,7 @@ describe("getElementAbsoluteCoords", () => {
 
   it("test y2 coordinate", () => {
     const element = _ce({ x: 0, y: 10, w: 0, h: 10 });
-    const [, , , y2] = getElementAbsoluteCoords(element, arrayToMap([element]));
+    const y2 = getElementAbsoluteCoords(element, arrayToMap([element]))[3];
     expect(y2).toEqual(20);
   });
 });
@@ -76,10 +76,10 @@ describe("getElementBounds", () => {
       t: "rectangle",
     });
     const [x1, y1, x2, y2] = getElementBounds(element, arrayToMap([element]));
-    expect(x1).toEqual(39.39339828220179);
-    expect(y1).toEqual(24.393398282201787);
-    expect(x2).toEqual(60.60660171779821);
-    expect(y2).toEqual(45.60660171779821);
+    expect(x1).toEqual(39.393_398_282_201_79);
+    expect(y1).toEqual(24.393_398_282_201_787);
+    expect(x2).toEqual(60.606_601_717_798_21);
+    expect(y2).toEqual(45.606_601_717_798_21);
   });
 
   it("diamond", () => {
@@ -94,10 +94,10 @@ describe("getElementBounds", () => {
 
     const [x1, y1, x2, y2] = getElementBounds(element, arrayToMap([element]));
 
-    expect(x1).toEqual(42.928932188134524);
-    expect(y1).toEqual(27.928932188134524);
-    expect(x2).toEqual(57.071067811865476);
-    expect(y2).toEqual(42.071067811865476);
+    expect(x1).toEqual(42.928_932_188_134_524);
+    expect(y1).toEqual(27.928_932_188_134_524);
+    expect(x2).toEqual(57.071_067_811_865_476);
+    expect(y2).toEqual(42.071_067_811_865_476);
   });
 
   it("ellipse", () => {
@@ -111,33 +111,33 @@ describe("getElementBounds", () => {
     });
 
     const [x1, y1, x2, y2] = getElementBounds(element, arrayToMap([element]));
-    expect(x1).toEqual(42.09430584957905);
-    expect(y1).toEqual(27.09430584957905);
-    expect(x2).toEqual(57.90569415042095);
-    expect(y2).toEqual(42.90569415042095);
+    expect(x1).toEqual(42.094_305_849_579_05);
+    expect(y1).toEqual(27.094_305_849_579_05);
+    expect(x2).toEqual(57.905_694_150_420_95);
+    expect(y2).toEqual(42.905_694_150_420_95);
   });
 
   it("curved line", () => {
     const element = {
       ..._ce({
         t: "line",
-        x: 449.58203125,
+        x: 449.582_031_25,
         y: 186.0625,
-        w: 170.12890625,
-        h: 92.48828125,
-        a: 0.6447741904932416,
+        w: 170.128_906_25,
+        h: 92.488_281_25,
+        a: 0.644_774_190_493_241_6,
       }),
       points: [
         pointFrom<LocalPoint>(0, 0),
-        pointFrom<LocalPoint>(67.33984375, 92.48828125),
-        pointFrom<LocalPoint>(-102.7890625, 52.15625),
+        pointFrom<LocalPoint>(67.339_843_75, 92.488_281_25),
+        pointFrom<LocalPoint>(-102.789_062_5, 52.156_25),
       ],
     } as ExcalidrawLinearElement;
 
     const [x1, y1, x2, y2] = getElementBounds(element, arrayToMap([element]));
-    expect(x1).toEqual(360.9291017525165);
-    expect(y1).toEqual(185.24770129343722);
-    expect(x2).toEqual(481.4815539037601);
-    expect(y2).toEqual(319.8162855827246);
+    expect(x1).toEqual(360.929_101_752_516_5);
+    expect(y1).toEqual(185.247_701_293_437_22);
+    expect(x2).toEqual(481.481_553_903_760_1);
+    expect(y2).toEqual(319.816_285_582_724_6);
   });
 });

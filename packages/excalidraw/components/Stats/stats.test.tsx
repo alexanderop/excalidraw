@@ -33,7 +33,7 @@ import {
 
 import { getStepSizedValue } from "./utils";
 
-const { h } = window;
+const { h } = globalThis;
 const mouse = new Pointer("mouse");
 const renderStaticScene = vi.spyOn(StaticScene, "renderStaticScene");
 let stats: HTMLElement | null = null;
@@ -68,24 +68,24 @@ describe("step sized value", () => {
     const steps = [10, 15, 20, 25, 30];
     const values = [10, 15, 20, 25, 30];
 
-    steps.forEach((step, idx) => {
+    for (const [idx, step] of steps.entries()) {
       expect(getStepSizedValue(values[idx], step)).toEqual(values[idx]);
-    });
+    }
   });
 
   it("step sized value lies in the middle", () => {
     let stepSize = 15;
     let values = [7.5, 9, 12, 14.99, 15, 22.49];
 
-    values.forEach((value) => {
+    for (const value of values) {
       expect(getStepSizedValue(value, stepSize)).toEqual(15);
-    });
+    }
 
     stepSize = 10;
     values = [-5, 4.99, 0, 1.23];
-    values.forEach((value) => {
+    for (const value of values) {
       expect(getStepSizedValue(value, stepSize)).toEqual(0);
-    });
+    }
   });
 });
 
@@ -202,11 +202,11 @@ describe("stats for a generic element", () => {
     expect(elementType?.lastChild?.nodeValue).toBe(t("element.rectangle"));
 
     // properties
-    ["X", "Y", "W", "H", "A"].forEach((label) => () => {
+    for (const label of ["X", "Y", "W", "H", "A"]) () => {
       expect(
         stats!.querySelector?.(`.drag-input-container[data-testid="${label}"]`),
       ).toBeDefined();
-    });
+    };
   });
 
   it("should be able to edit all properties for a general element", () => {
@@ -551,14 +551,14 @@ describe("stats for multiple elements", () => {
     expect(angle.value).toBe("0");
 
     UI.updateInput(width, "250");
-    h.elements.forEach((el) => {
+    for (const el of h.elements) {
       expect(el.width).toBe(250);
-    });
+    }
 
     UI.updateInput(height, "450");
-    h.elements.forEach((el) => {
+    for (const el of h.elements) {
       expect(el.height).toBe(450);
-    });
+    }
   });
 
   it("should display a property when one of the elements is editable for that property", async () => {

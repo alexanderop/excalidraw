@@ -53,7 +53,7 @@ const getIndicesToMove = (
   while (++index < elements.length) {
     const element = elements[index];
     if (selectedElementIds.get(element.id)) {
-      if (deletedIndices.length) {
+      if (deletedIndices.length > 0) {
         selectedIndices = selectedIndices.concat(deletedIndices);
         deletedIndices = [];
       }
@@ -132,14 +132,14 @@ const getContiguousFrameRangeElements = (
 ) => {
   let rangeStart = -1;
   let rangeEnd = -1;
-  allElements.forEach((element, index) => {
+  for (const [index, element] of allElements.entries()) {
     if (isOfTargetFrame(element, frameId)) {
       if (rangeStart === -1) {
         rangeStart = index;
       }
       rangeEnd = index;
     }
-  });
+  }
   if (rangeStart === -1) {
     return [];
   }
@@ -171,16 +171,16 @@ export const moveArrowAboveBindable = (
     ? getContainerElement(hoveredElement, elementsMap)
     : null;
 
-  const bindableIds = [
+  const bindableIds = new Set([
     hoveredElement.id,
     boundTextElement?.id,
     containerElement?.id,
-  ].filter((id): id is NonDeletedExcalidrawElement["id"] => !!id);
-  const bindableIdx = elements.findIndex((el) => bindableIds.includes(el.id));
+  ].filter((id): id is NonDeletedExcalidrawElement["id"] => !!id));
+  const bindableIdx = elements.findIndex((el) => bindableIds.has(el.id));
   const arrowIdx = elements.findIndex((el) => el.id === arrow.id);
 
   if (arrowIdx !== -1 && bindableIdx !== -1 && arrowIdx < bindableIdx) {
-    const updatedElements = Array.from(elements);
+    const updatedElements = [...elements];
     const arrow = updatedElements.splice(arrowIdx, 1)[0];
     updatedElements.splice(bindableIdx, 0, arrow);
 
@@ -267,10 +267,10 @@ const getTargetIndex = (
     );
     return direction === "left"
       ? elements.indexOf(frameElements[0])
-      : elements.indexOf(frameElements[frameElements.length - 1]);
+      : elements.indexOf(frameElements.at(-1));
   }
 
-  if (!nextElement.groupIds.length) {
+  if (nextElement.groupIds.length === 0) {
     return (
       getTargetIndexAccountingForBinding(
         nextElement,
@@ -285,17 +285,17 @@ const getTargetIndex = (
     ? nextElement.groupIds[
         nextElement.groupIds.indexOf(appState.editingGroupId) - 1
       ]
-    : nextElement.groupIds[nextElement.groupIds.length - 1];
+    : nextElement.groupIds.at(-1);
 
   const elementsInSiblingGroup = getElementsInGroup(elements, siblingGroupId);
 
-  if (elementsInSiblingGroup.length) {
+  if (elementsInSiblingGroup.length > 0) {
     // assumes getElementsInGroup() returned elements are sorted
     // by zIndex (ascending)
     return direction === "left"
       ? elements.indexOf(elementsInSiblingGroup[0])
       : elements.indexOf(
-          elementsInSiblingGroup[elementsInSiblingGroup.length - 1],
+          elementsInSiblingGroup.at(-1),
         );
   }
 
@@ -334,9 +334,9 @@ const shiftElementsByOne = (
       .map((idx) => elements[idx].id),
   );
 
-  groupedIndices.forEach((indices, i) => {
+  for (const [i, indices] of groupedIndices.entries()) {
     const leadingIndex = indices[0];
-    const trailingIndex = indices[indices.length - 1];
+    const trailingIndex = indices.at(-1);
     const boundaryIndex = direction === "left" ? leadingIndex : trailingIndex;
 
     const containingFrame = indices.some((idx) => {
@@ -356,7 +356,7 @@ const shiftElementsByOne = (
     );
 
     if (targetIndex === -1 || boundaryIndex === targetIndex) {
-      return;
+      continue;
     }
 
     const leadingElements =
@@ -387,7 +387,7 @@ const shiftElementsByOne = (
             ...targetElements,
             ...trailingElements,
           ];
-  });
+  }
 
   syncMovedIndices(elements, targetElementsMap);
 
@@ -417,7 +417,7 @@ const shiftElementsToEnd = (
         elements,
         appState.editingGroupId,
       );
-      if (!groupElements.length) {
+      if (groupElements.length === 0) {
         return elements;
       }
       leadingIndex = elements.indexOf(groupElements[0]);
@@ -425,7 +425,7 @@ const shiftElementsToEnd = (
       leadingIndex = 0;
     }
 
-    trailingIndex = indicesToMove[indicesToMove.length - 1];
+    trailingIndex = indicesToMove.at(-1);
   } else {
     if (containingFrame) {
       trailingIndex = findLastIndex(elements, (el) =>
@@ -436,10 +436,10 @@ const shiftElementsToEnd = (
         elements,
         appState.editingGroupId,
       );
-      if (!groupElements.length) {
+      if (groupElements.length === 0) {
         return elements;
       }
-      trailingIndex = elements.indexOf(groupElements[groupElements.length - 1]);
+      trailingIndex = elements.indexOf(groupElements.at(-1));
     } else {
       trailingIndex = elements.length - 1;
     }
@@ -457,7 +457,7 @@ const shiftElementsToEnd = (
     }
   }
 
-  const targetElements = Array.from(targetElementsMap.values());
+  const targetElements = [...targetElementsMap.values()];
   const leadingElements = elements.slice(0, leadingIndex);
   const trailingElements = elements.slice(trailingIndex + 1);
   const nextElements =
@@ -519,9 +519,7 @@ function shiftElementsAccountingForFrames(
         (element.frameId && fullySelectedFrames.has(element.frameId))
       ) {
         frameAwareContiguousElementsToMove.regularElements.push(element);
-      } else if (!element.frameId) {
-        frameAwareContiguousElementsToMove.regularElements.push(element);
-      } else {
+      } else if (element.frameId) {
         const frameChildren =
           frameAwareContiguousElementsToMove.frameChildren.get(
             element.frameId,
@@ -531,15 +529,15 @@ function shiftElementsAccountingForFrames(
           element.frameId,
           frameChildren,
         );
+      } else {
+        frameAwareContiguousElementsToMove.regularElements.push(element);
       }
     }
   }
 
   let nextElements = allElements;
 
-  const frameChildrenSets = Array.from(
-    frameAwareContiguousElementsToMove.frameChildren.entries(),
-  );
+  const frameChildrenSets = [...frameAwareContiguousElementsToMove.frameChildren.entries()];
 
   for (const [frameId, children] of frameChildrenSets) {
     nextElements = shiftFunction(

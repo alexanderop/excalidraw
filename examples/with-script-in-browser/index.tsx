@@ -13,15 +13,15 @@ declare global {
   }
 }
 
-const rootElement = document.getElementById("root")!;
+const rootElement = document.querySelector("#root")!;
 const root = createRoot(rootElement);
-const { Excalidraw } = window.ExcalidrawLib;
+const { Excalidraw } = globalThis.ExcalidrawLib;
 root.render(
   <StrictMode>
     <App
       appTitle={"Excalidraw Example"}
       useCustom={(api: any, args?: any[]) => {}}
-      excalidrawLib={window.ExcalidrawLib}
+      excalidrawLib={globalThis.ExcalidrawLib}
     >
       <Excalidraw />
     </App>

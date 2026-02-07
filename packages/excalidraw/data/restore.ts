@@ -336,7 +336,7 @@ export const restoreElement = (
   element = { ...element };
 
   switch (element.type) {
-    case "text":
+    case "text": {
       // temp fix: cleanup legacy obsidian-excalidraw attribute else it'll
       // conflict when porting between the apps
       delete (element as any).rawText;
@@ -347,7 +347,7 @@ export const restoreElement = (
         const [fontPx, _fontFamily]: [string, string] = (
           element as any
         ).font.split(" ");
-        fontSize = parseFloat(fontPx);
+        fontSize = Number.parseFloat(fontPx);
         fontFamily = getFontFamilyByName(_fontFamily);
       }
       const text = (typeof element.text === "string" && element.text) || "";
@@ -386,6 +386,7 @@ export const restoreElement = (
       }
 
       return element;
+    }
     case "freedraw": {
       return restoreElementWithProperties(element, {
         points: element.points,
@@ -393,17 +394,18 @@ export const restoreElement = (
         pressures: element.pressures,
       });
     }
-    case "image":
+    case "image": {
       return restoreElementWithProperties(element, {
         status: element.status || "pending",
         fileId: element.fileId,
         scale: element.scale || [1, 1],
         crop: element.crop ?? null,
       });
+    }
     case "line":
     // @ts-ignore LEGACY type
-    // eslint-disable-next-line no-fallthrough
-    case "draw":
+     
+    case "draw": {
       const { startArrowhead = null, endArrowhead = null } = element;
       let x = element.x;
       let y = element.y;
@@ -435,6 +437,7 @@ export const restoreElement = (
           : {}),
         ...getSizeFromPoints(points),
       });
+    }
     case "arrow": {
       const { startArrowhead = null, endArrowhead = "arrow" } = element;
       const x: number | undefined = element.x;
@@ -496,13 +499,15 @@ export const restoreElement = (
     case "rectangle":
     case "diamond":
     case "iframe":
-    case "embeddable":
+    case "embeddable": {
       return restoreElementWithProperties(element, {});
+    }
     case "magicframe":
-    case "frame":
+    case "frame": {
       return restoreElementWithProperties(element, {
         name: element.name ?? null,
       });
+    }
 
     // Don't use default case so as to catch a missing an element type case.
     // We also don't want to throw, but instead return void so we filter
@@ -524,7 +529,7 @@ const repairContainerElement = (
 ) => {
   if (container.boundElements) {
     // copy because we're not cloning on restore, and we don't want to mutate upstream
-    const boundElements = container.boundElements.slice();
+    const boundElements = [...container.boundElements];
 
     // dedupe bindings & fix boundElement.containerId if not set already
     const boundIds = new Set<ExcalidrawElement["id"]>();
@@ -592,10 +597,9 @@ const repairBoundElement = (
     !container.boundElements.find((binding) => binding.id === boundElement.id)
   ) {
     // copy because we're not cloning on restore, and we don't want to mutate upstream
-    const boundElements = (
+    const boundElements = [...(
       container.boundElements || (container.boundElements = [])
-    ).slice();
-    boundElements.push({ type: "text", id: boundElement.id });
+    ), { type: "text", id: boundElement.id }];
     container.boundElements = boundElements;
   }
 };
@@ -748,7 +752,7 @@ export const restoreElements = <T extends ExcalidrawElement>(
           {
             points: [
               pointFrom<LocalPoint>(0, 0),
-              element.points[element.points.length - 1],
+              element.points.at(-1),
             ],
           },
         ),
@@ -844,7 +848,7 @@ const coalesceAppStateValue = <
 ) => {
   const value = appState[key];
   // NOTE the value! assertion is needed in TS 4.5.5 (fixed in newer versions)
-  return value !== undefined ? value! : defaultAppState[key];
+  return value === undefined ? defaultAppState[key] : value!;
 };
 
 const LegacyAppStateMigrations: {
@@ -899,11 +903,11 @@ export const restoreAppState = (
 
     const localValue = localAppState ? localAppState[key] : undefined;
     (nextAppState as any)[key] =
-      suppliedValue !== undefined
-        ? suppliedValue
-        : localValue !== undefined
-        ? localValue
-        : defaultValue;
+      suppliedValue === undefined
+        ? localValue === undefined
+        ? defaultValue
+        : localValue
+        : suppliedValue;
   }
 
   return {
@@ -952,7 +956,7 @@ const restoreLibraryItem = (libraryItem: LibraryItem) => {
     getNonDeletedElements(libraryItem.elements),
     null,
   );
-  return elements.length ? { ...libraryItem, elements } : null;
+  return elements.length > 0 ? { ...libraryItem, elements } : null;
 };
 
 export const restoreLibraryItems = (

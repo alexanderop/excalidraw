@@ -95,20 +95,27 @@ export const DEFAULT_CATEGORIES = {
 
 const getCategoryOrder = (category: string) => {
   switch (category) {
-    case DEFAULT_CATEGORIES.app:
+    case DEFAULT_CATEGORIES.app: {
       return 1;
-    case DEFAULT_CATEGORIES.export:
+    }
+    case DEFAULT_CATEGORIES.export: {
       return 2;
-    case DEFAULT_CATEGORIES.editor:
+    }
+    case DEFAULT_CATEGORIES.editor: {
       return 3;
-    case DEFAULT_CATEGORIES.tools:
+    }
+    case DEFAULT_CATEGORIES.tools: {
       return 4;
-    case DEFAULT_CATEGORIES.elements:
+    }
+    case DEFAULT_CATEGORIES.elements: {
       return 5;
-    case DEFAULT_CATEGORIES.links:
+    }
+    case DEFAULT_CATEGORIES.links: {
       return 6;
-    default:
+    }
+    default: {
       return 10;
+    }
   }
 };
 
@@ -176,11 +183,11 @@ export const CommandPalette = Object.assign(
           });
         }
       };
-      window.addEventListener(EVENT.KEYDOWN, commandPaletteShortcut, {
+      globalThis.addEventListener(EVENT.KEYDOWN, commandPaletteShortcut, {
         capture: true,
       });
       return () =>
-        window.removeEventListener(EVENT.KEYDOWN, commandPaletteShortcut, {
+        globalThis.removeEventListener(EVENT.KEYDOWN, commandPaletteShortcut, {
           capture: true,
         });
     }, [setAppState]);
@@ -257,17 +264,13 @@ function CommandPaletteInner({
     const getActionLabel = (action: Action) => {
       let label = "";
       if (action.label) {
-        if (typeof action.label === "function") {
-          label = t(
+        label = typeof action.label === "function" ? t(
             action.label(
               app.scene.getNonDeletedElements(),
               uiAppState as AppState,
               app,
             ) as unknown as TranslationKeys,
-          );
-        } else {
-          label = t(action.label as unknown as TranslationKeys);
-        }
+          ) : t(action.label as unknown as TranslationKeys);
       }
       return label;
     };
@@ -726,7 +729,7 @@ function CommandPaletteInner({
         }
 
         if (currentCommand === lastUsed) {
-          const nextItem = matchingCommands[matchingCommands.length - 1];
+          const nextItem = matchingCommands.at(-1);
           if (nextItem) {
             setCurrentCommand(nextItem);
           }
@@ -783,13 +786,11 @@ function CommandPaletteInner({
       return;
     }
 
-    if (event.key === KEYS.ENTER) {
-      if (currentCommand) {
+    if (event.key === KEYS.ENTER && currentCommand) {
         setTimeout(() => {
           executeCommand(currentCommand, event);
         });
       }
-    }
 
     if (ignoreAlphanumerics) {
       return;
@@ -799,7 +800,7 @@ function CommandPaletteInner({
     event.stopPropagation();
 
     // if alphanumeric keypress and we're not inside the input, focus it
-    if (/^[a-zA-Z0-9]$/.test(event.key)) {
+    if (/^[\dA-Za-z]$/.test(event.key)) {
       inputRef?.current?.focus();
       return;
     }
@@ -808,11 +809,11 @@ function CommandPaletteInner({
   });
 
   useEffect(() => {
-    window.addEventListener(EVENT.KEYDOWN, handleKeyDown, {
+    globalThis.addEventListener(EVENT.KEYDOWN, handleKeyDown, {
       capture: true,
     });
     return () =>
-      window.removeEventListener(EVENT.KEYDOWN, handleKeyDown, {
+      globalThis.removeEventListener(EVENT.KEYDOWN, handleKeyDown, {
         capture: true,
       });
   }, [handleKeyDown]);
@@ -865,7 +866,7 @@ function CommandPaletteInner({
     }
 
     const _query = deburr(
-      commandSearch.toLocaleLowerCase().replace(/[<>_| -]/g, ""),
+      commandSearch.toLocaleLowerCase().replaceAll(/[ <>_|-]/g, ""),
     );
     matchingCommands = fuzzy
       .filter(_query, matchingCommands, {

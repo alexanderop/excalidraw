@@ -14,7 +14,7 @@ const LibraryMenuBrowseButton = ({
   id: string;
 }) => {
   const referrer =
-    libraryReturnUrl || window.location.origin + window.location.pathname;
+    libraryReturnUrl || globalThis.location.origin + globalThis.location.pathname;
   return (
     <a
       className="library-menu-browse-button"

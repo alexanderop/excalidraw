@@ -33,7 +33,7 @@ beforeEach(() => {
   reseed(7);
 });
 
-const { h } = window;
+const { h } = globalThis;
 
 describe("remove shape in non linear elements", () => {
   beforeAll(() => {
@@ -135,7 +135,7 @@ describe("multi point mode in linear elements", () => {
       [70, 110],
     ]);
 
-    h.elements.forEach((element) => expect(element).toMatchSnapshot());
+    for (const element of h.elements) expect(element).toMatchSnapshot();
   });
 
   it("line", async () => {
@@ -180,6 +180,6 @@ describe("multi point mode in linear elements", () => {
       [70, 110],
     ]);
 
-    h.elements.forEach((element) => expect(element).toMatchSnapshot());
+    for (const element of h.elements) expect(element).toMatchSnapshot();
   });
 });
